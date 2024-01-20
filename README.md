@@ -33,7 +33,7 @@ Install build-deps (only once is needed):
 
     $ make deps
     
-### Download all pakages:
+### Download all packages:
 
 Choose one type of download:
 
