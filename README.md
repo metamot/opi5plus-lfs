@@ -200,7 +200,11 @@ Allternatively(!) you can do "step-by-step" builds with theese list:
     $ make hst-binutils2
     $ make hst-gcc2
 
-Note: There are incremental builds with dependency. For example "make hst-grep" depends on "make hst-gawk" and its deps on "make hst-findutils" etc. I.e. any try of theese make automatically builds all above. For more theese packages see to "pkg2".
+Note: There are incremental builds with dependency.
+
+For example "make hst-grep" depends on "make hst-gawk" and its deps on "make hst-findutils" etc.
+
+I.e. any try of theese make automatically builds all above. For more theese packages see to "pkg2".
 
 ```
 
