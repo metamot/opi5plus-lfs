@@ -21,7 +21,9 @@ Target is : ***OrangePi5+ with installed eMMC-module***
 
 ***WARNING***: Opi5+ without eMMC is not supported!
 
-Initial host is : OrangePi5/5b/5+ with Debian11 (possibly Ubuntu22.04 is also acceptable). Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
+Initial host is : OrangePi5/5b/5+ with Debian11 (possibly Ubuntu22.04 is also acceptable).
+
+Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
 
 For Debian host, we need to change bash instead of dash (say "no" for dash):
 
