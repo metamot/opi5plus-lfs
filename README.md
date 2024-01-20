@@ -37,11 +37,11 @@ Install build-deps (only once is needed):
 
 Choose one type of download:
 
-* Slowly "step-by-step" download with clean screen results:
+- Slowly "step-by-step" download with clean screen results:
 
     $ make pkg
     
-* Or the "parallel" fast multijob download with huge garbage on screen:
+- Or the "parallel" fast multijob download with huge garbage on screen:
     
     $ make -j pkg
 
