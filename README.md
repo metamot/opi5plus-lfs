@@ -8,9 +8,9 @@ We will use "native" compilation without foreign machines (i.e. x86 etc). So the
 
 ### Initial build structure:
 
-- cfg/       - Important catalog of distro configs!
-- Makefile   - the MAIN BUILD file!
-- README.md  - the Manual!
+- cfg/       - Important catalog of distro configs
+- Makefile   - the MAIN BUILD file
+- README.md  - the Manual
 - .gitignore - it's for repository (not important for you)
 
 That's all. All other files or directories ***are result of build process*** !
