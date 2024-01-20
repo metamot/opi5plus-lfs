@@ -698,7 +698,7 @@ MPC_VER=1.1.0
 MPFR_VER=4.1.0
 NCURSES_VER=6.2
 NINJA_VER=1.10.0
-OPEN_SSL_VER=1.1.1g
+_SSL_VER=1.1.1g
 PATCH_VER=2.7.6
 PERL_VER=5.32.0
 PERL_VER0=5.32
@@ -785,7 +785,7 @@ PKG+=pkg/mpc-$(MPC_VER).tar.gz
 PKG+=pkg/mpfr-$(MPFR_VER).tar.xz
 PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
-PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
+PKG+=pkg/ssl-$(_SSL_VER).tar.gz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
 PKG+=pkg/perl-$(PERL_VER).tar.xz
 PKG+=pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz
@@ -941,7 +941,7 @@ pkg/ncurses-$(NCURSES_VER).tar.gz: pkg/.gitignore
 pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/ninja-build/ninja/archive/v$(NINJA_VER)/ninja-$(NINJA_VER).tar.gz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
-	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
+	wget -P pkg https://www.openssl.org/source/old/1.1.1/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
 pkg/patch-$(PATCH_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/patch/patch-$(PATCH_VER).tar.xz && touch $@
 pkg/perl-$(PERL_VER).tar.xz: pkg/.gitignore
