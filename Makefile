@@ -698,7 +698,7 @@ MPC_VER=1.1.0
 MPFR_VER=4.1.0
 NCURSES_VER=6.2
 NINJA_VER=1.10.0
-_SSL_VER=1.1.1g
+OPEN_SSL_VER=1.1.1g
 PATCH_VER=2.7.6
 PERL_VER=5.32.0
 PERL_VER0=5.32
@@ -785,7 +785,7 @@ PKG+=pkg/mpc-$(MPC_VER).tar.gz
 PKG+=pkg/mpfr-$(MPFR_VER).tar.xz
 PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
-PKG+=pkg/ssl-$(_SSL_VER).tar.gz
+PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
 PKG+=pkg/perl-$(PERL_VER).tar.xz
 PKG+=pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz
@@ -2069,5 +2069,4 @@ tgt: /usr/bin/hexdump
 # /dev/zram1 /var/log ext4 rw,relatime,discard 0 0
 # tracefs /sys/kernel/debug/tracing tracefs rw,nosuid,nodev,noexec,relatime 0 0
 # tmpfs /run/user/1000 tmpfs rw,nosuid,nodev,relatime,size=1609544k,nr_inodes=402386,mode=700,uid=1000,gid=1000 0 0
-
 
