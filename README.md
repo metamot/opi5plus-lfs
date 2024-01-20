@@ -208,18 +208,18 @@ Note: There are incremental builds with dependency. For example "make hst-grep" 
 
 CPIO is ***pipeline*** arc/dearc (unlike to tar), so we need to indicate input&output of pipeline. Here are some examples:
 
-- Example: Create input data:
+Create input data (example):
 
     $ mkdir -p ~/cpio-test/dir0/11
     $ echo "Hello0" > ~/cpio-test/dir0/file0.txt
     $ echo "Hello1" > ~/cpio-test/dir0/file1.txt
     $ echo "Hello11" > ~/cpio-test/dir0/11/file11.txt
 
-- Create two output dirs:
+Create two output dirs:
 
     $ mkdir -p ~/cpio-test/dir1 && mkdir -p ~/cpio-test/dir2
 
-- Pack cpio with zstd-compression example (using "cd" on find and using print0 i.e. null as separator):
+(A): Pack cpio with zstd-compression example (using "cd" on find and using print0 i.e. null as separator):
 
     $ cd ~/cpio-test/dir0/
     $ find . -print0 | cpio -0oH newc | zstd -z9T9 > ~/cpio-test/test.cpio.zst
@@ -227,13 +227,13 @@ CPIO is ***pipeline*** arc/dearc (unlike to tar), so we need to indicate input&o
 
 Here is we change-dir to destination, then "find"-util find files (at current dir and recursive ".") and produces output-list with zero"0" delimiter (instead of text LF delimiters). Cpio consumes file-list and "-0"(minus zero) option say that file-list is zero delimited. Option "-o" say to cpio produce "output". Option "-H" say type of arc is "newc". Then "zstd" consume input and "-z9"(compression level) and "-T9"(how many threads use in multithread compression). Finally output was redirected to final-file using ">" operand. Recommended reads are "man find", "man cpio", "man zstd".
 
-- Another pack cpio with zstd-compression example (without real "cd" with find as normal lines, and you can stay now in original catalog of invocation):
+(B): Another pack cpio with zstd-compression example (without real "cd" with find as normal lines, and you can stay now in original catalog of invocation):
 
     $ { cd ~/cpio-test/dir0 && find . | tail -n +2 | cpio -oH newc; } | zstd -z9T9 > ~/cpio-test/test.cpio.zst
 
 Here is we really don't change dir and filenames from find produces as usual lines, but "tail -n +2" used.
 
-- Unpack zst-compressed cpio examples (without pv) with preserved-timestamps(1st) or with unpack-time(2nd) :
+(*) Unpack zst-compressed cpio examples (without pv) with preserved-timestamps(1st) or with unpack-time(2nd) :
 
     $ cat ~/cpio-test/test.cpio.zst | zstd -d | cpio -idumH newc -D ~/cpio-test/dir1/
     $ cat ~/cpio-test/test.cpio.zst | zstd -d | cpio -iduH newc -D ~/cpio-test/dir2/
