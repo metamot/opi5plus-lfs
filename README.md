@@ -9,11 +9,13 @@ Clone to <mydir> example:
 Here are two examples:
 
 - 1st: Simple clone to home dir:
+  
     $ cd ~
     $ git clone https://github.com/metamot/opi5plus-lfs
     $ cd opi5plus-lfs
 
-- 2nd: The preffered way (agnostic to "/home/nakeduser") is to "/opt" dir: 
+- 2nd: The preffered way (agnostic to "/home/nakeduser") is to "/opt" dir:
+  
     $ sudo chmod 777 /opt
     $ mkdir /opt/mysdk # if mysdk is busy, you can change another name
     $ git clone https://github.com/metamot/opi5plus-lfs /opt/mysdk
