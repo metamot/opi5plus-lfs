@@ -176,7 +176,7 @@ The result is new 'pkg/' directory with initial packages (see collapsible block,
 - vim-8.2.1361.tar.gz
 - XML-Parser-2.46.tar.gz
 - xz-5.2.5.tar.xz
-- zlib-1.3.tar.xz
+- zlib-1.3.1.tar.xz
 - zstd-1.4.5.tar.gz
 </details>
 
