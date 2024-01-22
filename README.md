@@ -32,6 +32,12 @@ For Debian host, we need to choose **bash** instead of dash (say "no" for dash):
 Install build-deps (only once is needed):
 
     $ make deps
+
+Finally, pls check your host:
+
+    $ make chdeps
+
+Please see screen results or "host-check.txt" file. The common problem of check is "no bash" on Debian (see above).
     
 ### Download all packages:
 
