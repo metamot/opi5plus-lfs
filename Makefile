@@ -730,7 +730,8 @@ VIM_VER=8.2.1361
 XML_PARSER_VER=2.46
 XZ_VER=5.2.5
 #ZLIB_VER=1.2.11
-ZLIB_VER=1.3
+#ZLIB_VER=1.3
+ZLIB_VER=1.3.1
 ZSTD_VER=1.4.5
 
 # Incremental rule for download:
