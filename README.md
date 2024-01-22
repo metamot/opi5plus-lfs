@@ -196,6 +196,15 @@ The result is new 'pkg/' directory with initial packages (see collapsible block,
 
 ***WARNING***: You need ***VERY GOOD COOLING*** for RK3588 for builds. The chip is very hot due 100% core utilization for long time.
 
+<details>
+<summary>"btop" is simple monitor to control temperature</summary>
+
+    $ sudo apt install btop
+
+Run btop on other window-console to control chip temperature and core-loads.
+
+</details>
+
 To do this stage (**45 minutes** of build) :
 
     $ time make hst
