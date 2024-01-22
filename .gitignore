@@ -1,4 +1,4 @@
+host-check.*
 pkg*
-lfs
+lfs*
 tmp
-parts
