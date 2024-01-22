@@ -2,7 +2,7 @@
 
 Here is of how to build your own linux-system from sources.
 
-Clone example to "<mydir>":
+Clone example to "SomeDir":
 
     git clone https://github.com/metamot/opi5plus-lfs <mydir>
 
