@@ -9,17 +9,21 @@ Clone to <mydir> example:
 Here are two examples:
 
 - 1st: Simple clone to home dir:
-  
+
+```
     $ cd ~
     $ git clone https://github.com/metamot/opi5plus-lfs
     $ cd opi5plus-lfs
+```
 
 - 2nd: The preffered way (agnostic to "/home/nakeduser") is to "/opt" dir:
-  
+
+```
     $ sudo chmod 777 /opt
     $ mkdir /opt/mysdk # if mysdk is busy, you can change another name
     $ git clone https://github.com/metamot/opi5plus-lfs /opt/mysdk
     $ cd /opt/mysdk
+```
 
 The second way is agnostic to home (i.e. "NakedUser") because cross-compiler will store it sysroot, and then the command "gcc -v" will show dir of sysroot as user-home-dir (NakedUser - for example). The "/opt" dir is more preferred.
 
