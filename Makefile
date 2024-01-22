@@ -93,7 +93,7 @@ deps:
 chdeps: cfg/host-check.sh deps
 	cp -f $< .
 	chmod ugo+x host-check.sh
-	echo "=== Checking Host Deps ==="
+	@echo "=== Checking Host Deps ==="
 	./host-check.sh
 	./host-check.sh > host-check.txt
 	
