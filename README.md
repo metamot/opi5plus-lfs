@@ -17,7 +17,7 @@ That's all. All other files or directories ***are result of build process*** !
 
 ### Initial Requirements:
 
-Target is : ***OrangePi5+ with installed eMMC-module***
+Target is : **OrangePi5+ with installed eMMC-module**
 
 ***WARNING***: Opi5+ without eMMC is not supported!
 
@@ -25,7 +25,7 @@ Initial host is : OrangePi5/5b/5+ with Debian11 (possibly Ubuntu22.04 is also ac
 
 Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
 
-For Debian host, we need to change bash instead of dash (say "no" for dash):
+For Debian host, we need to choose **bash** instead of dash (say "no" for dash):
 
     $ sudo dpkg-reconfigure dash
 
@@ -41,7 +41,7 @@ Choose one type of download:
 
     $ make pkg
     
-(B) Or the "parallel" fast multijob download with huge garbage on screen:
+Or (B) the "parallel" fast multijob download with huge garbage on screen:
     
     $ make -j pkg
 
@@ -161,7 +161,7 @@ The result is new 'pkg/' directory with initial packages:
 
 ***WARNING***: You need ***VERY GOOD COOLING*** for RK3588 for builds. The chip is very hot due 100% core utilization for long time.
 
-To do this stage (***45 minutes*** of build) :
+To do this stage (**45 minutes** of build) :
 
     $ make hst
 
@@ -170,10 +170,10 @@ Repeat-command result:
     $ make hst
     make: Nothing to be done for 'hst'.
 
+<details>
+<summary>Allternatively(!) you can do "step-by-step" builds with theese list:</summary>
+
 ```
-
-Allternatively(!) you can do "step-by-step" builds with theese list:
-
     $ make hst-headers    # produce 'pkg2/lfs-kernel-headers.cpio.zst', install to 'lfs/usr/include'
     $ make hst-binutils1  # 'pkg2/lfs-hst-binutils-2.35.pass1.cpio.zst', install to 'lfs/tools'
     $ make hst-gcc1       # 'pkg2/lfs-hst-gcc-10.2.0.pass1.cpio.zst', install to 'lfs/tools'
@@ -207,6 +207,7 @@ For example "make hst-grep" depends on "make hst-gawk" and its deps on "make hst
 I.e. any try of theese make automatically builds all above. For more theese packages see to "pkg2".
 
 ```
+</details>
 
 ### How to pack/unpack cpio.zst:
 
