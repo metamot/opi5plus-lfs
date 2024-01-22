@@ -52,7 +52,7 @@ Or (B) the "parallel" fast multijob download with huge garbage on screen:
 
 **PLEASE, CHECK IT twice (!)**
 
-The result is new 'pkg/' directory with initial packages (see collapsible block, i.e. "spoiler")
+The result is new 'pkg/' directory with initial packages (see collapsible block, i.e. "spoiler", pls click on black right-oriented triangle):
 
 <details>
 <summary>List of initially download packages is here</summary>
