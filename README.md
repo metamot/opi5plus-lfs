@@ -50,9 +50,12 @@ Or (B) the "parallel" fast multijob download with huge garbage on screen:
     $ make pkg
     make: Nothing to be done for 'pkg'.
 
-***PLEASE, CHECK IT (!)***
+**PLEASE, CHECK IT twice (!)**
 
-The result is new 'pkg/' directory with initial packages:
+The result is new 'pkg/' directory with initial packages (see collapsible block, i.e. "spoiler")
+
+<details>
+<summary>List of initially download packages is here</summary>
 
 - acl-2.2.53.tar.gz
 - attr-2.4.48.tar.gz
@@ -144,8 +147,9 @@ The result is new 'pkg/' directory with initial packages:
 - xz-5.2.5.tar.xz
 - zlib-1.3.tar.xz
 - zstd-1.4.5.tar.gz
+</details>
 
-***So, we can do all jobs offline now.***
+**So, we can do all jobs offline now.**
 
 ***NOTE***: Here is 'tmp/' dir for temporary unpacks & works. Normally this 'tmp/' dir can be exists but it must be empty outside bld process! If it has something inside, then something goes wrong via builds. You can erase this dir outside bld-process at stall stages.
 
