@@ -89,6 +89,14 @@ deepclean: easyclean clean_pkg
 # #############################################################################
 deps:
 	sudo apt install -y zstd u-boot-tools dosfstools libudev-dev libusb-1.0-0-dev dh-autoreconf texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext swig python-dev-is-python3 python3 python3-pyelftools
+
+chdeps: cfg/host-check.sh deps
+	cp -f $< .
+	chmod ugo+x host-check.sh
+	echo "=== Checking Host Deps ==="
+	./host-check.sh
+	./host-check.sh > host-check.txt
+	
 # #############################################################################
 
 
@@ -941,7 +949,7 @@ pkg/ncurses-$(NCURSES_VER).tar.gz: pkg/.gitignore
 pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/ninja-build/ninja/archive/v$(NINJA_VER)/ninja-$(NINJA_VER).tar.gz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
-	wget -P pkg https://www.openssl.org/source/old/1.1.1/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
+	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
 pkg/patch-$(PATCH_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/patch/patch-$(PATCH_VER).tar.xz && touch $@
 pkg/perl-$(PERL_VER).tar.xz: pkg/.gitignore
@@ -1709,87 +1717,7 @@ lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh:
 	pv $< | zstd -d | cpio -iduH newc -D lfs
 hst-gcc2: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
 
-# === TOTAL: STAGE0 = HOST BUILD
-# BUILD_TIME :: about 45 minutes
-hst: hst-gcc2
-
-
-
-
-
-
-
-
-
-
-
-
-#
-#
-#
-lfs/opt/mysdk/chroot.sh: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
-	echo '#!/bin/bash' > $@
-	echo 'HELLO LFS CHROOT' >> $@
-	echo 'cd /opt/mysdk && make tgt-chroot' >> $@
-
-# === LFS-10.0-systemd :: FULL STAGE0 
-#
-#
-lfs/opt/mysdk/Makefile: Makefile lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
-	mkdir -p lfs/opt/mysdk/pkg
-	cp -far cfg lfs/opt/mysdk
-	cp -far .git lfs/opt/mysdk
-	cp -far .gitignore lfs/opt/mysdk
-	cp -far README.md lfs/opt/mysdk
-	cp -far pkg/* lfs/opt/mysdk/pkg/
-	cd lfs/opt/mysdk/pkg/ && rm -fr lfs-hst-*
-	cp -far $< lfs/opt/mysdk
-pkg/lfs-hst-full-stage0.cpio.zst: lfs/opt/mysdk/Makefile
-	cd lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../pkg/lfs-hst-full-stage0.cpio.zst
-hst-lfs: pkg/lfs-hst-full-stage0.cpio.zst
-
-
-
-
-
-#ZLIB_OPT1+= --prefix=/usr
-#ZLIB_OPT1+= --host=$(LFS_TGT)
-#ZLIB_OPT1+= $(OPT_FLAGS)
-
-
-# === ZLIB cross
-#parts/cross-zlib/zlib-$(ZLIB_VER)/README: pkg/zlib-$(ZLIB_VER).tar.xz $(LFS)/usr/bin/xz
-#	mkdir -p parts/cross-zlib
-#	tar -xJf $< -C parts/cross-zlib && touch $@
-#	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" parts/cross-zlib/zlib-$(ZLIB_VER)/configure
-#parts/cross-zlib/bld/Makefile: parts/cross-zlib/zlib-$(ZLIB_VER)/README
-#	mkdir -p parts/cross-zlib/bld
-#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && ../zlib-$(ZLIB_VER)/configure $(ZLIB_OPT1)'
-#$(LFS)/usr/lib/libz.so: parts/cross-zlib/bld/Makefile
-#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && make $(JOBS) V=$(VERB) && make DESTDIR=$(LFS) install'
-#cross-zlib: $(LFS)/usr/lib/libz.so
-
-
-# === my extra :: gcc ISL build support
-# USES: GMP -- fall to future
-# BUILD_TIME ::
-#ISL1_OPT+= --prefix=/usr
-#ISL1_OPT+= --host=$(LFS_TGT)
-#ISL1_OPT+= --with-gcc-arch=aarch64
-#ISL1_OPT+= --with-gmp=build
-#ISL1_OPT+= --with-sysroot=$(LFS)
-#ISL1_OPT+= $(OPT_FLAGS)
-#pkg/lfs-hst-isl-$(ISL_VER).cpio.zst: pkg/isl-$(ISL_VER).tar.xz lfs/usr/bin/pv
-#	mkdir -p tmp/lfs-hst-isl/bld
-#	tar -xJf $< -C tmp/lfs-hst-isl
-#	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-isl/isl-$(ISL_VER)
-#	mv tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp-$(GMP_VER) tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp
-#	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-isl/bld && ../isl-$(ISL_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(ISL1_OPT) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
-#hst-isl: pkg/lfs-hst-isl-$(ISL_VER).cpio.zst
-
-
-
-$(LFS)/etc/passwd: $(LFS)/usr/bin/$(LFS_TGT)-gcc
+lfs/etc/passwd: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
 	echo 'root::0:0:root:/root:/bin/bash' > $@
 	echo 'bin:x:1:1:bin:/dev/null:/bin/false' >> $@
 	echo 'daemon:x:6:6:Daemon User:/dev/null:/bin/false' >> $@
@@ -1804,7 +1732,8 @@ $(LFS)/etc/passwd: $(LFS)/usr/bin/$(LFS_TGT)-gcc
 	echo 'systemd-coredump:x:79:79:systemd Core Dumper:/:/bin/false' >> $@
 	echo 'nobody:x:99:99:Unprivileged User:/dev/null:/bin/false' >> $@
 	touch $@
-$(LFS)/etc/group: $(LFS)/etc/passwd
+	
+lfs/etc/group: lfs/etc/passwd
 	echo 'root:x:0:' > $@
 	echo 'bin:x:1:daemon' >> $@
 	echo 'sys:x:2:' >> $@
@@ -1840,30 +1769,58 @@ $(LFS)/etc/group: $(LFS)/etc/passwd
 	echo 'users:x:999:' >> $@
 	touch $@
 
-parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README: pkg/gcc-$(GCC_VER).tar.xz $(LFS)/etc/group
-	mkdir -p parts/tgt-gcc-libcpp
-	tar -xJf $< -C parts/tgt-gcc-libcpp && touch $@
-	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -sfv gthr-posix.h libgcc/gthr-default.h
-parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/gmp/README: pkg/gmp-$(GMP_VER).tar.xz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
-	tar -xJf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER)
-	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp && touch gmp/README
-parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpfr/README: pkg/mpfr-$(MPFR_VER).tar.xz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
-	tar -xJf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER) 			
-	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr && touch mpfr/README
-parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpc/README: pkg/mpc-$(MPC_VER).tar.gz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
-	tar -xzf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER)
-	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc && touch mpc/README
+pkg2/lfs-hst-full.cpio.zst: lfs/etc/passwd
+	mkdir -p tmp
+	cp -far lfs tmp/
+	rm -fr tmp/lfs/tools
+	mkdir -p tmp/lfs/dev/pts
+	mkdir tmp/lfs/proc
+	mkdir tmp/lfs/sys
+	mkdir tmp/lfs/run
+	mkdir tmp/lfs/boot
+	mkdir tmp/lfs/home
+	mkdir tmp/lfs/media
+	mkdir tmp/lfs/mnt
+	mkdir tmp/lfs/srv
+	mkdir -p tmp/lfs/var/cache
+	mkdir -p tmp/lfs/var/local
+	mkdir -p tmp/lfs/var/log
+	mkdir -p tmp/lfs/var/mail
+	mkdir -p tmp/lfs/var/opt
+	mkdir -p tmp/lfs/var/spool
+	mkdir -p tmp/lfs/var/lib/misc
+#	cd tmp/lfs && sudo install -dv -m 0750 root
+	cd tmp/lfs && sudo install -dv -m 1777 tmp var/tmp
+#	sudo mknod -m 600 tmp/lfs/dev/console c 5 1
+#	sudo mknod -m 666 tmp/lfs/dev/null c 1 3
+	sudo chown -R root:root tmp/lfs/*
+	mkdir -p tmp/lfs/opt/mysdk
+	cp -far cfg tmp/lfs/opt/mysdk
+	cp -far .git tmp/lfs/opt/mysdk
+	cp -far .gitignore tmp/lfs/opt/mysdk
+	cp -far README.md tmp/lfs/opt/mysdk
+	cp -far pkg tmp/lfs/opt/mysdk
+	cp -far Makefile tmp/lfs/opt/mysdk
+	mkdir -p tmp/lfs/opt/mysdk/pkg3
+	mkdir -p tmp/lfs/opt/mysdk/tmp
+	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg2/lfs-hst-full.cpio.zst
+	sudo rm -fr tmp/lfs
 
-$(LFS)/usr/opt/mysdk/Makefile: Makefile pkg parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/gmp/README parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpfr/README parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpc/README
-	mkdir -pv $(LFS)/usr/opt/mysdk
-	cp -far $< $@ && touch $@
-	cp -far .git $(LFS)/usr/opt/mysdk/
-	cp -far .gitignore $(LFS)/usr/opt/mysdk/
-	cp -far README.md $(LFS)/usr/opt/mysdk/
-	cp -far cfg $(LFS)/usr/opt/mysdk/
-	cp -far pkg $(LFS)/usr/opt/mysdk/
-	mkdir -p $(LFS)/usr/opt/mysdk/parts
-	cp -far parts/tgt-gcc-libcpp $(LFS)/usr/opt/mysdk/parts/
+# === TOTAL: STAGE0 = HOST BUILD
+# BUILD_TIME :: about 45 minutes
+#
+hst: pkg2/lfs-hst-full.cpio.zst
+
+
+lfs2/opt/mysdk/Makefile: pkg2/lfs-hst-full.cpio.zst
+	mkdir -p lfs2
+	pv $< | zstd -d | cpio -iduH newc -D lfs2
+
+lfs2/opt/mysdk/chroot.sh: lfs2/opt/mysdk/Makefile
+	mkdir -p lfs2/opt/mysdk
+	echo '#!/bin/bash' > $@
+	echo 'cd /opt/mysdk && make tgt-libcpp' >> $@
+	chmod ugo+x $@
 
 # chroot "$LFS" /usr/bin/env -i   \
 #    HOME=/root                  \
@@ -1872,46 +1829,28 @@ $(LFS)/usr/opt/mysdk/Makefile: Makefile pkg parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/
 #    PATH=/bin:/usr/bin:/sbin:/usr/sbin \
 #    /bin/bash --login +h
 
-
-
-
-
-chroot: pkg/lfs-hst-full-stage0.cpio.zst
-	mkdir -p lfs/dev/pts
-	mkdir -p lfs/proc
-	mkdir -p lfs/run
-	mkdir -p lfs/sys
-#	sudo mknod -m 600 $(LFS)/dev/console c 5 1
-#	sudo mknod -m 666 $(LFS)/dev/null c 1 3
-#	sudo echo '!#/usr/bin/bash' > $(LFS)/root/ch.sh
-#	sudo echo 'make -C /opt/mysdk tgt-start' >> $(LFS)/root/ch.sh
-#	sudo chmod ugo+x $(LFS)/root/ch.sh
-	sudo mount -v --bind /dev $(LFS)/dev
-	sudo mount -v --bind /dev/pts $(LFS)/dev/pts
-	sudo mount -vt proc proc $(LFS)/proc
-	sudo mount -vt sysfs sysfs $(LFS)/sys
-	sudo mount -vt tmpfs tmpfs $(LFS)/run
-#	sudo chown -R root:root $(LFS)/usr
-#	sudo chown -R root:root $(LFS)/lib
-#	sudo chown -R root:root $(LFS)/var
-#	sudo chown -R root:root $(LFS)/etc
-#	sudo chown -R root:root $(LFS)/bin
-#	sudo chown -R root:root $(LFS)/sbin
-#	sudo chown -R root:root $(LFS)/tools
-	sudo chroot $(LFS) /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /opt/mysdk/chroot.sh --login +h
-#	sudo chroot $(LFS) /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/sh --login +h
-	sudo umount $(LFS)/run
-	sudo umount $(LFS)/sys
-	sudo umount $(LFS)/proc
-	sudo umount $(LFS)/dev/pts
-	sudo umount $(LFS)/dev
+chroot: lfs2/opt/mysdk/chroot.sh
+	sudo mount -v --bind /dev lfs2/dev
+	sudo mount -v --bind /dev/pts lfs2/dev/pts
+	sudo mount -vt proc proc lfs2/proc
+	sudo mount -vt sysfs sysfs lfs2/sys
+	sudo mount -vt tmpfs tmpfs lfs2/run
+#	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /opt/mysdk/chroot.sh --login +h
+	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/sh --login +h
+	sudo umount lfs2/run
+	sudo umount lfs2/sys
+	sudo umount lfs2/proc
+	sudo umount lfs2/dev/pts
+	sudo umount lfs2/dev
 
 unchroot:
-	sudo umount $(LFS)/run
-	sudo umount $(LFS)/sys
-	sudo umount $(LFS)/proc
-	sudo umount $(LFS)/dev/pts
-	sudo umount $(LFS)/dev
+	sudo umount lfs2/run || true
+	sudo umount lfs2/sys || true
+	sudo umount lfs2/proc || true
+	sudo umount lfs2/dev/pts || true
+	sudo umount lfs2/dev || true
+#	sudo rm -fr lfs2/opt/mysdk/tmp
+
 
 
 # === CHROOT HERE
@@ -1919,15 +1858,40 @@ unchroot:
 
 
 
-tgt-clean:
+
+
+
+
+#parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README: pkg/gcc-$(GCC_VER).tar.xz $(LFS)/etc/group
+#	mkdir -p parts/tgt-gcc-libcpp
+#	tar -xJf $< -C parts/tgt-gcc-libcpp && touch $@
+#	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -sfv gthr-posix.h libgcc/gthr-default.h
+#parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/gmp/README: pkg/gmp-$(GMP_VER).tar.xz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
+#	tar -xJf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER)
+#	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp && touch gmp/README
+#parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpfr/README: pkg/mpfr-$(MPFR_VER).tar.xz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
+#	tar -xJf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER) 			
+#	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr && touch mpfr/README
+#parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpc/README: pkg/mpc-$(MPC_VER).tar.gz parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/README
+#	tar -xzf $< -C parts/tgt-gcc-libcpp/gcc-$(GCC_VER)
+#	cd parts/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc && touch mpc/README
+
+#$(LFS)/usr/opt/mysdk/Makefile: Makefile pkg parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/gmp/README parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpfr/README parts/tgt-gcc-libcpp/gcc-$(GCC_VER)/mpc/README
+#	mkdir -pv $(LFS)/usr/opt/mysdk
+#	cp -far $< $@ && touch $@
+#	cp -far .git $(LFS)/usr/opt/mysdk/
+#	cp -far .gitignore $(LFS)/usr/opt/mysdk/
+#	cp -far README.md $(LFS)/usr/opt/mysdk/
+#	cp -far cfg $(LFS)/usr/opt/mysdk/
+#	cp -far pkg $(LFS)/usr/opt/mysdk/
+#	mkdir -p $(LFS)/usr/opt/mysdk/parts
+#	cp -far parts/tgt-gcc-libcpp $(LFS)/usr/opt/mysdk/parts/
+
+
+tgt-clean-tmp:
 	rm -fr tmp
 
-tgt-start:
-	ln -sfv /run /var/run
-	ln -sfv /run/lock /var/lock
-#	install -dv -m 0750 /root
-	install -dv -m 1777 /tmp /var/tmp
-	
+
 # LFS-10.0-systemd :: CHROOT :: 7.7. Libstdc++ from GCC-10.2.0, Pass 2 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gcc-libstdc++-pass2.html
 # BUILD_TIME :: 1m 35s
@@ -1937,9 +1901,12 @@ LIBCPP2_OPT+= --disable-nls
 LIBCPP2_OPT+= --disable-libstdcxx-pch
 LIBCPP2_OPT+= CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS) -D_GNU_SOURCE"
 #LIBCPP2_OPT+= --build=$(LFS_HST)
-#LIBCPP2_OPT+= --host=$(LFS_HST)
+LIBCPP2_OPT+= --host=$(LFS_TGT)
 #LIBCPP2_OPT+= --target=$(LFS_HST)
-tgt-libcpp:
+pkg3/lfs-tgt-libcpp.pass2.cpio.zst:
+	install -dv -m 0750 /root
+	ln -sfv /run /var/run
+	ln -sfv /run/lock /var/lock
 	mkdir -p tmp/tgt-gcc-libcpp/bld
 	mkdir -p tmp/tgt-gcc-libcpp/ins
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/tgt-gcc-libcpp
@@ -1953,9 +1920,22 @@ tgt-libcpp:
 	rm -fr tmp/tgt-gcc-libcpp/ins/usr/lib/*.la
 	strip --strip-debug tmp/tgt-gcc-libcpp/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/tgt-gcc-libcpp/ins/usr/lib/libstdc++.so.6.0.28
+	mkdir -p pkg3
+	cd tmp/tgt-gcc-libcpp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg3/lfs-tgt-libcpp.pass2.cpio.zst
+	rm -fr tmp/tgt-gcc-libcpp
+	pv pkg3/lfs-tgt-libcpp.pass2.cpio.zst | zstd -d | cpio -iduH newc -D /
+tgt-libcpp: pkg3/lfs-tgt-libcpp.pass2.cpio.zst
  
-/usr/lib/libstdc++.so: parts/tgt-gcc-libcpp/bld/Makefile
-	cd parts/tgt-gcc-libcpp/bld && make install
+pkg3/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst: pkg3/lfs-tgt-libcpp.pass2.cpio.zst
+	mkdir -p tmp/tgt-gettext
+	tar -xJf pkg/gettext-$(GETTEXT_VER).tar.xz -C tmp/tgt-gettext
+	mkdir -p tmp/tgt-gettext/bld
+	cd tmp/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(OPT_FLAGS) --disable-shared && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ 
+#TGT+=pkg3/lfs-tgt-libcpp.pass2.cpio.zst
+TGT+=pkg3/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
+
+tgt: $(TGT)
 
 parts/tgt-gettext/gettext-$(GETTEXT_VER)/README: pkg/gettext-$(GETTEXT_VER).tar.xz /usr/lib/libstdc++.so
 	mkdir -p parts/tgt-gettext
@@ -1963,11 +1943,18 @@ parts/tgt-gettext/gettext-$(GETTEXT_VER)/README: pkg/gettext-$(GETTEXT_VER).tar.
 parts/tgt-gettext/bld/Makefile: parts/tgt-gettext/gettext-$(GETTEXT_VER)/README
 	mkdir -p parts/tgt-gettext/bld
 	cd parts/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(OPT_FLAGS) --disable-shared && make $(JOBS) V=$(VERB)
+	
 /usr/bin/msgfmt: parts/tgt-gettext/bld/Makefile
 	cp -far parts/tgt-gettext/bld/gettext-tools/src/msgfmt /usr/bin/
 	touch $@
 	cp -far parts/tgt-gettext/bld/gettext-tools/src/msgmerge /usr/bin/
 	cp -far parts/tgt-gettext/bld/gettext-tools/src/xgettext /usr/bin/
+
+
+
+
+
+
 parts/tgt-bison/bison-$(BISON_VER)/README: pkg/bison-$(BISON_VER).tar.xz /usr/bin/msgfmt
 	mkdir -p parts/tgt-bison
 	tar -xJf $< -C parts/tgt-bison && touch $@
@@ -1978,6 +1965,7 @@ parts/tgt-bison/bld/src/bison: parts/tgt-bison/bld/Makefile
 	cd parts/tgt-bison/bld && make $(JOBS) V=$(VERB)
 /usr/bin/bison: parts/tgt-bison/bld/src/bison
 	cd parts/tgt-bison/bld && make install
+
 parts/tgt-perl/perl-$(PERL_VER)/README: pkg/perl-$(PERL_VER).tar.xz /usr/bin/bison
 	mkdir -p parts/tgt-perl
 	tar -xJf $< -C parts/tgt-perl && touch $@
@@ -1985,6 +1973,9 @@ parts/tgt-perl/perl-$(PERL_VER)/perl: parts/tgt-perl/perl-$(PERL_VER)/README
 	cd parts/tgt-perl/perl-$(PERL_VER) && sh Configure -des -Dcc=gcc -Dprefix=/usr -Dvendorprefix=/usr -Dprivlib=/usr/lib/perl5/$(PERL_VER0)/core_perl -Darchlib=/usr/lib/perl5/$(PERL_VER0)/core_perl -Dsitelib=/usr/lib/perl5/$(PERL_VER0)/site_perl -Dsitearch=/usr/lib/perl5/$(PERL_VER0)/site_perl -Dvendorlib=/usr/lib/perl5/$(PERL_VER0)/vendor_perl -Dvendorarch=/usr/lib/perl5/$(PERL_VER0)/vendor_perl -Doptimize="$(BASE_OPT_FLAGS)" && make $(JOBS) V=$(VERB)
 /usr/bin/perl: parts/tgt-perl/perl-$(PERL_VER)/perl
 	cd parts/tgt-perl/perl-$(PERL_VER) && make install
+
+
+
 
 parts/tgt-python/Python-$(PYTHON_VER)/README: pkg/Python-$(PYTHON_VER).tar.xz /usr/bin/perl
 	mkdir -p parts/tgt-python
@@ -2025,7 +2016,46 @@ parts/tgt-util-linux/bld/Makefile: parts/tgt-util-linux/util-linux-$(UTIL_LINUX_
 #	strip --strip-unneeded /usr/sbin/* || true
 #	strip --strip-unneeded /tools/bin/* || true
 
-tgt: /usr/bin/hexdump
+#tgt: /usr/bin/hexdump
+
+
+#ZLIB_OPT1+= --prefix=/usr
+#ZLIB_OPT1+= --host=$(LFS_TGT)
+#ZLIB_OPT1+= $(OPT_FLAGS)
+
+
+# === ZLIB cross
+#parts/cross-zlib/zlib-$(ZLIB_VER)/README: pkg/zlib-$(ZLIB_VER).tar.xz $(LFS)/usr/bin/xz
+#	mkdir -p parts/cross-zlib
+#	tar -xJf $< -C parts/cross-zlib && touch $@
+#	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" parts/cross-zlib/zlib-$(ZLIB_VER)/configure
+#parts/cross-zlib/bld/Makefile: parts/cross-zlib/zlib-$(ZLIB_VER)/README
+#	mkdir -p parts/cross-zlib/bld
+#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && ../zlib-$(ZLIB_VER)/configure $(ZLIB_OPT1)'
+#$(LFS)/usr/lib/libz.so: parts/cross-zlib/bld/Makefile
+#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && make $(JOBS) V=$(VERB) && make DESTDIR=$(LFS) install'
+#cross-zlib: $(LFS)/usr/lib/libz.so
+
+
+# === my extra :: gcc ISL build support
+# USES: GMP -- fall to future
+# BUILD_TIME ::
+#ISL1_OPT+= --prefix=/usr
+#ISL1_OPT+= --host=$(LFS_TGT)
+#ISL1_OPT+= --with-gcc-arch=aarch64
+#ISL1_OPT+= --with-gmp=build
+#ISL1_OPT+= --with-sysroot=$(LFS)
+#ISL1_OPT+= $(OPT_FLAGS)
+#pkg/lfs-hst-isl-$(ISL_VER).cpio.zst: pkg/isl-$(ISL_VER).tar.xz lfs/usr/bin/pv
+#	mkdir -p tmp/lfs-hst-isl/bld
+#	tar -xJf $< -C tmp/lfs-hst-isl
+#	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-isl/isl-$(ISL_VER)
+#	mv tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp-$(GMP_VER) tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp
+#	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-isl/bld && ../isl-$(ISL_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(ISL1_OPT) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+#hst-isl: pkg/lfs-hst-isl-$(ISL_VER).cpio.zst
+
+
+
 
 # ln -sv /proc/self/mounts /etc/mtab
 
