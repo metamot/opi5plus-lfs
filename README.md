@@ -2,6 +2,25 @@
 
 Here is of how to build your own linux-system from sources.
 
+Clone to <mydir> example:
+
+git clone https://github.com/metamot/opi5plus-lfs <mydir>
+
+Here are two examples:
+
+- 1st: Simple clone to home dir:
+    $ cd ~
+    $ git clone https://github.com/metamot/opi5plus-lfs
+    $ cd opi5plus-lfs
+
+- 2nd: The preffered way (agnostic to "/home/nakeduser") is to "/opt" dir: 
+    $ sudo chmod 777 /opt
+    $ mkdir /opt/mysdk # if mysdk is busy, you can change another name
+    $ git clone https://github.com/metamot/opi5plus-lfs /opt/mysdk
+    $ cd /opt/mysdk
+
+The second way is agnostic to home (i.e. "NakedUser") because cross-compiler will store it sysroot, and then the command "gcc -v" will show dir of sysroot as user-home-dir (NakedUser - for example). The "/opt" dir is more preferred.
+
 ## STAGE0: Build initial system from "other host"
 
 We will use "native" compilation without foreign machines (i.e. x86 etc). So the RK3588-machine will build for the RK3588-machine.
