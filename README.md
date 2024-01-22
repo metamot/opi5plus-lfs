@@ -86,7 +86,7 @@ Or (B) the "parallel" fast multijob download with huge garbage on screen:
 The result is new 'pkg/' directory with initial packages (see collapsible block, i.e. "spoiler", pls click on black right-oriented triangle):
 
 <details>
-<summary>List of initially download packages is here</summary>
+<summary>List of initially download packages is here...(spoiler)</summary>
 
 - acl-2.2.53.tar.gz
 - attr-2.4.48.tar.gz
