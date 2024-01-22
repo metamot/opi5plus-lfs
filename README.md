@@ -198,7 +198,7 @@ The result is new 'pkg/' directory with initial packages (see collapsible block,
 
 To do this stage (**45 minutes** of build) :
 
-    $ make hst
+    $ time make hst
 
 Repeat-command result:
 
