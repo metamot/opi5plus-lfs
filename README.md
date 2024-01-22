@@ -215,6 +215,9 @@ I.e. any try of theese make automatically builds all above. For more theese pack
 
 ### How to pack/unpack cpio.zst:
 
+<details>
+<summary>Here is some useful info of how to use cpio with zstd</summary>
+    
 CPIO is ***pipeline*** arc/dearc (unlike to tar), so we need to indicate input&output of pipeline. Here are some examples:
 
 Create input data (example):
@@ -258,6 +261,8 @@ NOTE2: "cpio -iduH newc" produces files with date-timestamps ***at extraction ti
 Other cpio options are: "-i"(input) = de-archivate input. Most important option "-d" (create directories if recursive)! Here is "-u" = overwrite output files (very useful if operation was be uncompleted or cancelled during process). Finally "-H newc" = format.
 
 If unpack you can use "pv"(pipe-viewer) instead of "cat" this will show status of progress!
+
+</details>
 
 ### Final STAGE0 dirs sctructure:
 
