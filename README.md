@@ -27,7 +27,7 @@ Here are two examples:
 
 The second way is agnostic to home (i.e. "NakedUser") because cross-compiler will store it sysroot, and then the command "gcc -v" will show dir of sysroot as user-home-dir (NakedUser - for example). The "/opt" dir is more preferred.
 
-## STAGE0: Build initial system from "other host"
+## STAGE0: Hst-Build initial system using "other host"
 
 We will use "native" compilation without foreign machines (i.e. x86 etc). So the RK3588-machine will build for the RK3588-machine.
 
@@ -316,3 +316,9 @@ If unpack you can use "pv"(pipe-viewer) instead of "cat" this will show status o
 - pkg3/lfs-hst-full.cpio.zst - most important final build of "make hst"
 
 Now the "tools" dir inside lfs - is not required for future steps.
+
+## STAGE1: Chroot-Build initial system inside "other host"
+
+tbd
+
+$ make chroot
