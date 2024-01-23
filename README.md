@@ -186,7 +186,7 @@ The result is new 'pkg/' directory with initial packages (see collapsible block,
 
 ### SDK dirs structure after "make pkg":
 
-- cfg/       - Important catalog of distro configs!
+- cfg/       - Important catalog of distro configs
 - Makefile   - the MAIN BUILD file
 - README.md  - the Manual
 - .gitignore - it's for repository (not important for you)
@@ -306,12 +306,12 @@ If unpack you can use "pv"(pipe-viewer) instead of "cat" this will show status o
 
 ### Final STAGE0 dirs sctructure:
 
-- cfg/       - Important catalog of distro configs!
-- Makefile   - the MAIN BUILD file!
-- README.md  - the Manual!
+- cfg/       - Important catalog of distro configs
+- Makefile   - the MAIN BUILD file
+- README.md  - the Manual
 - .gitignore - it's for repository (not important for you)
 - pkg/       - Downloaded files via "make pkg"
 - pkg2/      - Lfs-Host-stage builds cpio.zst-files
-- lfs/       - Initial LFS rootfs inc. "tools"-dir
+- lfs/       - Initial LFS rootfs include "tools"-dir
 
-Now the "tools" dir is not required for future steps.
+Now the "tools" dir inside lfs - is not required for future steps.
