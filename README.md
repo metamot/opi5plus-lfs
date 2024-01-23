@@ -187,8 +187,8 @@ The result is new 'pkg/' directory with initial packages (see collapsible block,
 ### SDK dirs structure after "make pkg":
 
 - cfg/       - Important catalog of distro configs!
-- Makefile   - the MAIN BUILD file!
-- README.md  - the Manual!
+- Makefile   - the MAIN BUILD file
+- README.md  - the Manual
 - .gitignore - it's for repository (not important for you)
 - pkg/       - Here are important downloaded files via "make pkg"
 
