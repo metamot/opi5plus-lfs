@@ -277,7 +277,7 @@ Create two output dirs:
     $ find . -print0 | cpio -0oH newc | zstd -z9T9 > ~/cpio-test/test.cpio.zst
     $ cd ~
 
-Here is we change-dir to sources, then "find"-util find files (at current dir and recursive ".") and produces output-list with zero"0" delimiter (instead of text LF delimiters). Cpio consumes file-list and "-0"(minus zero) option say that file-list is zero delimited. Option "-o" say to cpio produce "output". Option "-H" say type of arc is "newc". Then "zstd" consume input and "-z9"(compression level) and "-T9"(how many threads use in multithread compression). Finally output was redirected to final-file using ">" operand. Recommended reads are "man find", "man cpio", "man zstd".
+Here is we change-dir to sources, then "find"-util find files (at current dir and recursive ".") and produces output-list with zero"0" delimiter (instead of text LF delimiters). Cpio consumes file-list and "-0"(minus zero) option say that file-list is zero delimited. Option "-o" say to cpio produce "output". Option "-H" say type of arc is "newc". Then "zstd" consume input and "-z9"(compression level) and "-T9"(how many threads use in multithread compression). Finally output was redirected to final-file using ">" operand.
 
 (B): Another pack cpio with zstd-compression example (without real "cd" with find as normal lines, and you can stay now in original catalog of invocation):
 
