@@ -1802,10 +1802,11 @@ pkg3/lfs-hst-full.cpio.zst: lfs/etc/passwd
 	cp -far README.md tmp/lfs/opt/mysdk
 	cp -far pkg tmp/lfs/opt/mysdk
 	cp -far Makefile tmp/lfs/opt/mysdk
-	mkdir -p tmp/lfs/opt/mysdk/pkg3
 	mkdir -p tmp/lfs/opt/mysdk/tmp
 	mkdir -p pkg3
 	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg3/lfs-hst-full.cpio.zst
+	mkdir -p tmp/lfs/opt/mysdk
+	cp -far pkg3 tmp/lfs/opt/mysdk
 	sudo rm -fr tmp/lfs
 
 # === TOTAL: STAGE0 = HOST BUILD
@@ -1817,6 +1818,8 @@ hst: pkg3/lfs-hst-full.cpio.zst
 lfs2/opt/mysdk/Makefile: pkg3/lfs-hst-full.cpio.zst
 	mkdir -p lfs2
 	pv $< | zstd -d | cpio -iduH newc -D lfs2
+	mkdir -p lfs2/opt/mysdk/pkg3
+	cp -far pkg3 lfs2/opt/mysdk/
 
 lfs2/opt/mysdk/chroot.sh: lfs2/opt/mysdk/Makefile
 	mkdir -p lfs2/opt/mysdk
@@ -1928,16 +1931,23 @@ pkg3/lfs-tgt-libcpp.pass2.cpio.zst:
 	pv pkg3/lfs-tgt-libcpp.pass2.cpio.zst | zstd -d | cpio -iduH newc -D /
 tgt-libcpp: pkg3/lfs-tgt-libcpp.pass2.cpio.zst
  
+# LFS-10.0-systemd :: CHROOT :: 7.8. Gettext-0.21 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gettext.html
+# BUILD_TIME :: ?
+GETTEXT_OPT+=--prefix=/usr
+GETTEXT_OPT+=--disable-shared
 pkg3/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst: pkg3/lfs-tgt-libcpp.pass2.cpio.zst
 	mkdir -p tmp/tgt-gettext
 	tar -xJf pkg/gettext-$(GETTEXT_VER).tar.xz -C tmp/tgt-gettext
 	mkdir -p tmp/tgt-gettext/bld
-	cd tmp/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(OPT_FLAGS) --disable-shared && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cd tmp/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT) $(OPT_FLAGS) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
  
 #TGT+=pkg3/lfs-tgt-libcpp.pass2.cpio.zst
 TGT+=pkg3/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
 
 tgt: $(TGT)
+
+
 
 parts/tgt-gettext/gettext-$(GETTEXT_VER)/README: pkg/gettext-$(GETTEXT_VER).tar.xz /usr/lib/libstdc++.so
 	mkdir -p parts/tgt-gettext
