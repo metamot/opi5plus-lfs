@@ -323,6 +323,8 @@ Now the "tools" dir inside lfs - is not required for future steps.
 
 $ make chroot
 
-#bash: cd /opt/mysdk
-#bash: make tgt
+sh-5.0# cd /opt/mysdk
+
+sh-5.0# make tgt
+
 
