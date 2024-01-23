@@ -1770,7 +1770,7 @@ lfs/etc/group: lfs/etc/passwd
 	echo 'users:x:999:' >> $@
 	touch $@
 
-pkg2/lfs-hst-full.cpio.zst: lfs/etc/passwd
+pkg3/lfs-hst-full.cpio.zst: lfs/etc/passwd
 	mkdir -p tmp
 	cp -far lfs tmp/
 	rm -fr tmp/lfs/tools
@@ -1804,16 +1804,17 @@ pkg2/lfs-hst-full.cpio.zst: lfs/etc/passwd
 	cp -far Makefile tmp/lfs/opt/mysdk
 	mkdir -p tmp/lfs/opt/mysdk/pkg3
 	mkdir -p tmp/lfs/opt/mysdk/tmp
-	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg2/lfs-hst-full.cpio.zst
+	mkdir -p pkg3
+	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg3/lfs-hst-full.cpio.zst
 	sudo rm -fr tmp/lfs
 
 # === TOTAL: STAGE0 = HOST BUILD
 # BUILD_TIME :: about 45 minutes
 #
-hst: pkg2/lfs-hst-full.cpio.zst
+hst: pkg3/lfs-hst-full.cpio.zst
 
 
-lfs2/opt/mysdk/Makefile: pkg2/lfs-hst-full.cpio.zst
+lfs2/opt/mysdk/Makefile: pkg3/lfs-hst-full.cpio.zst
 	mkdir -p lfs2
 	pv $< | zstd -d | cpio -iduH newc -D lfs2
 
