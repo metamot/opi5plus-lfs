@@ -311,7 +311,8 @@ If unpack you can use "pv"(pipe-viewer) instead of "cat" this will show status o
 - README.md  - the Manual
 - .gitignore - it's for repository (not important for you)
 - pkg/       - Downloaded files via "make pkg"
-- pkg2/      - Lfs-Host-stage builds cpio.zst-files
 - lfs/       - Initial LFS rootfs include "tools"-dir
+- pkg2/      - Lfs-Host-stage builds cpio.zst-files (only for reference, there are not important)
+- pkg3/lfs-hst-full.cpio.zst - most important final build of "make hst"
 
 Now the "tools" dir inside lfs - is not required for future steps.
