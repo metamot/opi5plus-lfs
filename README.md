@@ -319,6 +319,9 @@ Now the "tools" dir inside lfs - is not required for future steps.
 
 ## STAGE1: Chroot-Build initial system inside "other host"
 
-tbd
+**tbd**
 
 $ make chroot
+#bash: cd /opt/mysdk
+#bash: make tgt
+
