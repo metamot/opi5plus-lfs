@@ -723,6 +723,7 @@ SHADOW_VER=4.8.1
 SYSTEMD_VER=246
 TAR_VER=1.32
 TCL_VER=8.6.10
+TCL_VER_BRIEF=8.6
 TCL_DOC_VER=$(TCL_VER)
 TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
@@ -2069,7 +2070,8 @@ pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg2/lfs-tgt-texinfo-$(TEXIN
 
 # LFS-10.0-systemd :: 8.4. Tcl-8.6.10 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/tcl.html
-# BUILD_TIME ::
+# BUILD_TIME :: 3m 3s
+# BUILD_TIME_WITH_TEST :: 8m 1s
 # NOTE: Skip unpack documentation. You can do it from "pkg/tcl8.6.10-html.tar.gz"
 TCL_OPT3+= --prefix=/usr
 TCL_OPT3+= --mandir=/usr/share/man
@@ -2080,7 +2082,73 @@ pkg3/tcl$(TCL_VER).cpio.zst: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	mkdir -p tmp/tcl/bld
 	tar -xzf pkg/tcl$(TCL_VER)-src.tar.gz -C tmp/tcl
 	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/unix/configure
-	cd tmp/tcl/bld && ../tcl$(TCL_VER)/unix/configure $(TCL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cd tmp/tcl/bld && ../tcl$(TCL_VER)/unix/configure $(TCL_OPT3) && make $(JOBS) V=$(VERB)
+	sed -i "s|`pwd`/tmp/tcl/bld|/usr/lib|" tmp/tcl/bld/tclConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)|/usr/include|" tmp/tcl/bld/tclConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/bld/pkgs/tdbc1.1.1|/usr/lib/tdbc1.1.1|" tmp/tcl/bld/pkgs/tdbc1.1.1/tdbcConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/generic|/usr/include|" tmp/tcl/bld/pkgs/tdbc1.1.1/tdbcConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/library|/usr/lib/tcl8.6|" tmp/tcl/bld/pkgs/tdbc1.1.1/tdbcConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1|/usr/include|" tmp/tcl/bld/pkgs/tdbc1.1.1/tdbcConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/bld/pkgs/itcl4.2.0|/usr/lib/itcl4.2.0|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0/generic|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
+	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
+	cd tmp/tcl/bld && make test
+# TESTS ARE PASSED, except some with clock. See LFS-note in book "In the test results there are several places associated with clock.test that indicate a failure, but the summary at the end indicates no failures. clock.test passes on a complete LFS system.". We can comment "make test" for future to speed-up build.
+	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install
+	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install-private-headers
+	rm -fr tmp/tcl/ins/usr/share/man
+	strip --strip-unneeded tmp/tcl/ins/usr/bin/tclsh$(TCL_VER_BRIEF)
+	cd tmp/tcl/ins/usr/bin && ln -sf tclsh$(TCL_VER_BRIEF) tclsh
+	find tmp/tcl/ins/usr/lib -type f -name "*.a" -exec strip --strip-debug {} +
+	chmod -v u+w tmp/tcl/ins/usr/lib/libtcl$(TCL_VER_BRIEF).so
+	cd tmp/tcl/ins/usr/lib && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+	cd tmp/tcl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/tcl
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix|/usr/lib|" tmp/tcl/tcl$(TCL_VER)/unix/tclConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/tclConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1|/usr/lib/tdbc1.1.1|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/generic|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/library|/usr/lib/tcl8.6|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0|/usr/lib/itcl4.2.0|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0/generic|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
+#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
+
+
+#unix/tclConfig.sh
+#TCL_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix -ltcl8.6'
+#TCL_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix -ltclstub8.6'
+#TCL_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/libtclstub8.6.a'
+#TCL_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10'
+
+#unix/pkgs/tdbc1.1.1/tdbcConfig.sh
+#tdbc_BUILD_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbc1.1.1"
+#TDBC_BUILD_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbc1.1.1"
+#tdbc_BUILD_STUB_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbcstub1.1.1"
+#TDBC_BUILD_STUB_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbcstub1.1.1"
+#tdbc_BUILD_STUB_LIB_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1/libtdbcstub1.1.1.a"
+#TDBC_BUILD_STUB_LIB_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1/libtdbcstub1.1.1.a"
+#tdbc_SRC_DIR="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1"
+#TDBC_SRC_DIR="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1"
+#tdbc_BUILD_INCLUDE_SPEC="-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/generic"
+#TDBC_BUILD_INCLUDE_SPEC="-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/generic"
+#tdbc_BUILD_LIBRARY_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/library"
+#TDBC_BUILD_LIBRARY_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/library"
+
+#unix/pkgs/itcl4.2.0/itclConfig.sh
+#itcl_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litcl4.2.0'
+#ITCL_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litcl4.2.0'
+#itcl_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litclstub4.2.0'
+#ITCL_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litclstub4.2.0'
+#itcl_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0/libitclstub4.2.0.a'
+#ITCL_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0/libitclstub4.2.0.a'
+#itcl_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0'
+#ITCL_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0'
+#itcl_INCLUDE_SPEC='-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0/generic'
+#ITCL_INCLUDE_SPEC='-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0/generic'
+
 
 tgt: pkg3/tcl$(TCL_VER).cpio.zst
 
