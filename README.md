@@ -322,7 +322,7 @@ Now the "tools" dir inside "lfs" - is not required for future steps.
     sh-5.0# cd /opt/mysdk
     sh-5.0# make tgt
 
-Here is new "lfs2/"-dir with "/opt/mysdk"-subdir inside.
+Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside. The "/opt/mysdk" dir (inside core "lfs2"-dir) is few original copy of initial build-dir.
 
 In any case of error, plese invoke "**make unchroot**" to unbind/unmount dev/proc trees.
 
