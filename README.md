@@ -312,10 +312,9 @@ If unpack you can use "pv"(pipe-viewer) instead of "cat" this will show status o
 - .gitignore - it's for repository (not important for you)
 - pkg/       - Downloaded files via "make pkg"
 - lfs/       - Initial LFS rootfs include "tools"-dir
-- pkg2/      - Lfs-Host-stage builds cpio.zst-files (only for reference, there are not important)
-- pkg3/lfs-hst-full.cpio.zst - most important final build of "make hst"
+- pkg1/      - Lfs-Host-stage builds cpio.zst-files (only for reference, there are not important)
 
-Now the "tools" dir inside lfs - is not required for future steps.
+Now the "tools" dir inside "lfs" - is not required for future steps.
 
 ## STAGE1: Chroot-Build initial system inside "other host"
 
@@ -327,5 +326,5 @@ sh-5.0# make tgt
 
 **tbd**
 
-In any case of error, plese invoke "make unchroot" to unbind/unmount dev/proc tree.
+In any case of error, plese invoke "***make unchroot***" to unbind/unmount dev/proc tree.
 
