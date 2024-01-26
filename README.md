@@ -330,6 +330,7 @@ Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside original BuildDi
 
 <details>
 <summary>CHROOT stage1 is equal to LFS Chapter7, pls see files at lfs2/opt/mysdk/pkg2 </summary>
+
 - lfs-hst-glibc-2.32.cpio.zst
 - lfs-tgt-bison-3.7.1.cpio.zst
 - lfs-tgt-gettext-0.21.cpio.zst
@@ -338,6 +339,7 @@ Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside original BuildDi
 - lfs-tgt-Python-3.8.5.cpio.zst
 - lfs-tgt-texinfo-6.7.cpio.zst
 - lfs-tgt-util-linux-2.36.cpio.zst
+
 </details>
 
 In any case of error inside chroot, plese invoke "**make unchroot**" frome host, to unbind/unmount dev/proc trees.
