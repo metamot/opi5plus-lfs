@@ -318,13 +318,31 @@ Now the "tools" dir inside "lfs" - is not required for future steps.
 
 ## STAGE1: Chroot-Build initial system inside "other host"
 
+At this point we created host LFS-rootfs. Here is "**pkg1/lfs-hst-full.cpio.zst**". Now we need to create new LFS2-system (using chroot).
+
+We deep inside new LFS2 system using chroot.
+
     $ make chroot
     sh-5.0# cd /opt/mysdk
     sh-5.0# make tgt
 
-Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside. The "/opt/mysdk" dir (inside core "lfs2"-dir) is few original copy of initial build-dir.
+Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside original BuildDir. The "/opt/mysdk" dir (inside core "lfs2"-dir) is few original **copy** of initial build-dir.
+
+<details>
+<summary>CHROOT stage1 is equal to LFS Chapter7, pls see files at lfs2/opt/mysdk/pkg2 </summary>
+- lfs-hst-glibc-2.32.cpio.zst
+- lfs-tgt-bison-3.7.1.cpio.zst
+- lfs-tgt-gettext-0.21.cpio.zst
+- lfs-tgt-libcpp.pass2.cpio.zst
+- lfs-tgt-perl-5.32.0.cpio.zst
+- lfs-tgt-Python-3.8.5.cpio.zst
+- lfs-tgt-texinfo-6.7.cpio.zst
+- lfs-tgt-util-linux-2.36.cpio.zst
+</details>
 
 In any case of error inside chroot, plese invoke "**make unchroot**" frome host, to unbind/unmount dev/proc trees.
+
+The next process is also due chroot process (LFS Chapter8) and all packages drops inside "lfs2/opt/mydsk/pkg3"
 
 **tbd**
 
