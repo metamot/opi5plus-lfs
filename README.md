@@ -331,9 +331,9 @@ Here is new "**lfs2/**"-dir with "**/opt/mysdk**"-subdir inside original BuildDi
 <details>
 <summary>CHROOT stage1 is equal to LFS Chapter7, pls see files at lfs2/opt/mysdk/pkg2 </summary>
 
-- lfs-tgt-bison-3.7.1.cpio.zst
-- lfs-tgt-gettext-0.21.cpio.zst
 - lfs-tgt-libcpp.pass2.cpio.zst
+- lfs-tgt-gettext-0.21.cpio.zst
+- lfs-tgt-bison-3.7.1.cpio.zst
 - lfs-tgt-perl-5.32.0.cpio.zst
 - lfs-tgt-Python-3.8.5.cpio.zst
 - lfs-tgt-texinfo-6.7.cpio.zst
