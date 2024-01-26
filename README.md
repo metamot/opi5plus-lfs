@@ -218,10 +218,10 @@ Repeat-command result:
 <summary>Allternatively(!) you can do "step-by-step" builds with theese list:</summary>
 
 ```
-    $ make hst-headers    # produce 'pkg2/lfs-kernel-headers.cpio.zst', install to 'lfs/usr/include'
-    $ make hst-binutils1  # 'pkg2/lfs-hst-binutils-2.35.pass1.cpio.zst', install to 'lfs/tools'
-    $ make hst-gcc1       # 'pkg2/lfs-hst-gcc-10.2.0.pass1.cpio.zst', install to 'lfs/tools'
-    $ make hst-glibc      # 'pkg2/lfs-hst-glibc-2.32.cpio.zst', install to 'lfs'
+    $ make hst-headers    # produce 'pkg1/lfs-kernel-headers.cpio.zst', install to 'lfs/usr/include'
+    $ make hst-binutils1  # 'pkg1/lfs-hst-binutils-2.35.pass1.cpio.zst', install to 'lfs/tools'
+    $ make hst-gcc1       # 'pkg1/lfs-hst-gcc-10.2.0.pass1.cpio.zst', install to 'lfs/tools'
+    $ make hst-glibc      # 'pkg1/lfs-hst-glibc-2.32.cpio.zst', install to 'lfs'
     $ make hst-libcpp1
     $ make hst-m4
     $ make hst-ncurses
@@ -248,7 +248,7 @@ Note: There are incremental builds with dependency.
 
 For example "make hst-grep" depends on "make hst-gawk" and its deps on "make hst-findutils" etc.
 
-I.e. any try of theese make automatically builds all above. For more theese packages see to "pkg2".
+I.e. any try of theese make automatically builds all above. For more theese packages see to "pkg1".
 
 ```
 </details>
@@ -319,12 +319,12 @@ Now the "tools" dir inside "lfs" - is not required for future steps.
 ## STAGE1: Chroot-Build initial system inside "other host"
 
     $ make chroot
-
     sh-5.0# cd /opt/mysdk
-
     sh-5.0# make tgt
 
-**tbd**
+Here is new "lfs2/"-dir with "/opt/mysdk"-subdir inside.
 
-In any case of error, plese invoke "***make unchroot***" to unbind/unmount dev/proc tree.
+In any case of error, plese invoke "**make unchroot**" to unbind/unmount dev/proc trees.
+
+**tbd**
 
