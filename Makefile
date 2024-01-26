@@ -1837,8 +1837,8 @@ tgt-clean-tmp:
 	echo 'systemd-timesync:x:78:78:systemd Time Synchronization:/:/bin/false' >> $@
 	echo 'systemd-coredump:x:79:79:systemd Core Dumper:/:/bin/false' >> $@
 	echo 'nobody:x:99:99:Unprivileged User:/dev/null:/bin/false' >> $@
-	mknod -m 600 /dev/console c 5 1
-	mknod -m 666 /dev/null c 1 3
+	mknod -m 600 /dev/console c 5 1 || true
+	mknod -m 666 /dev/null c 1 3 || true
 	mkdir -pv /boot
 	mkdir -pv /home
 	mkdir -pv /media
