@@ -2106,51 +2106,22 @@ pkg3/tcl$(TCL_VER).cpio.zst: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	rm -fr tmp/tcl
 	pv $@ | zstd -d | cpio -iduH newc -D /
 
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix|/usr/lib|" tmp/tcl/tcl$(TCL_VER)/unix/tclConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/tclConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1|/usr/lib/tdbc1.1.1|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/generic|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1/library|/usr/lib/tcl8.6|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc1.1.1|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/tdbc1.1.1/tdbcConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0|/usr/lib/itcl4.2.0|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0/generic|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
-#	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0|/usr/include|" tmp/tcl/tcl$(TCL_VER)/unix/pkgs/itcl4.2.0/itclConfig.sh
+
+# LFS-10.0-systemd :: 8.5. Expect-5.45.4
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/expect.html
+# BUILD_TIME ::
+# BUILD_TIME_WITH_TEST ::
+EXPECT_OP3+= --prefix=/usr
+EXPECT_OP3+= --with-tcl=/usr/lib
+EXPECT_OP3+= --enable-shared
+EXPECT_OP3+= --mandir=/usr/share/man
+EXPECT_OP3+= --with-tclinclude=/usr/include
+pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
+	mkdir -p tmp/expect/bld
+	tar -xzf pkg/expect$(EXPECT_VER).tar.gz -C tmp/expect
 
 
-#unix/tclConfig.sh
-#TCL_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix -ltcl8.6'
-#TCL_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix -ltclstub8.6'
-#TCL_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/libtclstub8.6.a'
-#TCL_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10'
-
-#unix/pkgs/tdbc1.1.1/tdbcConfig.sh
-#tdbc_BUILD_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbc1.1.1"
-#TDBC_BUILD_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbc1.1.1"
-#tdbc_BUILD_STUB_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbcstub1.1.1"
-#TDBC_BUILD_STUB_LIB_SPEC="-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1 -ltdbcstub1.1.1"
-#tdbc_BUILD_STUB_LIB_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1/libtdbcstub1.1.1.a"
-#TDBC_BUILD_STUB_LIB_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/tdbc1.1.1/libtdbcstub1.1.1.a"
-#tdbc_SRC_DIR="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1"
-#TDBC_SRC_DIR="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1"
-#tdbc_BUILD_INCLUDE_SPEC="-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/generic"
-#TDBC_BUILD_INCLUDE_SPEC="-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/generic"
-#tdbc_BUILD_LIBRARY_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/library"
-#TDBC_BUILD_LIBRARY_PATH="/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/tdbc1.1.1/library"
-
-#unix/pkgs/itcl4.2.0/itclConfig.sh
-#itcl_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litcl4.2.0'
-#ITCL_BUILD_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litcl4.2.0'
-#itcl_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litclstub4.2.0'
-#ITCL_BUILD_STUB_LIB_SPEC='-L/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0 -litclstub4.2.0'
-#itcl_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0/libitclstub4.2.0.a'
-#ITCL_BUILD_STUB_LIB_PATH='/opt/mysdk/tmp/tcl/tcl8.6.10/unix/pkgs/itcl4.2.0/libitclstub4.2.0.a'
-#itcl_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0'
-#ITCL_SRC_DIR='/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0'
-#itcl_INCLUDE_SPEC='-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0/generic'
-#ITCL_INCLUDE_SPEC='-I/opt/mysdk/tmp/tcl/tcl8.6.10/pkgs/itcl4.2.0/generic'
-
-
-tgt: pkg3/tcl$(TCL_VER).cpio.zst
+tgt: pkg3/expect$(EXPECT_VER).cpio.zst
 
 
 
@@ -2257,4 +2228,3 @@ tgt: pkg3/tcl$(TCL_VER).cpio.zst
 # ├─/boot                         /dev/mmcblk0p1           ext4       rw,relatime,errors=remount-ro,commit=600
 # ├─/var/log.hdd                  /dev/mmcblk0p2[/var/log] ext4       rw,noatime,errors=remount-ro,commit=600
 # └─/var/log                      /dev/zram1               ext4       rw,relatime,discard
-
