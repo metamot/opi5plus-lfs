@@ -821,6 +821,9 @@ PKG+=pkg/xz-$(XZ_VER).tar.xz
 PKG+=pkg/zlib-$(ZLIB_VER).tar.xz
 PKG+=pkg/zstd-$(ZSTD_VER).tar.gz
 
+PKG+=pkg/config.guess
+PKG+=pkg/config.sub
+
 # Opi5 additional downloads:
 
 PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
@@ -999,6 +1002,12 @@ pkg/zlib-$(ZLIB_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://zlib.net/zlib-$(ZLIB_VER).tar.xz && touch $@
 pkg/zstd-$(ZSTD_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/facebook/zstd/releases/download/v$(ZSTD_VER)/zstd-$(ZSTD_VER).tar.gz && touch $@
+pkg/config.guess: pkg/.gitignore
+	wget "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess" -O $@
+	chmod ugo+x $@
+pkg/config.sub: pkg/.gitignore
+	wget "http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub" -O $@
+	chmod ugo+x $@
 
 pkg/orangepi5-rkbin-only_rk3588.cpio.zst:
 	mkdir -p pkg
@@ -1895,6 +1904,7 @@ pkg2/lfs-tgt-libcpp.pass2.cpio.zst: /etc/passwd
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
+	cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -s gthr-posix.h libgcc/gthr-default.h
 	cd tmp/tgt-gcc-libcpp/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure $(LIBCPP2_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	mv -v tmp/tgt-gcc-libcpp/ins/usr/lib64/* tmp/tgt-gcc-libcpp/ins/usr/lib/
 	rm -fr tmp/tgt-gcc-libcpp/ins/usr/lib64
@@ -2109,19 +2119,103 @@ pkg3/tcl$(TCL_VER).cpio.zst: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.5. Expect-5.45.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/expect.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-EXPECT_OP3+= --prefix=/usr
-EXPECT_OP3+= --with-tcl=/usr/lib
-EXPECT_OP3+= --enable-shared
-EXPECT_OP3+= --mandir=/usr/share/man
-EXPECT_OP3+= --with-tclinclude=/usr/include
+# BUILD_TIME_WITH_TEST :: 30s
+EXPECT_OPT3+= --prefix=/usr
+EXPECT_OPT3+= --with-tcl=/usr/lib
+EXPECT_OPT3+= --enable-shared
+EXPECT_OPT3+= --mandir=/usr/share/man
+EXPECT_OPT3+= --enable-64bit
+EXPECT_OPT3+= --with-tclinclude=/usr/include
+EXPECT_OPT3+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
 pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
 	mkdir -p tmp/expect/bld
 	tar -xzf pkg/expect$(EXPECT_VER).tar.gz -C tmp/expect
+# BEGIN: Workaround error with configure guess "unknown host"
+# https://forums.fedoraforum.org/showthread.php?281575-configure-error-cannot-guess-build-type-you-must-specify-one
+# download new "configure.guess" and "configure.sub" from "http://git.savannah.gnu.org/gitweb/?p=config.git&view=view+git+repository"
+# see above our "make pkg" and replace old inside "tclconfig"-dir.
+# NOTE: config.guess return the name of build-host, as is initial system start buils at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
+	cp -far pkg/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
+	cp -far pkg/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
+# END: workaround
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
+	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT3) && make $(JOBS) V=$(VERB)
+	cd tmp/expect/bld && make test
+# TESTS ARE PASSED	
+	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/expect/ins/usr/share
+	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
+	cd tmp/expect/ins/usr/lib && ln -svf expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so libexpect$(EXPECT_VER).so
+	strip --strip-unneeded tmp/expect/ins/usr/bin/expect
+	cd tmp/expect/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/expect
+	pv $@ | zstd -d | cpio -iduH newc -D /
 
+# LFS-10.0-systemd :: 8.6. DejaGNU-1.6.2 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/dejagnu.html
+# BUILD_TIME_WITH_TEST :: 9s
+DEJAGNU_OPT3+= --prefix=/usr
+DEJAGNU_OPT3+= $(OPT_FLAGS)
+pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg3/expect$(EXPECT_VER).cpio.zst
+	mkdir -p tmp/dejagnu/bld
+	tar -xzf pkg/dejagnu-$(DEJAGNU_VER).tar.gz -C tmp/dejagnu
+	cd tmp/dejagnu/bld && ../dejagnu-$(DEJAGNU_VER)/configure $(DEJAGNU_OPT3)
+	cd tmp/dejagnu/bld && makeinfo --html --no-split -o doc/dejagnu.html ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
+	cd tmp/dejagnu/bld && makeinfo --plaintext       -o doc/dejagnu.txt  ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
+	cd tmp/dejagnu/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cd tmp/dejagnu/bld && make check
+# TESTS ARE PASSED	
+	rm -fr tmp/dejagnu/ins/usr/share/info
+	rm -fr tmp/dejagnu/ins/usr/share/man
+	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/baseboards/README
+	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/config/README
+	cd tmp/dejagnu/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/dejagnu
+	pv $@ | zstd -d | cpio -iduH newc -D /
 
-tgt: pkg3/expect$(EXPECT_VER).cpio.zst
+# LFS-10.0-systemd :: 8.7. Iana-Etc-20200821
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/iana-etc.html
+# BUILD_TIME :: 1s
+pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst
+	mkdir -p tmp/iana-etc/ins/etc
+	tar -xzf pkg/iana-etc-$(IANA_ETC_VER).tar.gz -C tmp/iana-etc
+	cp -far tmp/iana-etc/iana-etc-$(IANA_ETC_VER)/protocols tmp/iana-etc/ins/etc/
+	cp -far tmp/iana-etc/iana-etc-$(IANA_ETC_VER)/services tmp/iana-etc/ins/etc/
+	cd tmp/iana-etc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/iana-etc
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.8. Glibc-2.32
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
+# BUILD_TIME :: 5m 30s
+# BUILD_TIME_WITH_TEST ::
+GLIBC_OPT3+= 
+GLIBC_OPT3+= --prefix=/usr
+GLIBC_OPT3+= --disable-werror
+GLIBC_OPT3+= --enable-kernel=3.2
+GLIBC_OPT3+= --enable-stack-protector=strong
+GLIBC_OPT3+= --with-headers=/usr/include
+GLIBC_OPT3+= libc_cv_slibdir=/lib
+GLIBC_OPT3+= $(OPT_FLAGS)
+# "make check" test fails with error: 'thread' is not a member of 'std'
+# looks like libcpp (see above "7.7. Libstdc++ from GCC-10.2.0, Pass 2 ") has something wrong with thread support.
+# We'll try glibc test later.
+# Some useful info abot tests: https://sourceware.org/glibc/wiki/Testing/Testsuite
+pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
+	mkdir -p tmp/glibc/bld
+	tar -xJf pkg/glibc-$(GLIBC_VER).tar.xz -C tmp/glibc
+	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/glibc
+	cd tmp/glibc/glibc-$(GLIBC_VER) && patch -Np1 -i ../glibc-$(GLIBC_VER)-fhs-1.patch
+	cd tmp/glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	cd tmp/glibc/bld && make $(JOBS) check || true
+	cp -far tmp/glibc/ins/sbin/* tmp/glibc/ins/usr/sbin/
+	rm -fr tmp/glibc/ins/sbin
+	cp -far tmp/glibc/ins/lib/* tmp/glibc/ins/usr/lib/
+	rm -fr tmp/glibc/ins/lib
+#	strip --strip-unneeded tmp/glibc/ins/lib/*
+#tgt: pkg2/lfs-tgt-libcpp.pass2.cpio.zst
+tgt: pkg3/glibc-$(GLIBC_VER).cpio.zst
 
 
 
