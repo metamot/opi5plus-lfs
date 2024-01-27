@@ -1,4 +1,4 @@
-`configure' configures GNU Bison 3.7.1 to adapt to many kinds of systems.
+`configure' configures GNU DejaGnu 1.6.2 to adapt to many kinds of systems.
 
 Usage: ./configure [OPTION]... [VAR=VALUE]...
 
@@ -47,7 +47,7 @@ Fine tuning of the installation directories:
   --infodir=DIR           info documentation [DATAROOTDIR/info]
   --localedir=DIR         locale-dependent data [DATAROOTDIR/locale]
   --mandir=DIR            man documentation [DATAROOTDIR/man]
-  --docdir=DIR            documentation root [DATAROOTDIR/doc/bison]
+  --docdir=DIR            documentation root [DATAROOTDIR/doc/dejagnu]
   --htmldir=DIR           html documentation [DOCDIR]
   --dvidir=DIR            dvi documentation [DOCDIR]
   --pdfdir=DIR            pdf documentation [DOCDIR]
@@ -58,48 +58,19 @@ Program names:
   --program-suffix=SUFFIX            append SUFFIX to installed program names
   --program-transform-name=PROGRAM   run sed PROGRAM on installed program names
 
-System types:
-  --build=BUILD     configure for building on BUILD [guessed]
-  --host=HOST       cross-compile to build programs to run on HOST [BUILD]
-
 Optional Features:
   --disable-option-checking  ignore unrecognized --enable/--with options
   --disable-FEATURE       do not include FEATURE (same as --enable-FEATURE=no)
   --enable-FEATURE[=ARG]  include FEATURE [ARG=yes]
   --enable-silent-rules   less verbose build output (undo: "make V=1")
   --disable-silent-rules  verbose build output (undo: "make V=0")
+  --enable-maintainer-mode
+                          enable make rules and dependencies not useful (and
+                          sometimes confusing) to the casual installer
   --enable-dependency-tracking
                           do not reject slow dependency extractors
   --disable-dependency-tracking
                           speeds up one-time build
-  --disable-largefile     omit support for large files
-  --enable-threads={isoc|posix|isoc+posix|windows}
-                          specify multithreading API
-  --disable-threads       build without multithread safety
-  --disable-rpath         do not hardcode runtime library paths
-  --enable-gcc-warnings   turn on lots of GCC warnings (not recommended).
-                           Also, issue synclines from the examples/ to
-                           the corresponding source in the Texinfo doc.
-  --disable-yacc          do not build a yacc command or an -ly library
-  --enable-cross-guesses={conservative|risky}
-                          specify policy for cross-compilation guesses
-  --disable-assert        turn off assertions
-  --enable-relocatable    install a package that can be moved in the file
-                          system
-  --disable-nls           do not use Native Language Support
-
-Optional Packages:
-  --with-PACKAGE[=ARG]    use PACKAGE [ARG=yes]
-  --without-PACKAGE       do not use PACKAGE (same as --with-PACKAGE=no)
-  --with-gnu-ld           assume the C compiler uses GNU ld [default=no]
-  --with-libtextstyle-prefix[=DIR]  search for libtextstyle in DIR/include and DIR/lib
-  --without-libtextstyle-prefix     don't search for libtextstyle in includedir and libdir
-  --with-libiconv-prefix[=DIR]  search for libiconv in DIR/include and DIR/lib
-  --without-libiconv-prefix     don't search for libiconv in includedir and libdir
-  --with-libreadline-prefix[=DIR]  search for libreadline in DIR/include and DIR/lib
-  --without-libreadline-prefix     don't search for libreadline in includedir and libdir
-  --with-libintl-prefix[=DIR]  search for libintl in DIR/include and DIR/lib
-  --without-libintl-prefix     don't search for libintl in includedir and libdir
 
 Some influential environment variables:
   CC          C compiler command
@@ -111,20 +82,11 @@ Some influential environment variables:
               you have headers in a nonstandard directory <include dir>
   CXX         C++ compiler command
   CXXFLAGS    C++ compiler flags
-  CPP         C preprocessor
-  YACC        The `Yet Another Compiler Compiler' implementation to use.
-              Defaults to the first program found out of: `bison -y', `byacc',
-              `yacc'.
-  YFLAGS      The list of arguments that will be passed by default to $YACC.
-              This script will default YFLAGS to the empty string to avoid a
-              default value of `-d' given by some make applications.
-  M4          Location of GNU M4 1.4.6 or later. Defaults to the first program
-              of 'm4', 'gm4', or 'gnum4' on PATH that meets Autoconf needs.
 
 Use these variables to override the choices made by `configure' or to help
 it to find libraries and programs with nonstandard names/locations.
 
-Report bugs to <bug-bison@gnu.org>.
-GNU Bison home page: <https://www.gnu.org/software/bison/>.
-General help using GNU software: <https://www.gnu.org/gethelp/>.
+Report bugs to <bug-dejagnu@gnu.org>.
+GNU DejaGnu home page: <http://www.gnu.org/software/dejagnu/>.
+General help using GNU software: <http://www.gnu.org/gethelp/>.
 
