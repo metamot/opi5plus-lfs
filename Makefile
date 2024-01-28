@@ -2135,7 +2135,7 @@ pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
 # https://forums.fedoraforum.org/showthread.php?281575-configure-error-cannot-guess-build-type-you-must-specify-one
 # download new "configure.guess" and "configure.sub" from "http://git.savannah.gnu.org/gitweb/?p=config.git&view=view+git+repository"
 # see above our "make pkg" and replace old inside "tclconfig"-dir.
-# NOTE: config.guess return the name of build-host, as is initial system start buils at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
+# NOTE: config.guess return the name of build-host, as is initial system start builds at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
 	cp -far pkg/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
 	cp -far pkg/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
 # END: workaround
@@ -2190,7 +2190,7 @@ pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst
 # LFS-10.0-systemd :: 8.8. Glibc-2.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
 # BUILD_TIME :: 5m 30s
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME_WITH_TEST :: 31m 45s
 GLIBC_OPT3+= 
 GLIBC_OPT3+= --prefix=/usr
 GLIBC_OPT3+= --disable-werror
@@ -2199,47 +2199,170 @@ GLIBC_OPT3+= --enable-stack-protector=strong
 GLIBC_OPT3+= --with-headers=/usr/include
 GLIBC_OPT3+= libc_cv_slibdir=/lib
 GLIBC_OPT3+= $(OPT_FLAGS)
-# Some useful info abot tests: https://sourceware.org/glibc/wiki/Testing/Testsuite
+# Some useful info about tests: https://sourceware.org/glibc/wiki/Testing/Testsuite
 pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	mkdir -p tmp/glibc/bld
 	tar -xJf pkg/glibc-$(GLIBC_VER).tar.xz -C tmp/glibc
 	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/glibc
 	cd tmp/glibc/glibc-$(GLIBC_VER) && patch -Np1 -i ../glibc-$(GLIBC_VER)-fhs-1.patch
+	sed '/test-installation/s@$$(PERL)@echo not running@' -i tmp/glibc/glibc-$(GLIBC_VER)/Makefile	
 	cd tmp/glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 #	cd tmp/glibc/bld && make $(JOBS) check || true
+	rm -fr tmp/glibc/ins/usr/share/info
 	cp -far tmp/glibc/ins/sbin/* tmp/glibc/ins/usr/sbin/
 	rm -fr tmp/glibc/ins/sbin
 	cp -far tmp/glibc/ins/lib/* tmp/glibc/ins/usr/lib/
 	rm -fr tmp/glibc/ins/lib
-#	strip --strip-unneeded tmp/glibc/ins/lib/*
+	cd tmp/glibc/ins/usr/lib && ln -sf libanl.so.1 libanl.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libBrokenLocale.so.1 libBrokenLocale.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libcrypt.so.1 libcrypt.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libdl.so.2 libdl.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libm.so.6 libm.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libnss_compat.so.2 libnss_compat.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libnss_db.so.2 libnss_db.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libnss_dns.so.2 libnss_dns.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libnss_files.so.2 libnss_files.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libnss_hesiod.so.2 libnss_hesiod.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libpthread.so.0 libpthread.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libresolv.so.2 libresolv.so
+	cd tmp/glibc/ins/usr/lib && ln -sf librt.so.1 librt.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libthread_db.so.1 libthread_db.so
+	cd tmp/glibc/ins/usr/lib && ln -sf libutil.so.1 libutil.so
+	strip --strip-debug tmp/glibc/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/glibc/ins/usr/lib/*.so || true
+# libc.so is not ELF
+	strip --strip-unneeded tmp/glibc/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/glibc/ins/usr/sbin/* || true
+	strip --strip-unneeded tmp/glibc/ins/usr/libexec/getconf/* || true
+	strip --strip-unneeded tmp/glibc/ins/usr/lib/audit/* || true
+	strip --strip-unneeded tmp/glibc/ins/usr/lib/gconv/* || true
+	cp -far tmp/glibc/glibc-$(GLIBC_VER)/nscd/nscd.conf tmp/glibc/ins/etc/
+	mkdir -p tmp/glibc/ins/var/cache/nscd
+	install -v -Dm644 tmp/glibc/glibc-$(GLIBC_VER)/nscd/nscd.tmpfiles tmp/glibc/ins/usr/lib/tmpfiles.d/nscd.conf
+	install -v -Dm644 tmp/glibc/glibc-$(GLIBC_VER)/nscd/nscd.service tmp/glibc/ins/usr/lib/systemd/system/nscd.service
+	mkdir -p tmp/glibc/ins/usr/lib/locale
+	echo "# Begin /etc/nsswitch.conf" > tmp/glibc/ins/etc/nsswitch.conf
+	echo "passwd: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "group: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "shadow: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "hosts: files dns" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "networks: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "protocols: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "services: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "ethers: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "rpc: files" >> tmp/glibc/ins/etc/nsswitch.conf
+	echo "# End /etc/nsswitch.conf" >> tmp/glibc/ins/etc/nsswitch.conf
+	mkdir -p tmp/glibc/ins/etc/ld.so.conf.d
+	echo "# Begin /etc/ld.so.conf" > tmp/glibc/ins/etc/ld.so.conf
+	echo "/usr/local/lib" >> tmp/glibc/ins/etc/ld.so.conf
+	echo "/opt/lib" >> tmp/glibc/ins/etc/ld.so.conf
+	echo "# Add an include directory" >> tmp/glibc/ins/etc/ld.so.conf
+	echo "include /etc/ld.so.conf.d/*.conf" >> tmp/glibc/ins/etc/ld.so.conf
+	cd tmp/glibc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 	cd tmp/glibc/bld && make $(JOBS) check || true
+#Summary of test results:
+#      2 FAIL
+#   4140 PASS
+#     30 UNSUPPORTED
+#     17 XFAIL
+#      2 XPASS
+# NOTE: Sometimes, this report will show "1 FAIL", "2 FAIL" or "3 FAIL" )))))
+	rm -fr tmp/glibc
 
-tgt: pkg3/glibc-$(GLIBC_VER).cpio.zst
+# LFS-10.0-systemd :: 8.8.2.2. Adding time zone data 
+# LFS-10.0-systemd :: set locales
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
+#
+/etc/localtime: pkg3/glibc-$(GLIBC_VER).cpio.zst
+	localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
+#	localedef -i en_US -f ISO-8859-1 en_US
+	localedef -i en_US -f UTF-8 en_US.UTF-8
+	mkdir -p /usr/share/zoneinfo/posix
+	mkdir -p /usr/share/zoneinfo/right
+	mkdir -p tmp/tzdata
+	tar -xzf pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz -C tmp/tzdata
+#zic -L /dev/null   -d /usr/share/zoneinfo       ${tz}
+#zic -L /dev/null   -d /usr/share/zoneinfo/posix ${tz}
+#zic -L leapseconds -d /usr/share/zoneinfo/right ${tz}
+#etcetera
+#southamerica
+#northamerica
+#europe
+#africa
+#antarctica
+#asia
+#australasia
+#backward
+#pacificnew
+#systemv
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       etcetera
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix etcetera
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right etcetera
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       southamerica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix southamerica
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right southamerica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       northamerica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix northamerica
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right northamerica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       europe
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix europe
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right europe
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       africa
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix africa
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right africa
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       antarctica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix antarctica
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right antarctica
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       asia
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix asia
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right asia
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       australasia
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix australasia
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right australasia
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       backward
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix backward
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right backward
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       pacificnew
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix pacificnew
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right pacificnew
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       systemv
+	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix systemv
+	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right systemv
+	cd tmp/tzdata && cp -v zone.tab zone1970.tab iso3166.tab /usr/share/zoneinfo/
+	cd tmp/tzdata && zic -d /usr/share/zoneinfo -p America/New_York
+#	tzselect
+	ln -sfv /usr/share/zoneinfo/Etc/GMT /etc/localtime
+	rm -fr tmp/tzdata
 
+# LFS-10.0-systemd :: 8.9. Zlib-1.2.11
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/zlib.html
+# BUILD_TIME_WITH_TEST :: 4s
+ZLIB_OPT3+= --prefix=/usr
+pkg3/zlib-$(ZLIB_VER).cpio.zst: /etc/localtime
+	mkdir -p tmp/zlib/bld
+	tar -xJf pkg/zlib-$(ZLIB_VER).tar.xz -C tmp/zlib
+	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" tmp/zlib/zlib-$(ZLIB_VER)/configure
+	cd tmp/zlib/bld && ../zlib-$(ZLIB_VER)/configure $(ZLIB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/zlib/ins/usr/share
+	strip --strip-debug tmp/zlib/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/zlib/ins/usr/lib/*.so
+	cd tmp/zlib/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/zlib/bld && make check
+# TEST PASSED!	
+	rm -fr tmp/zlib
 
-
-
-
-
-
-
-
-#ZLIB_OPT1+= --prefix=/usr
-#ZLIB_OPT1+= --host=$(LFS_TGT)
-#ZLIB_OPT1+= $(OPT_FLAGS)
-
-
-# === ZLIB cross
-#parts/cross-zlib/zlib-$(ZLIB_VER)/README: pkg/zlib-$(ZLIB_VER).tar.xz $(LFS)/usr/bin/xz
-#	mkdir -p parts/cross-zlib
-#	tar -xJf $< -C parts/cross-zlib && touch $@
-#	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" parts/cross-zlib/zlib-$(ZLIB_VER)/configure
-#parts/cross-zlib/bld/Makefile: parts/cross-zlib/zlib-$(ZLIB_VER)/README
-#	mkdir -p parts/cross-zlib/bld
-#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && ../zlib-$(ZLIB_VER)/configure $(ZLIB_OPT1)'
-#$(LFS)/usr/lib/libz.so: parts/cross-zlib/bld/Makefile
-#	sh -c '$(PRE_CMD) && cd parts/cross-zlib/bld && make $(JOBS) V=$(VERB) && make DESTDIR=$(LFS) install'
-#cross-zlib: $(LFS)/usr/lib/libz.so
+# LFS-10.0-systemd :: 8.10. Bzip2-1.0.8 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bzip2.html
+# BUILD_TIME ::
+# BUILD_TIME_WITH_TEST ::
+pkg3/bzip2-$(BZIP2_VER).cpio.zst: pkg3/zlib-$(ZLIB_VER).cpio.zst
+	mkdir -p tmp/bzip2
+	tar -xzf pkg/bzip2-$(BZIP2_VER).tar.gz -C tmp/bzip2
+	cp -far pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch tmp/bzip2/
+	cd tmp/bzip2/bzip2-$(BZIP2_VER) && patch -Np1 -i ../bzip2-1.0.8-install_docs-1.patch
+tgt: pkg3/bzip2-$(BZIP2_VER).cpio.zst
 
 
 # === my extra :: gcc ISL build support
@@ -2258,66 +2381,3 @@ tgt: pkg3/glibc-$(GLIBC_VER).cpio.zst
 #	mv tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp-$(GMP_VER) tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp
 #	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-isl/bld && ../isl-$(ISL_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(ISL1_OPT) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 #hst-isl: pkg/lfs-hst-isl-$(ISL_VER).cpio.zst
-
-
-
-# DEBIAN11 HOST mounts
-#
-# cat /proc/mounts
-#
-# sysfs /sys sysfs rw,nosuid,nodev,noexec,relatime 0 0
-# proc /proc proc rw,nosuid,nodev,noexec,relatime 0 0
-# udev /dev devtmpfs rw,nosuid,relatime,size=7906324k,nr_inodes=1976581,mode=755 0 0
-# devpts /dev/pts devpts rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000 0 0
-# tmpfs /run tmpfs rw,nosuid,nodev,noexec,relatime,size=1609548k,mode=755 0 0
-# /dev/mmcblk0p2 / ext4 rw,noatime,errors=remount-ro,commit=600 0 0
-# securityfs /sys/kernel/security securityfs rw,nosuid,nodev,noexec,relatime 0 0
-# tmpfs /dev/shm tmpfs rw,nosuid,nodev 0 0
-# tmpfs /run/lock tmpfs rw,nosuid,nodev,noexec,relatime,size=5120k 0 0
-# cgroup2 /sys/fs/cgroup cgroup2 rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot 0 0
-# pstore /sys/fs/pstore pstore rw,nosuid,nodev,noexec,relatime 0 0
-# none /sys/fs/bpf bpf rw,nosuid,nodev,noexec,relatime,mode=700 0 0
-# systemd-1 /proc/sys/fs/binfmt_misc autofs rw,relatime,fd=29,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=19213 0 0
-# tracefs /sys/kernel/tracing tracefs rw,nosuid,nodev,noexec,relatime 0 0
-# hugetlbfs /dev/hugepages hugetlbfs rw,relatime,pagesize=2M 0 0
-# mqueue /dev/mqueue mqueue rw,nosuid,nodev,noexec,relatime 0 0
-# sunrpc /run/rpc_pipefs rpc_pipefs rw,relatime 0 0
-# debugfs /sys/kernel/debug debugfs rw,nosuid,nodev,noexec,relatime 0 0
-# configfs /sys/kernel/config configfs rw,nosuid,nodev,noexec,relatime 0 0
-# fusectl /sys/fs/fuse/connections fusectl rw,nosuid,nodev,noexec,relatime 0 0
-# tmpfs /tmp tmpfs rw,nosuid,relatime 0 0
-# /dev/mmcblk0p1 /boot ext4 rw,relatime,errors=remount-ro,commit=600 0 0
-# /dev/mmcblk0p2 /var/log.hdd ext4 rw,noatime,errors=remount-ro,commit=600 0 0
-# /dev/zram1 /var/log ext4 rw,relatime,discard 0 0
-# tracefs /sys/kernel/debug/tracing tracefs rw,nosuid,nodev,noexec,relatime 0 0
-# tmpfs /run/user/1000 tmpfs rw,nosuid,nodev,relatime,size=1609544k,nr_inodes=402386,mode=700,uid=1000,gid=1000 0 0
-#
-# findmnt
-#
-# TARGET                          SOURCE                   FSTYPE     OPTIONS
-# /                               /dev/mmcblk0p2           ext4       rw,noatime,errors=remount-ro,commit=600
-# ├─/sys                          sysfs                    sysfs      rw,nosuid,nodev,noexec,relatime
-# │ ├─/sys/kernel/security        securityfs               securityfs rw,nosuid,nodev,noexec,relatime
-# │ ├─/sys/fs/cgroup              cgroup2                  cgroup2    rw,nosuid,nodev,noexec,relatime,nsdelegate,memory_recursiveprot
-# │ ├─/sys/fs/pstore              pstore                   pstore     rw,nosuid,nodev,noexec,relatime
-# │ ├─/sys/fs/bpf                 none                     bpf        rw,nosuid,nodev,noexec,relatime,mode=700
-# │ ├─/sys/kernel/tracing         tracefs                  tracefs    rw,nosuid,nodev,noexec,relatime
-# │ ├─/sys/kernel/debug           debugfs                  debugfs    rw,nosuid,nodev,noexec,relatime
-# │ │ └─/sys/kernel/debug/tracing tracefs                  tracefs    rw,nosuid,nodev,noexec,relatime
-# │ ├─/sys/kernel/config          configfs                 configfs   rw,nosuid,nodev,noexec,relatime
-# │ └─/sys/fs/fuse/connections    fusectl                  fusectl    rw,nosuid,nodev,noexec,relatime
-# ├─/proc                         proc                     proc       rw,nosuid,nodev,noexec,relatime
-# │ └─/proc/sys/fs/binfmt_misc    systemd-1                autofs     rw,relatime,fd=29,pgrp=1,timeout=0,minproto=5,maxproto=5,direct,pipe_ino=20608
-# ├─/dev                          udev                     devtmpfs   rw,nosuid,relatime,size=8035092k,nr_inodes=2008773,mode=755
-# │ ├─/dev/pts                    devpts                   devpts     rw,nosuid,noexec,relatime,gid=5,mode=620,ptmxmode=000
-# │ ├─/dev/shm                    tmpfs                    tmpfs      rw,nosuid,nodev
-# │ ├─/dev/hugepages              hugetlbfs                hugetlbfs  rw,relatime,pagesize=2M
-# │ └─/dev/mqueue                 mqueue                   mqueue     rw,nosuid,nodev,noexec,relatime
-# ├─/run                          tmpfs                    tmpfs      rw,nosuid,nodev,noexec,relatime,size=1635300k,mode=755
-# │ ├─/run/lock                   tmpfs                    tmpfs      rw,nosuid,nodev,noexec,relatime,size=5120k
-# │ ├─/run/rpc_pipefs             sunrpc                   rpc_pipefs rw,relatime
-# │ └─/run/user/1000              tmpfs                    tmpfs      rw,nosuid,nodev,relatime,size=1635296k,nr_inodes=408824,mode=700,uid=1000,gid=1000
-# ├─/tmp                          tmpfs                    tmpfs      rw,nosuid,relatime
-# ├─/boot                         /dev/mmcblk0p1           ext4       rw,relatime,errors=remount-ro,commit=600
-# ├─/var/log.hdd                  /dev/mmcblk0p2[/var/log] ext4       rw,noatime,errors=remount-ro,commit=600
-# └─/var/log                      /dev/zram1               ext4       rw,relatime,discard
