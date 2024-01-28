@@ -2214,6 +2214,7 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	cp -far tmp/glibc/ins/lib/* tmp/glibc/ins/usr/lib/
 	rm -fr tmp/glibc/ins/lib
 #	strip --strip-unneeded tmp/glibc/ins/lib/*
+	cd tmp/glibc/bld && make $(JOBS) check || true
 #tgt: pkg2/lfs-tgt-libcpp.pass2.cpio.zst
 tgt: pkg3/glibc-$(GLIBC_VER).cpio.zst
 
