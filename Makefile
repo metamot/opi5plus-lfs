@@ -44,6 +44,7 @@ OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(
 LFS=$(PWD)/lfs
 #LFS_HST=aarch64-rk3588-linux-gnu
 LFS_TGT=aarch64-rk3588-linux-gnu
+#LFS_TGT=aarch64-unknown-linux-gnu
 
 all: deps pkg mmc
 
@@ -2198,9 +2199,6 @@ GLIBC_OPT3+= --enable-stack-protector=strong
 GLIBC_OPT3+= --with-headers=/usr/include
 GLIBC_OPT3+= libc_cv_slibdir=/lib
 GLIBC_OPT3+= $(OPT_FLAGS)
-# "make check" test fails with error: 'thread' is not a member of 'std'
-# looks like libcpp (see above "7.7. Libstdc++ from GCC-10.2.0, Pass 2 ") has something wrong with thread support.
-# We'll try glibc test later.
 # Some useful info abot tests: https://sourceware.org/glibc/wiki/Testing/Testsuite
 pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	mkdir -p tmp/glibc/bld
@@ -2215,7 +2213,7 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	rm -fr tmp/glibc/ins/lib
 #	strip --strip-unneeded tmp/glibc/ins/lib/*
 	cd tmp/glibc/bld && make $(JOBS) check || true
-#tgt: pkg2/lfs-tgt-libcpp.pass2.cpio.zst
+
 tgt: pkg3/glibc-$(GLIBC_VER).cpio.zst
 
 
