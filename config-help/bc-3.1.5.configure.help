@@ -1,0 +1,162 @@
+usage: configure -h
+       configure --help
+       configure [-bD|-dB|-c] [-EfgGHlMNPT] [-O OPT_LEVEL] [-k KARATSUBA_LEN]
+       configure \
+           [--bc-only --disable-dc|--dc-only --disable-bc|--coverage]      \
+           [--debug --disable-extra-math --disable-generated-tests]        \
+           [--disable-history --disable-man-pages --disable-nls]           \
+           [--disable-prompt --disable-strip] [--install-all-locales]      \
+           [--opt=OPT_LEVEL] [--karatsuba-len=KARATSUBA_LEN]               \
+           [--prefix=PREFIX] [--bindir=BINDIR] [--datarootdir=DATAROOTDIR] \
+           [--datadir=DATADIR] [--mandir=MANDIR] [--man1dir=MAN1DIR]       \
+           [--force]                                                       \
+
+    -b, --bc-only
+        Build bc only. It is an error if "-d", "--dc-only", "-B", or "--disable-bc"
+        are specified too.
+    -B, --disable-bc
+        Disable bc. It is an error if "-b", "--bc-only", "-D", or "--disable-dc"
+        are specified too.
+    -c, --coverage
+        Generate test coverage code. Requires gcov and regcovr.
+        It is an error if either "-b" ("-D") or "-d" ("-B") is specified.
+        Requires a compiler that use gcc-compatible coverage options
+    -d, --dc-only
+        Build dc only. It is an error if "-b", "--bc-only", "-D", or "--disable-dc"
+        are specified too.
+    -D, --disable-dc
+        Disable dc. It is an error if "-d", "--dc-only" "-B", or "--disable-bc"
+        are specified too.
+    -E, --disable-extra-math
+        Disable extra math. This includes: "$" operator (truncate to integer),
+        "@" operator (set number of decimal places), and r(x, p) (rounding
+        function). Additionally, this option disables the extra printing
+        functions in the math library.
+    -f, --force
+        Force use of all enabled options, even if they do not work. This
+        option is to allow the maintainer a way to test that certain options
+        are not failing invisibly. (Development only.)    -g, --debug
+        Build in debug mode. Adds the "-g" flag, and if there are no
+        other CFLAGS, and "-O" was not given, this also adds the "-O0"
+        flag. If this flag is *not* given, "-DNDEBUG" is added to CPPFLAGS
+        and a strip flag is added to the link stage.
+    -G, --disable-generated-tests
+        Disable generating tests. This is for platforms that do not have a
+        GNU bc-compatible bc to generate tests.
+    -h, --help
+        Print this help message and exit.
+    -H, --disable-history
+        Disable history.
+    -k KARATSUBA_LEN, --karatsuba-len KARATSUBA_LEN
+        Set the karatsuba length to KARATSUBA_LEN (default is 64).
+        It is an error if KARATSUBA_LEN is not a number or is less than 16.
+    -l, --install-all-locales
+        Installs all locales, regardless of how many are on the system. This
+        option is useful for package maintainers who want to make sure that
+        a package contains all of the locales that end users might need.
+    -M, --disable-man-pages
+        Disable installing manpages.
+    -N, --disable-nls
+        Disable POSIX locale (NLS) support.
+    -O OPT_LEVEL, --opt OPT_LEVEL
+        Set the optimization level. This can also be included in the CFLAGS,
+        but it is provided, so maintainers can build optimized debug builds.
+        This is passed through to the compiler, so it must be supported.
+    -P, --disable-prompt
+        Disables the prompt in the built bc. The prompt will never show up,
+        or in other words, it will be permanently disabled and cannot be
+        enabled.
+    -T, --disable-strip
+        Disable stripping symbols from the compiled binary or binaries.
+        Stripping symbols only happens when debug mode is off.
+    --prefix PREFIX
+        The prefix to install to. Overrides "$PREFIX" if it exists.
+        If PREFIX is "/usr", install path will be "/usr/bin".
+        Default is "/usr/local".
+    --bindir BINDIR
+        The directory to install binaries. Overrides "$BINDIR" if it exists.
+        Default is "$PREFIX/bin".
+    --datarootdir DATAROOTDIR
+        The root location for data files. Overrides "$DATAROOTDIR" if it exists.
+        Default is "$PREFIX/share".
+    --datadir DATADIR
+        The location for data files. Overrides "$DATADIR" if it exists.
+        Default is "$DATAROOTDIR".
+    --mandir MANDIR
+        The location to install manpages to. Overrides "$MANDIR" if it exists.
+        Default is "$DATADIR/man".
+    --man1dir MAN1DIR
+        The location to install Section 1 manpages to. Overrides "$MAN1DIR" if
+        it exists. Default is "$MANDIR/man1".
+
+In addition, the following environment variables are used:
+
+    CC           C compiler. Must be compatible with POSIX c99. If there is a
+                 space in the basename of the compiler, the items after the
+                 first space are assumed to be compiler flags, and in that case,
+                 the flags are automatically moved into CFLAGS. Default is
+                 "c99".
+    HOSTCC       Host C compiler. Must be compatible with POSIX c99. If there is
+                 a space in the basename of the compiler, the items after the
+                 first space are assumed to be compiler flags, and in the case,
+                 the flags are automatically moved into HOSTCFLAGS. Default is
+                 "$CC".
+    HOST_CC      Same as HOSTCC. If HOSTCC also exists, it is used.
+    CFLAGS       C compiler flags.
+    HOSTCFLAGS   CFLAGS for HOSTCC. Default is "$CFLAGS".
+    HOST_CFLAGS  Same as HOST_CFLAGS. If HOST_CFLAGS also exists, it is used.
+    CPPFLAGS     C preprocessor flags. Default is "".
+    LDFLAGS      Linker flags. Default is "".
+    PREFIX       The prefix to install to. Default is "/usr/local".
+                 If PREFIX is "/usr", install path will be "/usr/bin".
+    BINDIR       The directory to install binaries. Default is "$PREFIX/bin".
+    DATAROOTDIR  The root location for data files. Default is "$PREFIX/share".
+    DATADIR      The location for data files. Default is "$DATAROOTDIR".
+    MANDIR       The location to install manpages to. Default is "$DATADIR/man".
+    MAN1DIR      The location to install Section 1 manpages to. Default is
+                 "$MANDIR/man1".
+    NLSPATH      The location to install locale catalogs to. Must be an absolute
+                 path (or contain one). This is treated the same as the POSIX
+                 definition of $NLSPATH (see POSIX environment variables for
+                 more information). Default is "/usr/share/locale/%L/%N".
+    EXECSUFFIX   The suffix to append to the executable names, used to not
+                 interfere with other installed bc executables. Default is "".
+    EXECPREFIX   The prefix to append to the executable names, used to not
+                 interfere with other installed bc executables. Default is "".
+    DESTDIR      For package creation. Default is "". If it is empty when
+                 `configure` is run, it can also be passed to `make install`
+                 later as an environment variable. If both are specified,
+                 the one given to `configure` takes precedence.
+    LONG_BIT     The number of bits in a C `long` type. This is mostly for the
+                 embedded space since this `bc` uses `long`s internally for
+                 overflow checking. In C99, a `long` is required to be 32 bits.
+                 For most normal desktop systems, setting this is unnecessary,
+                 except that 32-bit platforms with 64-bit longs may want to set
+                 it to `32`. Default is the default of `LONG_BIT` for the target
+                 platform. Minimum allowed is `32`. It is a build time error if
+                 the specified value of `LONG_BIT` is greater than the default
+                 value of `LONG_BIT` for the target platform.
+    GEN_HOST     Whether to use `gen/strgen.c`, instead of `gen/strgen.sh`, to
+                 produce the C files that contain the help texts as well as the
+                 math libraries. By default, `gen/strgen.c` is used, compiled by
+                 "$HOSTCC" and run on the host machine. Using `gen/strgen.sh`
+                 removes the need to compile and run an executable on the host
+                 machine since `gen/strgen.sh` is a POSIX shell script. However,
+                 `gen/lib2.bc` is perilously close to 4095 characters, the max
+                 supported length of a string literal in C99 (and it could be
+                 added to in the future), and `gen/strgen.sh` generates a string
+                 literal instead of an array, as `gen/strgen.c` does. For most
+                 production-ready compilers, this limit probably is not
+                 enforced, but it could be. Both options are still available for
+                 this reason. If you are sure your compiler does not have the
+                 limit and do not want to compile and run a binary on the host
+                 machine, set this variable to "0". Any other value, or a
+                 non-existent value, will cause the build system to compile and
+                 run `gen/strgen.c`. Default is "".
+    GEN_EMU      Emulator to run string generator code under (leave empty if not
+                 necessary). This is not necessary when using `gen/strgen.sh`.
+                 Default is "".
+
+WARNING: even though `configure.sh` supports both option types, short and
+long, it does not support handling both at the same time. Use only one type.
+

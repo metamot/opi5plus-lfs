@@ -1,0 +1,18 @@
+Usage: configure.py [options]
+
+Options:
+  -h, --help           show this help message and exit
+  --bootstrap          bootstrap a ninja binary from nothing
+  --verbose            enable verbose build
+  --platform=PLATFORM  target platform (linux/darwin/freebsd/openbsd/solaris/s
+                       unos5/mingw/msvc/gnukfreebsd/bitrig/netbsd/aix/dragonfl
+                       y)
+  --host=HOST          host platform (linux/darwin/freebsd/openbsd/solaris/sun
+                       os5/mingw/msvc/gnukfreebsd/bitrig/netbsd/aix/dragonfly)
+  --debug              enable debugging extras
+  --profile=TYPE       enable profiling (gmon/pprof)
+  --with-gtest=PATH    ignored
+  --with-python=EXE    use EXE as the Python interpreter
+  --force-pselect      ppoll() is used by default where available, but some
+                       platforms may need to use pselect instead
+
