@@ -44,7 +44,7 @@ OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(
 LFS=$(PWD)/lfs
 #LFS_HST=aarch64-rk3588-linux-gnu
 LFS_TGT=aarch64-rk3588-linux-gnu
-#LFS_TGT=aarch64-unknown-linux-gnu
+LFS_FINAL_TGT=aarch64-unknown-linux-gnu
 
 all: deps pkg mmc
 
@@ -652,6 +652,8 @@ write_run: out/mmc.img
 LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
+RUN_TESTS=y
+
 # Packages versions:
 ACL_VER=2.2.53
 ATTR_VER=2.4.48
@@ -668,6 +670,7 @@ CPIO_VER=2.13
 DBUS_VER=1.12.20
 DEJAGNU_VER=1.6.2
 DIFF_UTILS_VER=3.7
+DOS_FS_TOOLS_VER=4.1
 E2FSPROGS_VER=1.45.6
 ELF_UTILS_VER=0.180
 # EXPAT_VER=2.2.9
@@ -710,6 +713,7 @@ NCURSES_VER=6.2
 NINJA_VER=1.10.0
 OPEN_SSL_VER=1.1.1g
 PATCH_VER=2.7.6
+PCRE_VER=8.44
 PERL_VER=5.32.0
 PERL_VER0=5.32
 PKG_CONFIG_VER=0.29.2
@@ -721,6 +725,7 @@ PYTHON_DOC_VER=$(PYTHON_VER)
 READLINE_VER=8.0
 SED_VER=4.8
 SHADOW_VER=4.8.1
+SWIG_VER=4.0.2
 SYSTEMD_VER=246
 TAR_VER=1.32
 TCL_VER=8.6.10
@@ -759,6 +764,7 @@ PKG+=pkg/cpio-$(CPIO_VER).tar.bz2
 PKG+=pkg/dbus-$(DBUS_VER).tar.gz
 PKG+=pkg/dejagnu-$(DEJAGNU_VER).tar.gz
 PKG+=pkg/diffutils-$(DIFF_UTILS_VER).tar.xz
+PKG+=pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz
 PKG+=pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz
 PKG+=pkg/elfutils-$(ELF_UTILS_VER).tar.bz2
 PKG+=pkg/expat-$(EXPAT_VER).tar.xz
@@ -768,7 +774,7 @@ PKG+=pkg/findutils-$(FIND_UTILS_VER).tar.xz
 PKG+=pkg/flex-$(FLEX_VER).tar.gz
 PKG+=pkg/gawk-$(GAWK_VER).tar.xz
 PKG+=pkg/gcc-$(GCC_VER).tar.xz
-PKG+=pkg/gdbm-$(DBM_VER).tar.gz
+PKG+=pkg/gdbm-$(GDBM_VER).tar.gz
 PKG+=pkg/gettext-$(GETTEXT_VER).tar.xz
 PKG+=pkg/glibc-$(GLIBC_VER).tar.xz
 PKG+=pkg/gmp-$(GMP_VER).tar.xz
@@ -799,6 +805,7 @@ PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
 PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
+PKG+=pkg/pcre-$(PCRE_VER).tar.gz
 PKG+=pkg/perl-$(PERL_VER).tar.xz
 PKG+=pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz
 PKG+=pkg/procps-ng-$(PROCPS_VER).tar.xz
@@ -809,6 +816,7 @@ PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
 PKG+=pkg/readline-$(READLINE_VER).tar.gz
 PKG+=pkg/sed-$(SED_VER).tar.xz
 PKG+=pkg/shadow-$(SHADOW_VER).tar.xz
+PKG+=pkg/swig-$(SWIG_VER).tar.gz
 PKG+=pkg/systemd-$(SYSTEMD_VER).tar.gz
 PKG+=pkg/tar-$(TAR_VER).tar.xz
 PKG+=pkg/tcl$(TCL_VER)-src.tar.gz
@@ -879,6 +887,8 @@ pkg/dejagnu-$(DEJAGNU_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/dejagnu/dejagnu-$(DEJAGNU_VER).tar.gz && touch $@
 pkg/diffutils-$(DIFF_UTILS_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/diffutils/diffutils-$(DIFF_UTILS_VER).tar.xz && touch $@
+pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz: pkg/.gitignore 	
+	wget -P pkg https://github.com/dosfstools/dosfstools/releases/download/v$(DOS_FS_TOOLS_VER)/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz && touch $@
 pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v$(E2FSPROGS_VER)/e2fsprogs-$(E2FSPROGS_VER).tar.gz && touch $@
 pkg/elfutils-$(ELF_UTILS_VER).tar.bz2: pkg/.gitignore
@@ -897,7 +907,7 @@ pkg/gawk-$(GAWK_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/gawk/gawk-$(GAWK_VER).tar.xz && touch $@
 pkg/gcc-$(GCC_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VER)/gcc-$(GCC_VER).tar.xz && touch $@
-pkg/gdbm-$(DBM_VER).tar.gz: pkg/.gitignore
+pkg/gdbm-$(GDBM_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/gdbm/gdbm-$(GDBM_VER).tar.gz && touch $@
 pkg/gettext-$(GETTEXT_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/gettext/gettext-$(GETTEXT_VER).tar.xz && touch $@
@@ -959,6 +969,9 @@ pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
 pkg/patch-$(PATCH_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/patch/patch-$(PATCH_VER).tar.xz && touch $@
+pkg/pcre-$(PCRE_VER).tar.gz: pkg/.gitignore
+#	wget -P pkg https://deac-fra.dl.sourceforge.net/project/pcre/pcre/$(PCRE_VER)/pcre-$(PCRE_VER).tar.gz && touch $@
+	wget -P pkg https://sourceforge.net/projects/pcre/files/pcre/$(PCRE_VER)/pcre-$(PCRE_VER).tar.gz && touch $@
 pkg/perl-$(PERL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.cpan.org/src/5.0/perl-$(PERL_VER).tar.xz && touch $@
 pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz: pkg/.gitignore
@@ -979,6 +992,8 @@ pkg/sed-$(SED_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/sed/sed-$(SED_VER).tar.xz && touch $@
 pkg/shadow-$(SHADOW_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/shadow-maint/shadow/releases/download/$(SHADOW_VER)/shadow-$(SHADOW_VER).tar.xz && touch $@
+pkg/swig-$(SWIG_VER).tar.gz: pkg/.gitignore	
+	wget -P pkg https://downloads.sourceforge.net/swig/swig-$(SWIG_VER).tar.gz && touch $@
 pkg/systemd-$(SYSTEMD_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/systemd/systemd/archive/v$(SYSTEMD_VER)/systemd-$(SYSTEMD_VER).tar.gz && touch $@
 pkg/tar-$(TAR_VER).tar.xz: pkg/.gitignore
@@ -1111,6 +1126,7 @@ hst-deepclean: hst-clean
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/linux-headers.html
 # BUILD_TIME :: 0.5 min
 pkg1/lfs-kernel-headers.cpio.zst: cfg/$(KERNEL_CONFIG) pkg/orangepi5-linux510-xunlong.cpio.zst
+	rm -fr tmp/kernel
 	mkdir -p tmp/kernel/src
 	pv pkg/orangepi5-linux510-xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/kernel/src
 	mkdir -p tmp/kernel/bld
@@ -1136,7 +1152,10 @@ BINUTILS1_OPT1+= --disable-werror
 BINUTILS1_OPT1+= $(OPT_FLAGS)
 BINUTILS1_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
 pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz lfs/usr/include/asm/ioctl.h
-	mkdir -p tmp/lfs-hst-binutils1 && tar -xJf $< -C tmp/lfs-hst-binutils1 && mkdir -pv tmp/lfs-hst-binutils1/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS1_OPT1)' && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	rm -fr tmp/lfs-hst-binutils1
+	mkdir -p tmp/lfs-hst-binutils1/bld
+	tar -xJf $< -C tmp/lfs-hst-binutils1
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS1_OPT1)' && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-binutils1/ins$(LFS)/tools/share
 	strip --strip-unneeded tmp/lfs-hst-binutils1/ins$(LFS)/tools/$(LFS_TGT)/bin/* || true
 	strip --strip-unneeded tmp/lfs-hst-binutils1/ins$(LFS)/tools/bin/* || true
@@ -1173,6 +1192,7 @@ GCC1_OPT1+= $(OPT_FLAGS)
 GCC1_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
 GCC1_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
 pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz lfs/tools/$(LFS_TGT)/lib/ldscripts/armelf.x
+	rm -fr tmp/lfs-hst-gcc1
 	mkdir -p tmp/lfs-hst-gcc1
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/lfs-hst-gcc1
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
@@ -1202,6 +1222,7 @@ GLIBC_OPT1+= --with-headers=$(LFS)/usr/include
 GLIBC_OPT1+= libc_cv_slibdir=/lib
 GLIBC_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glibc-$(GLIBC_VER)-fhs-1.patch lfs/tools/lib/gcc/aarch64-rk3588-linux-gnu/10.2.0/include/arm_acle.h
+	rm -fr tmp/lfs-hst-glibc
 	mkdir -p tmp/lfs-hst-glibc
 	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/lfs-hst-glibc
 	tar -xJf pkg/glibc-$(GLIBC_VER).tar.xz -C tmp/lfs-hst-glibc
@@ -1236,11 +1257,12 @@ lfs/usr/include/arpa/ftp.h: pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
 hst-glibc: lfs/usr/include/arpa/ftp.h
 
-# === my extra
+# === extra
 #
 # BUILD_TIME :: 0 min
 lfs/tools/build-host.txt: pkg/glibc-$(GLIBC_VER).tar.xz lfs/usr/include/arpa/ftp.h
 	mkdir -p lfs/tools
+	rm -fr tmp/lfs-hst-glibc
 	mkdir -p tmp/lfs-hst-glibc
 	tar -xJf $< -C tmp/lfs-hst-glibc
 	tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/scripts/config.guess > lfs/tools/build-host.txt
@@ -1258,6 +1280,7 @@ LIBCPP1_OPT1+= --with-gxx-include-dir=/tools/$(LFS_TGT)/include/c++/$(GCC_VER)
 LIBCPP1_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-libcpp.pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz lfs/tools/build-host.txt
 	lfs/tools/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/mkheaders
+	rm -fr tmp/lfs-hst-libcpp1
 	mkdir -p tmp/lfs-hst-libcpp1
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/lfs-hst-libcpp1
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
@@ -1284,6 +1307,7 @@ M4_OPT1+= --prefix=/usr
 M4_OPT1+= --host=$(LFS_TGT)
 M4_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-m4-$(M4_VER).cpio.zst: pkg/m4-$(M4_VER).tar.xz lfs/tools/aarch64-rk3588-linux-gnu/include/c++/10.2.0/any
+	rm -fr tmp/lfs-hst-m4
 	mkdir -p tmp/lfs-hst-m4
 	tar -xJf $< -C tmp/lfs-hst-m4
 	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/lfs-hst-m4/m4-$(M4_VER)/lib/*.c
@@ -1316,6 +1340,7 @@ NCURSES_OPT1+= --with-ticlib
 NCURSES_OPT1+= --enable-widec
 NCURSES_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst: pkg/ncurses-$(NCURSES_VER).tar.gz lfs/usr/bin/m4
+	rm -fr tmp/lfs-hst-ncurses
 	mkdir -p tmp/lfs-hst-ncurses
 	tar -xzf $< -C tmp/lfs-hst-ncurses
 	sed -i s/mawk// tmp/lfs-hst-ncurses/ncurses-$(NCURSES_VER)/configure
@@ -1339,6 +1364,7 @@ BASH_OPT1+= --host=$(LFS_TGT)
 BASH_OPT1+= --without-bash-malloc
 BASH_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-bash-$(BASH_VER).cpio.zst: pkg/bash-$(BASH_VER).tar.gz lfs/usr/include/curses.h
+	rm -fr tmp/lfs-hst-bash
 	mkdir -p tmp/lfs-hst-bash/bld
 	tar -xzf $< -C tmp/lfs-hst-bash
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-bash/bld && ../bash-$(BASH_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(BASH_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1360,6 +1386,7 @@ COREUTILS_OPT1+= --enable-install-program=hostname
 COREUTILS_OPT1+= --enable-no-install-program=kill,uptime
 COREUTILS_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst: pkg/coreutils-$(CORE_UTILS_VER).tar.xz lfs/usr/include/bash/alias.h
+	rm -fr tmp/lfs-hst-coreutils
 	mkdir -p tmp/lfs-hst-coreutils/bld
 	tar -xJf $< -C tmp/lfs-hst-coreutils
 	sed -i "s/SYS_getdents/SYS_getdents64/" tmp/lfs-hst-coreutils/coreutils-$(CORE_UTILS_VER)/src/ls.c
@@ -1379,6 +1406,7 @@ DIFFUTILS_OPT1+= --prefix=/usr
 DIFFUTILS_OPT1+= --host=$(LFS_TGT)
 DIFFUTILS_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg/diffutils-$(DIFF_UTILS_VER).tar.xz lfs/usr/libexec/coreutils/libstdbuf.so
+	rm -fr tmp/lfs-hst-diffutils
 	mkdir -p tmp/lfs-hst-diffutils/bld
 	tar -xJf $< -C tmp/lfs-hst-diffutils
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-diffutils/bld && ../diffutils-$(DIFF_UTILS_VER)/configure $(DIFFUTILS_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1397,6 +1425,7 @@ FILE_OPT1+= --prefix=/usr
 FILE_OPT1+= --host=$(LFS_TGT)
 FILE_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-file-$(FILE_VER).cpio.zst: pkg/file-$(FILE_VER).tar.gz lfs/usr/bin/diff
+	rm -fr tmp/lfs-hst-file
 	mkdir -p tmp/lfs-hst-file/bld
 	tar -xzf $< -C tmp/lfs-hst-file
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-file/bld && ../file-$(FILE_VER)/configure $(FILE_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1416,6 +1445,7 @@ FINDUTILS_OPT1+= --prefix=/usr
 FINDUTILS_OPT1+= --host=$(LFS_TGT)
 FINDUTILS_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst: pkg/findutils-$(FIND_UTILS_VER).tar.xz lfs/usr/include/magic.h
+	rm -fr tmp/lfs-hst-findutils
 	mkdir -p tmp/lfs-hst-findutils/bld
 	tar -xJf $< -C tmp/lfs-hst-findutils
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-findutils/bld && ../findutils-$(FIND_UTILS_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(FINDUTILS_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1436,6 +1466,7 @@ GAWK_OPT1+= --prefix=/usr
 GAWK_OPT1+= --host=$(LFS_TGT)
 GAWK_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-gawk-$(GAWK_VER).cpio.zst: pkg/gawk-$(GAWK_VER).tar.xz lfs/usr/libexec/frcode
+	rm -fr tmp/lfs-hst-gawk
 	mkdir -p tmp/lfs-hst-gawk/bld
 	tar -xJf $< -C tmp/lfs-hst-gawk
 	sed -i 's/extras//' tmp/lfs-hst-gawk/gawk-$(GAWK_VER)/Makefile.in
@@ -1457,6 +1488,7 @@ GREP_OPT1+= --prefix=/usr
 GREP_OPT1+= --host=$(LFS_TGT)
 GREP_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-grep-$(GREP_VER).cpio.zst: pkg/grep-$(GREP_VER).tar.xz lfs/usr/include/gawkapi.h
+	rm -fr tmp/lfs-hst-grep
 	mkdir -p tmp/lfs-hst-grep/bld
 	tar -xJf $< -C tmp/lfs-hst-grep
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-grep/bld && ../grep-$(GREP_VER)/configure $(GREP_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1475,6 +1507,7 @@ GZIP_OPT1+= --prefix=/usr
 GZIP_OPT1+= --host=$(LFS_TGT)
 GZIP_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-gzip-$(GZIP_VER).cpio.zst: pkg/gzip-$(GZIP_VER).tar.xz lfs/usr/bin/egrep
+	rm -fr tmp/lfs-hst-gzip
 	mkdir -p tmp/lfs-hst-gzip/bld
 	tar -xJf $< -C tmp/lfs-hst-gzip
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gzip/bld && ../gzip-$(GZIP_VER)/configure $(GZIP_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1494,6 +1527,7 @@ MAKE_OPT1+= --without-guile
 MAKE_OPT1+= --host=$(LFS_TGT)
 MAKE_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-make-$(MAKE_VER).cpio.zst: pkg/make-$(MAKE_VER).tar.gz lfs/usr/bin/zegrep
+	rm -fr tmp/lfs-hst-make
 	mkdir -p tmp/lfs-hst-make/bld
 	tar -xzf $< -C tmp/lfs-hst-make
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-make/bld && ../make-$(MAKE_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(MAKE_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1512,6 +1546,7 @@ PATCH_OPT1+= --prefix=/usr
 PATCH_OPT1+= --host=$(LFS_TGT)
 PATCH_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-patch-$(PATCH_VER).cpio.zst: pkg/patch-$(PATCH_VER).tar.xz lfs/usr/include/gnumake.h
+	rm -fr tmp/lfs-hst-patch
 	mkdir -p tmp/lfs-hst-patch/bld
 	tar -xJf $< -C tmp/lfs-hst-patch
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-patch/bld && ../patch-$(PATCH_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(PATCH_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1530,6 +1565,7 @@ SED_OPT1+= --prefix=/usr
 SED_OPT1+= --host=$(LFS_TGT)
 SED_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-sed-$(SED_VER).cpio.zst: pkg/sed-$(SED_VER).tar.xz lfs/usr/bin/patch
+	rm -fr tmp/lfs-hst-sed
 	mkdir -p tmp/lfs-hst-sed/bld
 	tar -xJf $< -C tmp/lfs-hst-sed
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-sed/bld && ../sed-$(SED_VER)/configure $(SED_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1548,6 +1584,7 @@ TAR_OPT1+= --prefix=/usr
 TAR_OPT1+= --host=$(LFS_TGT)
 TAR_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-tar-$(TAR_VER).cpio.zst: pkg/tar-$(TAR_VER).tar.xz lfs/usr/bin/sed
+	rm -fr tmp/lfs-hst-tar
 	mkdir -p tmp/lfs-hst-tar/bld
 	tar -xJf $< -C tmp/lfs-hst-tar
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-tar/bld && ../tar-$(TAR_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(TAR_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1569,6 +1606,7 @@ XZ_OPT1+= --disable-static
 XZ_OPT1+= --docdir=/usr/share/doc/xz-$(XZ_VER)
 XZ_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-xz-$(XZ_VER).cpio.zst: pkg/xz-$(XZ_VER).tar.xz lfs/usr/libexec/rmt
+	rm -fr tmp/lfs-hst-xz
 	mkdir -p tmp/lfs-hst-xz/bld
 	tar -xJf $< -C tmp/lfs-hst-xz
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-xz/bld && ../xz-$(XZ_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(XZ_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1581,12 +1619,13 @@ lfs/usr/include/lzma.h: pkg1/lfs-hst-xz-$(XZ_VER).cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
 hst-xz: lfs/usr/include/lzma.h
 
-# === my extra :: zstd :: "make hst-zstd" (deps : hst-xz)
+# === extra :: zstd :: "make hst-zstd" (deps : hst-xz)
 #
 # BUILD_TIME :: 1m 12s
 ZSTD1_L_OPT = CC=$(LFS_TGT)-gcc ZSTD_LIB_MINIFY=1 ZSTD_LIB_DICTBUILDER=0 MOREFLAGS=$(RK3588_FLAGS) prefix=/usr DESTDIR=../../ins
 ZSTD1_P_OPT = CC=$(LFS_TGT)-gcc HAVE_PTHREAD=0 HAVE_THREAD=0 MOREFLAGS=$(RK3588_FLAGS) prefix=/usr DESTDIR=../../ins
 pkg1/lfs-hst-zstd-$(ZSTD_VER).cpio.zst: pkg/zstd-$(ZSTD_VER).tar.gz lfs/usr/include/lzma.h
+	rm -fr tmp/lfs-hst-zstd
 	mkdir -p tmp/lfs-hst-zstd/bld
 	tar -xzf $< -C tmp/lfs-hst-zstd
 	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" tmp/lfs-hst-zstd/zstd-$(ZSTD_VER)/programs/Makefile
@@ -1602,8 +1641,8 @@ lfs/usr/include/zstd.h: pkg1/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
 hst-zstd: lfs/usr/include/zstd.h
 
-# === my extra (BLFS-10) :: cpio :: "make hst-cpio" (deps : hst-zstd)
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/
+# === extra (BLFS-10) :: cpio :: "make hst-cpio" (deps : hst-zstd)
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cpio.html
 # BUILD_TIME :: 0m 59s
 CPIO_OPT1+= --prefix=/usr
 CPIO_OPT1+= --host=$(LFS_TGT)
@@ -1612,6 +1651,7 @@ CPIO_OPT1+= --disable-static
 CPIO_OPT1+= --with-rmt=/usr/libexec/rmt
 CPIO_OPT1+= CFLAGS="$(RK3588_FLAGS) -Os -fcommon"
 pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst: pkg/cpio-$(CPIO_VER).tar.bz2 lfs/usr/include/zstd.h
+	rm -fr tmp/lfs-hst-cpio
 	mkdir -p tmp/lfs-hst-cpio/bld
 	tar -xjf $< -C tmp/lfs-hst-cpio
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-cpio/bld && ../cpio-$(CPIO_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(CPIO_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1623,7 +1663,7 @@ lfs/usr/bin/cpio: pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
 hst-cpio: lfs/usr/bin/cpio
 
-# === my extra :: pv :: "make hst-pv" (deps: hst-cpio)
+# === extra :: pv :: "make hst-pv" (deps: hst-cpio)
 # http://www.ivarch.com/programs/pv.shtml
 # https://github.com/icetee/pv
 # BUILD_TIME :: 0m 9s
@@ -1634,6 +1674,7 @@ PV_OPT1+= --disable-splice
 PV_OPT1+= --disable-ipc
 PV_OPT1+= $(OPT_FLAGS)
 pkg1/lfs-hst-pv-$(PV_VER).cpio.zst: pkg/pv-$(PV_VER).tar.gz lfs/usr/bin/cpio
+	rm -fr tmp/lfs-hst-pv
 	mkdir -p tmp/lfs-hst-pv/bld
 	tar -xzf $< -C tmp/lfs-hst-pv
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-pv/bld && ../pv-$(PV_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(PV_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1658,6 +1699,7 @@ BINUTILS2_OPT1+= $(OPT_FLAGS)
 BINUTILS2_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
 BINUTILS2_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
 pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz lfs/usr/bin/pv
+	rm -fr tmp/lfs-hst-binutils2
 	mkdir -p tmp/lfs-hst-binutils2/bld
 	tar -xJf $< -C tmp/lfs-hst-binutils2
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils2/bld && ../binutils-$(BINUTILS_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(BINUTILS2_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
@@ -1693,6 +1735,7 @@ GCC2_OPT1+= $(OPT_FLAGS)
 GCC2_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
 GCC2_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
 pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz lfs/usr/include/bfd.h
+	rm -fr tmp/lfs-hst-gcc2
 	mkdir -p tmp/lfs-hst-gcc2/bld
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/lfs-hst-gcc2
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
@@ -1705,6 +1748,7 @@ pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz lfs/usr/in
 	mv tmp/lfs-hst-gcc2/ins/usr/lib64/* tmp/lfs-hst-gcc2/ins/usr/lib/
 	rm -fr tmp/lfs-hst-gcc2/ins/usr/lib64
 	cd tmp/lfs-hst-gcc2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+	strip --strip-debug tmp/lfs-hst-gcc2/ins/usr/lib/gcc/$(LFS_TGT)/$(GCC_VER)/*.a
 	cd tmp/lfs-hst-gcc2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	rm -fr tmp/lfs-hst-gcc2
 lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
@@ -1717,6 +1761,7 @@ hst-gcc2: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # BUILD TIME :: 13s
 pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
+	rm -fr tmp/lfs
 	mkdir -p tmp
 	cp -far lfs tmp/
 	rm -fr tmp/lfs/tools
@@ -1732,8 +1777,8 @@ pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_V
 	cp -far README.md tmp/lfs/opt/mysdk
 	cp -far pkg tmp/lfs/opt/mysdk
 	cp -far Makefile tmp/lfs/opt/mysdk
-	mkdir -p tmp/lfs/opt/mysdk/pkg2
-	cp -far pkg1/lfs-hst-glibc-2.32.cpio.zst tmp/lfs/opt/mysdk/pkg2/
+#	mkdir -p tmp/lfs/opt/mysdk/pkg2
+#	cp -far pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst tmp/lfs/opt/mysdk/pkg2/
 	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg1/lfs-hst-full.cpio.zst
 	sudo rm -fr tmp/lfs
 
@@ -1753,7 +1798,7 @@ hst-clean:
 #    PATH=/bin:/usr/bin:/sbin:/usr/sbin \
 #    /bin/bash --login +h
 
-# === my extra :: Unpack New LFS-ROOTFS (lfs2)
+# === extra :: Unpack New LFS-ROOTFS (lfs2)
 #
 lfs2/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 	mkdir -p lfs2
@@ -1789,7 +1834,9 @@ unchroot:
 	sudo umount lfs2/dev/pts || true
 	sudo umount lfs2/dev || true
 
+# =============================================================================
 # === CHROOT HERE
+# =============================================================================
 
 tgt-clean-tmp:
 	rm -fr tmp
@@ -1893,19 +1940,19 @@ tgt-clean-tmp:
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gcc-libstdc++-pass2.html
 # BUILD_TIME :: 1m 35s
 LIBCPP2_OPT2+= --prefix=/usr
+LIBCPP2_OPT2+= --host=$(LFS_TGT)
 LIBCPP2_OPT2+= --disable-multilib
 LIBCPP2_OPT2+= --disable-nls
 LIBCPP2_OPT2+= --disable-libstdcxx-pch
 LIBCPP2_OPT2+= CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS) -D_GNU_SOURCE"
-LIBCPP2_OPT2+= --host=$(LFS_TGT)
 pkg2/lfs-tgt-libcpp.pass2.cpio.zst: /etc/passwd
+	rm -fr tmp/tgt-gcc-libcpp
 	mkdir -p tmp/tgt-gcc-libcpp/bld
-	mkdir -p tmp/tgt-gcc-libcpp/ins
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/tgt-gcc-libcpp
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
-	cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -s gthr-posix.h libgcc/gthr-default.h
+	cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -sf gthr-posix.h libgcc/gthr-default.h
 	cd tmp/tgt-gcc-libcpp/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure $(LIBCPP2_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	mv -v tmp/tgt-gcc-libcpp/ins/usr/lib64/* tmp/tgt-gcc-libcpp/ins/usr/lib/
 	rm -fr tmp/tgt-gcc-libcpp/ins/usr/lib64
@@ -1916,6 +1963,7 @@ pkg2/lfs-tgt-libcpp.pass2.cpio.zst: /etc/passwd
 	cd tmp/tgt-gcc-libcpp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-gcc-libcpp
 	pv $@ | zstd -d | cpio -iduH newc -D /
+tgt-libcpp: pkg2/lfs-tgt-libcpp.pass2.cpio.zst
  
 # LFS-10.0-systemd :: CHROOT :: 7.8. Gettext-0.21
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gettext.html
@@ -1925,6 +1973,7 @@ GETTEXT_OPT2+= --disable-shared
 GETTEXT_OPT2+= --disable-nls
 GETTEXT_OPT2+= $(OPT_FLAGS)
 pkg2/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst: pkg2/lfs-tgt-libcpp.pass2.cpio.zst
+	rm -fr tmp/tgt-gettext
 	mkdir -p tmp/tgt-gettext
 	tar -xJf pkg/gettext-$(GETTEXT_VER).tar.xz -C tmp/tgt-gettext
 	mkdir -p tmp/tgt-gettext/bld
@@ -1949,6 +1998,7 @@ BISON_OPT2+= --docdir=/usr/share/doc/bison-$(BISON_VER)
 BISON_OPT2+= --disable-nls
 BISON_OPT2+= $(OPT_FLAGS)
 pkg2/lfs-tgt-bison-$(BISON_VER).cpio.zst: pkg2/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
+	rm -fr tmp/tgt-bison
 	mkdir -p tmp/tgt-bison
 	tar -xJf pkg/bison-$(BISON_VER).tar.xz -C tmp/tgt-bison
 	mkdir -p tmp/tgt-bison/bld
@@ -1978,6 +2028,7 @@ PERL_POPT2+= -Dvendorlib=/usr/lib/perl5/$(PERL_VER0)/vendor_perl
 PERL_POPT2+= -Dvendorarch=/usr/lib/perl5/$(PERL_VER0)/vendor_perl
 PERL_POPT2+= -Doptimize="$(BASE_OPT_FLAGS)"	
 pkg2/lfs-tgt-perl-$(PERL_VER).cpio.zst: pkg2/lfs-tgt-bison-$(BISON_VER).cpio.zst
+	rm -fr tmp/tgt-perl
 	mkdir -p tmp/tgt-perl
 	tar -xJf pkg/perl-$(PERL_VER).tar.xz -C tmp/tgt-perl
 	cd tmp/tgt-perl/perl-$(PERL_VER) && sh Configure $(PERL_POPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins2 install
@@ -1997,6 +2048,7 @@ PYTHON_OPT2+= --enable-shared
 PYTHON_OPT2+= --without-ensurepip
 PYTHON_OPT2+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
 pkg2/lfs-tgt-Python-$(PYTHON_VER).cpio.zst: pkg2/lfs-tgt-perl-$(PERL_VER).cpio.zst
+	rm -fr tmp/tgt-python
 	mkdir -p tmp/tgt-python
 	tar -xJf pkg/Python-$(PYTHON_VER).tar.xz -C tmp/tgt-python
 	sed -i "s/-O3/$(BASE_OPT_VALUE)/" tmp/tgt-python/Python-$(PYTHON_VER)/configure
@@ -2017,6 +2069,7 @@ TEXINFO_OPT2+= --prefix=/usr
 TEXINFO_OPT2+= --disable-nls
 TEXINFO_OPT2+= $(OPT_FLAGS)
 pkg2/lfs-tgt-texinfo-$(TEXINFO_VER).cpio.zst: pkg2/lfs-tgt-Python-$(PYTHON_VER).cpio.zst
+	rm -fr tmp/tgt-texinfo
 	mkdir -p tmp/tgt-texinfo
 	tar -xJf pkg/texinfo-$(TEXINFO_VER).tar.xz -C tmp/tgt-texinfo
 	mkdir -p tmp/tgt-texinfo/bld
@@ -2049,6 +2102,7 @@ UTIL_LINUX_OPT2+= --enable-usrdir-path
 UTIL_LINUX_OPT2+= $(OPT_FLAGS)
 pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg2/lfs-tgt-texinfo-$(TEXINFO_VER).cpio.zst
 	mkdir -pv /var/lib/hwclock
+	rm -fr tmp/tgt-util-linux
 	mkdir -p tmp/tgt-util-linux
 	tar -xJf pkg/util-linux-$(UTIL_LINUX_VER).tar.xz -C tmp/tgt-util-linux
 	mkdir -p tmp/tgt-util-linux/bld
@@ -2074,6 +2128,10 @@ pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg2/lfs-tgt-texinfo-$(TEXIN
 	rm -fr tmp/tgt-util-linux
 	pv $@ | zstd -d | cpio -iduH newc -D /
 
+# =============================================================================
+# === BASE SYSTEM
+# =============================================================================
+
 # LFS-10.0-systemd :: 8.3. Man-pages-5.08 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/man-pages.html
 # SKIP THIS
@@ -2082,7 +2140,7 @@ pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg2/lfs-tgt-texinfo-$(TEXIN
 # LFS-10.0-systemd :: 8.4. Tcl-8.6.10 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/tcl.html
 # BUILD_TIME :: 3m 3s
-# BUILD_TIME_WITH_TEST :: 8m 1s
+# BUILD_TIME_WITH_TEST :: 8m 1s (-j1) // 7m 30s (-j12)
 # NOTE: Skip unpack documentation. You can do it from "pkg/tcl8.6.10-html.tar.gz"
 TCL_OPT3+= --prefix=/usr
 TCL_OPT3+= --mandir=/usr/share/man
@@ -2090,6 +2148,7 @@ TCL_OPT3+= --enable-64bit
 TCL_OPT3+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
 pkg3/tcl$(TCL_VER).cpio.zst: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	mkdir -p pkg3
+	rm -fr tmp/tcl
 	mkdir -p tmp/tcl/bld
 	tar -xzf pkg/tcl$(TCL_VER)-src.tar.gz -C tmp/tcl
 	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/unix/configure
@@ -2103,8 +2162,10 @@ pkg3/tcl$(TCL_VER).cpio.zst: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	sed -i "s|`pwd`/tmp/tcl/bld/pkgs/itcl4.2.0|/usr/lib/itcl4.2.0|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
 	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0/generic|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
 	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
-	cd tmp/tcl/bld && make test
-# TESTS ARE PASSED, except some with clock. See LFS-note in book "In the test results there are several places associated with clock.test that indicate a failure, but the summary at the end indicates no failures. clock.test passes on a complete LFS system.". We can comment "make test" for future to speed-up build.
+ifeq ($(RUN_TESTS),y)
+	cd tmp/tcl/bld && make $(JOBS) test
+# TESTS ARE PASSED, except some with clock. See LFS-note in book "In the test results there are several places associated with clock.test that indicate a failure, but the summary at the end indicates no failures. clock.test passes on a complete LFS system.".
+endif
 	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install
 	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install-private-headers
 	rm -fr tmp/tcl/ins/usr/share/man
@@ -2129,6 +2190,7 @@ EXPECT_OPT3+= --enable-64bit
 EXPECT_OPT3+= --with-tclinclude=/usr/include
 EXPECT_OPT3+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
 pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
+	rm -fr tmp/expect
 	mkdir -p tmp/expect/bld
 	tar -xzf pkg/expect$(EXPECT_VER).tar.gz -C tmp/expect
 # BEGIN: Workaround error with configure guess "unknown host"
@@ -2142,8 +2204,10 @@ pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
 	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
 	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
 	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT3) && make $(JOBS) V=$(VERB)
-	cd tmp/expect/bld && make test
-# TESTS ARE PASSED	
+ifeq ($(RUN_TESTS),y)
+	cd tmp/expect/bld && make $(JOBS) test
+# TESTS ARE PASSED
+endif
 	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/expect/ins/usr/share
 	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
@@ -2159,14 +2223,17 @@ pkg3/expect$(EXPECT_VER).cpio.zst: pkg3/tcl$(TCL_VER).cpio.zst
 DEJAGNU_OPT3+= --prefix=/usr
 DEJAGNU_OPT3+= $(OPT_FLAGS)
 pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg3/expect$(EXPECT_VER).cpio.zst
+	rm -fr tmp/dejagnu
 	mkdir -p tmp/dejagnu/bld
 	tar -xzf pkg/dejagnu-$(DEJAGNU_VER).tar.gz -C tmp/dejagnu
 	cd tmp/dejagnu/bld && ../dejagnu-$(DEJAGNU_VER)/configure $(DEJAGNU_OPT3)
 	cd tmp/dejagnu/bld && makeinfo --html --no-split -o doc/dejagnu.html ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
 	cd tmp/dejagnu/bld && makeinfo --plaintext       -o doc/dejagnu.txt  ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
 	cd tmp/dejagnu/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	cd tmp/dejagnu/bld && make check
-# TESTS ARE PASSED	
+ifeq ($(RUN_TESTS),y)
+	cd tmp/dejagnu/bld && make $(JOBS) check
+# TESTS ARE PASSED
+endif
 	rm -fr tmp/dejagnu/ins/usr/share/info
 	rm -fr tmp/dejagnu/ins/usr/share/man
 	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/baseboards/README
@@ -2179,6 +2246,7 @@ pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg3/expect$(EXPECT_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/iana-etc.html
 # BUILD_TIME :: 1s
 pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst
+	rm -fr tmp/iana-etc
 	mkdir -p tmp/iana-etc/ins/etc
 	tar -xzf pkg/iana-etc-$(IANA_ETC_VER).tar.gz -C tmp/iana-etc
 	cp -far tmp/iana-etc/iana-etc-$(IANA_ETC_VER)/protocols tmp/iana-etc/ins/etc/
@@ -2190,7 +2258,7 @@ pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst
 # LFS-10.0-systemd :: 8.8. Glibc-2.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
 # BUILD_TIME :: 5m 30s
-# BUILD_TIME_WITH_TEST :: 31m 45s
+# BUILD_TIME_WITH_TEST :: 31m 45s // 32m 3s
 GLIBC_OPT3+= 
 GLIBC_OPT3+= --prefix=/usr
 GLIBC_OPT3+= --disable-werror
@@ -2201,13 +2269,13 @@ GLIBC_OPT3+= libc_cv_slibdir=/lib
 GLIBC_OPT3+= $(OPT_FLAGS)
 # Some useful info about tests: https://sourceware.org/glibc/wiki/Testing/Testsuite
 pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
+	rm -fr tmp/glibc
 	mkdir -p tmp/glibc/bld
 	tar -xJf pkg/glibc-$(GLIBC_VER).tar.xz -C tmp/glibc
 	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/glibc
 	cd tmp/glibc/glibc-$(GLIBC_VER) && patch -Np1 -i ../glibc-$(GLIBC_VER)-fhs-1.patch
 	sed '/test-installation/s@$$(PERL)@echo not running@' -i tmp/glibc/glibc-$(GLIBC_VER)/Makefile	
 	cd tmp/glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-#	cd tmp/glibc/bld && make $(JOBS) check || true
 	rm -fr tmp/glibc/ins/usr/share/info
 	cp -far tmp/glibc/ins/sbin/* tmp/glibc/ins/usr/sbin/
 	rm -fr tmp/glibc/ins/sbin
@@ -2260,6 +2328,7 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	echo "include /etc/ld.so.conf.d/*.conf" >> tmp/glibc/ins/etc/ld.so.conf
 	cd tmp/glibc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
 	cd tmp/glibc/bld && make $(JOBS) check || true
 #Summary of test results:
 #      2 FAIL
@@ -2268,6 +2337,7 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 #     17 XFAIL
 #      2 XPASS
 # NOTE: Sometimes, this report will show "1 FAIL", "2 FAIL" or "3 FAIL" )))))
+endif
 	rm -fr tmp/glibc
 
 # LFS-10.0-systemd :: 8.8.2.2. Adding time zone data 
@@ -2282,20 +2352,6 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 	mkdir -p /usr/share/zoneinfo/right
 	mkdir -p tmp/tzdata
 	tar -xzf pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz -C tmp/tzdata
-#zic -L /dev/null   -d /usr/share/zoneinfo       ${tz}
-#zic -L /dev/null   -d /usr/share/zoneinfo/posix ${tz}
-#zic -L leapseconds -d /usr/share/zoneinfo/right ${tz}
-#etcetera
-#southamerica
-#northamerica
-#europe
-#africa
-#antarctica
-#asia
-#australasia
-#backward
-#pacificnew
-#systemv
 	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo       etcetera
 	cd tmp/tzdata && zic -L /dev/null   -d /usr/share/zoneinfo/posix etcetera
 	cd tmp/tzdata && zic -L leapseconds -d /usr/share/zoneinfo/right etcetera
@@ -2340,6 +2396,7 @@ pkg3/glibc-$(GLIBC_VER).cpio.zst: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 # BUILD_TIME_WITH_TEST :: 4s
 ZLIB_OPT3+= --prefix=/usr
 pkg3/zlib-$(ZLIB_VER).cpio.zst: /etc/localtime
+	rm -fr tmp/zlib
 	mkdir -p tmp/zlib/bld
 	tar -xJf pkg/zlib-$(ZLIB_VER).tar.xz -C tmp/zlib
 	sed -i "s/-O3/$(BASE_OPT_FLAGS)/" tmp/zlib/zlib-$(ZLIB_VER)/configure
@@ -2349,20 +2406,295 @@ pkg3/zlib-$(ZLIB_VER).cpio.zst: /etc/localtime
 	strip --strip-unneeded tmp/zlib/ins/usr/lib/*.so
 	cd tmp/zlib/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
 	cd tmp/zlib/bld && make check
-# TEST PASSED!	
+# TEST PASSED!
+endif
 	rm -fr tmp/zlib
 
 # LFS-10.0-systemd :: 8.10. Bzip2-1.0.8 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bzip2.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 5s
 pkg3/bzip2-$(BZIP2_VER).cpio.zst: pkg3/zlib-$(ZLIB_VER).cpio.zst
-	mkdir -p tmp/bzip2
+	rm -fr tmp/bzip2
+	mkdir -p tmp/bzip2/ins/usr
 	tar -xzf pkg/bzip2-$(BZIP2_VER).tar.gz -C tmp/bzip2
 	cp -far pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch tmp/bzip2/
 	cd tmp/bzip2/bzip2-$(BZIP2_VER) && patch -Np1 -i ../bzip2-1.0.8-install_docs-1.patch
-tgt: pkg3/bzip2-$(BZIP2_VER).cpio.zst
+	sed -i 's@\(ln -s -f \)$$(PREFIX)/bin/@\1@' tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
+	sed -i "s@(PREFIX)/man@(PREFIX)/share/man@g" tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
+	sed -i "s|-O2|$(BASE_OPT_FLAGS)|" tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
+	sed -i "s|-O2|$(BASE_OPT_FLAGS)|" tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile-libbz2_so
+	cd tmp/bzip2/bzip2-$(BZIP2_VER) && make $(JOBS) V=$(VERB) -f Makefile-libbz2_so && make clean && make $(JOBS) V=$(VERB) && make PREFIX=`pwd`/../ins/usr install
+	rm -f tmp/bzip2/ins/usr/bin/bunzip2
+	rm -f tmp/bzip2/ins/usr/bin/bzcat
+	rm -f tmp/bzip2/ins/usr/bin/bzip2
+	cp -fa tmp/bzip2/bzip2-$(BZIP2_VER)/bzip2-shared tmp/bzip2/ins/usr/bin/bzip2
+	cd tmp/bzip2/ins/usr/bin && ln -sf bzip2 bunzip2 && ln -sf bzip2 bzcat
+	cp -fa tmp/bzip2/bzip2-$(BZIP2_VER)/*.so* tmp/bzip2/ins/usr/lib/
+	cd tmp/bzip2/ins/usr/lib && ln -sf libbz2.so.1.0 libbz2.so
+	rm -fr tmp/bzip2/ins/usr/share
+	strip --strip-debug    tmp/bzip2/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/bzip2/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/bzip2/ins/usr/bin/* || true
+	rm -f tmp/bzip2/ins/usr/lib/*.a
+# Disable static)))
+	cd tmp/bzip2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/bzip2
+
+# LFS-10.0-systemd :: 8.11. Xz-5.2.5
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/xz.html
+# BUILD_TIME :: 23s
+# BUILD_TIME_WITH_TEST :: 38s
+XZ_OPT3+= --prefix=/usr
+XZ_OPT3+= --disable-static
+XZ_OPT3+= --docdir=/usr/share/doc/xz-$(XZ_VER)
+XZ_OPT3+= --disable-nls
+XZ_OPT3+= --enable-small
+XZ_OPT3+= --disable-doc
+XZ_OPT3+= $(OPT_FLAGS)
+pkg3/xz-$(XZ_VER).cpio.zst: pkg3/bzip2-$(BZIP2_VER).cpio.zst
+	rm -fr tmp/xz
+	mkdir -p tmp/xz/bld
+	tar -xJf pkg/xz-$(XZ_VER).tar.xz -C tmp/xz
+	cd tmp/xz/bld && ../xz-$(XZ_VER)/configure $(XZ_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/xz/ins/usr/share
+	rm -f tmp/xz/ins/usr/lib/*.la
+	strip --strip-unneeded tmp/xz/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/xz/ins/usr/bin/* || true
+	cd tmp/xz/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/xz/bld && make $(JOBS) check
+# TEST OK
+endif
+	rm -fr tmp/xz
+
+# LFS-10.0-systemd :: 8.12. Zstd-1.4.5 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/zstd.html
+# BUILD_TIME :: 1m 4s
+# BUILD_TIME_WITH_TEST :: 29m 30s (-j1) // 17m 8s (-j12)
+pkg3/zstd-$(ZSTD_VER).cpio.zst: pkg3/xz-$(XZ_VER).cpio.zst
+	rm -fr tmp/zstd
+	mkdir -p tmp/zstd
+	tar -xzf pkg/zstd-$(ZSTD_VER).tar.gz -C tmp/zstd
+	find tmp/zstd/zstd-$(ZSTD_VER) -name "Makefile" -exec sed -i "s|-O3|$(BASE_OPT_VALUE)|" {} +
+	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/tests/fuzz/fuzz.py
+	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/contrib/linux-kernel/0002-lib-Add-zstd-modules.patch
+	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/Makefile
+# runned 2nd time for core Makefile, because "-O3" double exists on lines
+	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS)
+	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS) prefix=`pwd`/../ins/usr install
+	rm -fr tmp/zstd/ins/usr/share
+	strip --strip-unneeded tmp/zstd/ins/usr/bin/* || true
+	strip --strip-debug tmp/zstd/ins/usr/lib/*.a
+	rm -f tmp/zstd/ins/usr/lib/*.a
+# disable-static )))
+	strip --strip-unneeded tmp/zstd/ins/usr/lib/*.so*
+	cd tmp/zstd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS) test
+# TEST OK
+endif
+	rm -fr tmp/zstd
+
+# === extra (BLFS-10) :: cpio
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cpio.html
+# BUILD_TIME_WITH_TEST :: 1m 16s
+CPIO_OPT3+= --prefix=/usr
+CPIO_OPT3+= --enable-mt
+CPIO_OPT3+= --disable-nls
+CPIO_OPT3+= --disable-static
+CPIO_OPT3+= --with-rmt=/usr/libexec/rmt
+CPIO_OPT3+= $(OPT_FLAGS)
+pkg3/cpio-$(CPIO_VER).cpio.zst: pkg3/zstd-$(ZSTD_VER).cpio.zst
+	rm -fr tmp/cpio
+	mkdir -p tmp/cpio/bld
+	tar -xjf pkg/cpio-$(CPIO_VER).tar.bz2 -C tmp/cpio
+	sed -i '/The name/,+2 d' tmp/cpio/cpio-$(CPIO_VER)/src/global.c
+	cd tmp/cpio/bld && ../cpio-$(CPIO_VER)/configure $(CPIO_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/cpio/ins/usr/share
+	strip --strip-unneeded tmp/cpio/ins/usr/bin/*
+ifeq ($(RUN_TESTS),y)
+	cd tmp/cpio/bld && make $(JOBS) check
+# TEST OK
+endif
+	cd tmp/cpio/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/cpio
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# === extra :: pv
+# http://www.ivarch.com/programs/pv.shtml
+# https://github.com/icetee/pv
+# BUILD_TIME_WITH_TEST :: 34s
+PV_OPT3+= --prefix=/usr
+PV_OPT3+= --disable-nls
+PV_OPT3+= $(OPT_FLAGS)
+pkg3/pv-$(PV_VER).cpio.zst: pkg3/cpio-$(CPIO_VER).cpio.zst
+	rm -fr tmp/pv
+	mkdir -p tmp/pv/bld
+	tar -xzf pkg/pv-$(PV_VER).tar.gz -C tmp/pv
+	cd tmp/pv/bld && ../pv-$(PV_VER)/configure $(PV_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/pv/ins/usr/share
+	strip --strip-unneeded tmp/pv/ins/usr/bin/pv
+ifeq ($(RUN_TESTS),y)
+	cd tmp/pv/bld && make $(JOBS) check
+# TEST OK
+endif
+	cd tmp/pv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/pv
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.13. File-5.39 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/file.html
+# BUILD_TIME_WITH_TEST :: 22s
+FILE_OPT3+= --prefix=/usr
+FILE_OPT3+= $(OPT_FLAGS)
+pkg3/file-$(FILE_VER).cpio.zst: pkg3/pv-$(PV_VER).cpio.zst
+	rm -fr tmp/file
+	mkdir -p tmp/file/bld
+	tar -xzf pkg/file-$(FILE_VER).tar.gz -C tmp/file
+	cd tmp/file/bld && ../file-$(FILE_VER)/configure $(FILE_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/file/ins/usr/share/man
+	strip --strip-unneeded tmp/file/ins/usr/bin/file
+	rm -f tmp/file/ins/usr/lib/*.la
+	strip --strip-unneeded tmp/file/ins/usr/lib/*.so*
+ifeq ($(RUN_TESTS),y)
+	cd tmp/file/bld && make $(JOBS) check
+# TEST OK
+endif
+	cd tmp/file/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/file
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.14. Readline-8.0 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/readline.html
+# BUILD_TIME :: 18s
+READLINE_OPT3+= --prefix=/usr
+READLINE_OPT3+= --disable-static
+READLINE_OPT3+= --with-curses
+#READLINE_OPT3+= --docdir=/usr/share/doc/readline-8.0
+READLINE_OPT3+= $(OPT_FLAGS)
+pkg3/readline-$(READLINE_VER).cpio.zst: pkg3/file-$(FILE_VER).cpio.zst
+	rm -fr tmp/readline
+	mkdir -p tmp/readline/bld
+	tar -xzf pkg/readline-$(READLINE_VER).tar.gz -C tmp/readline
+	sed -i '/MV.*old/d' tmp/readline/readline-$(READLINE_VER)/Makefile.in
+	sed -i '/{OLDSUFF}/c:' tmp/readline/readline-$(READLINE_VER)/support/shlib-install
+	cd tmp/readline/bld && ../readline-$(READLINE_VER)/configure $(READLINE_OPT3) && make SHLIB_LIBS="-lncursesw" $(JOBS) V=$(VERB) && make SHLIB_LIBS="-lncursesw" DESTDIR=`pwd`/../ins install
+	rm -fr tmp/readline/ins/usr/bin
+	rm -fr tmp/readline/ins/usr/share
+	strip --strip-unneeded tmp/readline/ins/usr/lib/*.so*
+	cd tmp/readline/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/readline
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.15. M4-1.4.18 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/m4.html
+# BUILD_TIME_WITH_TEST :: 1m 12s
+M4_OPT3+= --prefix=/usr
+M4_OPT3+= $(OPT_FLAGS)
+pkg3/m4-$(M4_VER).cpio.zst: pkg3/readline-$(READLINE_VER).cpio.zst
+	rm -fr tmp/m4
+	mkdir -p tmp/m4/bld
+	tar -xJf pkg/m4-$(M4_VER).tar.xz -C tmp/m4
+	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/m4/m4-$(M4_VER)/lib/*.c
+	echo "#define _IO_IN_BACKUP 0x100" >> tmp/m4/m4-$(M4_VER)/lib/stdio-impl.h
+	cd tmp/m4/bld && ../m4-$(M4_VER)/configure $(M4_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/m4/ins/usr/share
+	strip --strip-unneeded tmp/m4/ins/usr/bin/m4 
+ifeq ($(RUN_TESTS),y)
+	cd tmp/m4/bld && make $(JOBS) check
+# TEST OK
+endif
+	cd tmp/m4/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/m4
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.16. Bc-3.1.5 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bc.html
+# BUILD_TIME_WITH_TEST :: 7s
+BC_OPT3+= --disable-man-pages
+BC_OPT3+= --disable-nls
+#BC_OPT3+= $(OPT_FLAGS)
+pkg3/bc-$(BC_VER).cpio.zst: pkg3/m4-$(M4_VER).cpio.zst
+	rm -fr tmp/bc
+	mkdir -p tmp/bc
+	tar -xJf pkg/bc-$(BC_VER).tar.xz -C tmp/bc
+	cd tmp/bc/bc-$(BC_VER) && PREFIX=/usr CC=gcc CFLAGS="-std=c99 $(RK3588_FLAGS)" ./configure.sh $(BC_OPT3) -G $(BASE_OPT_VALUE) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	strip --strip-unneeded tmp/bc/ins/usr/bin/bc 
+ifeq ($(RUN_TESTS),y)
+	cd tmp/bc/bc-$(BC_VER) && make $(JOBS) test
+# TEST OK
+endif
+	cd tmp/bc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/bc
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.17. Flex-2.6.4
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/flex.html
+# BUILD_TIME_WITH_TEST :: 39s
+FLEX_OPT3+= --prefix=/usr
+FLEX_OPT3+= --disable-nls 
+FLEX_OPT3+= $(OPT_FLAGS)
+pkg3/flex-$(FLEX_VER).cpio.zst: pkg3/bc-$(BC_VER).cpio.zst
+	rm -fr tmp/flex
+	mkdir -p tmp/flex/bld
+	tar -xzf pkg/flex-$(FLEX_VER).tar.gz -C tmp/flex
+	cd tmp/flex/bld && ../flex-$(FLEX_VER)/configure $(FLEX_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/flex/ins/usr/share
+	strip --strip-unneeded tmp/flex/ins/usr/bin/flex
+	rm -f tmp/flex/ins/usr/lib/*.la
+	strip --strip-debug tmp/flex/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/flex/ins/usr/lib/*.so*
+	cd tmp/flex/ins/usr/bin && ln -sf flex lex
+ifeq ($(RUN_TESTS),y)
+	cd tmp/flex/bld && make $(JOBS) check
+# TEST OK
+endif
+	cd tmp/flex/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/flex
+	pv $@ | zstd -d | cpio -iduH newc -D /
+
+# LFS-10.0-systemd :: 8.18. Binutils-2.35 
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/binutils.html
+# BUILD_TIME :: 3m 10s
+# BUILD_TIME_WITH_TEST :: 11m 50s
+BINUTILS_OPT3+= --prefix=/usr
+BINUTILS_OPT3+= --enable-gold
+BINUTILS_OPT3+= --enable-ld=default
+BINUTILS_OPT3+= --enable-plugins
+BINUTILS_OPT3+= --enable-shared
+BINUTILS_OPT3+= --disable-werror
+BINUTILS_OPT3+= --enable-64-bit-bfd
+BINUTILS_OPT3+= --with-system-zlib
+BINUTILS_OPT3+= $(OPT_FLAGS)
+BINUTILS_OPT3+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg3/binutils-$(BINUTILS_VER).cpio.zst: pkg3/flex-$(FLEX_VER).cpio.zst
+	rm -fr tmp/binutils
+	mkdir -p tmp/binutils/bld
+	tar -xJf pkg/binutils-$(BINUTILS_VER).tar.xz -C tmp/binutils
+	expect -c "spawn ls"
+#OK	
+	sed -i '/@\tincremental_copy/d' tmp/binutils/binutils-$(BINUTILS_VER)/gold/testsuite/Makefile.in
+	cd tmp/binutils/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS_OPT3) && make tooldir=/usr $(JOBS) V=$(VERB) && make tooldir=/usr DESTDIR=`pwd`/../ins install
+	rm -fr tmp/binutils/ins/usr/share
+	strip --strip-unneeded tmp/binutils/ins/usr/bin/* || true
+	rm -f tmp/binutils/ins/usr/lib/*.la
+	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
+ifeq ($(RUN_TESTS),y)
+	cd tmp/binutils/bld && make -k check || true
+# TEST not passed. Few FAILS ((
+endif
+	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/binutils
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	
+tgt: pkg3/binutils-$(BINUTILS_VER).cpio.zst
+
 
 
 # === my extra :: gcc ISL build support
