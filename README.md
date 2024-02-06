@@ -74,7 +74,7 @@ Choose one type of download:
     
 Or (B) the "parallel" fast multijob download with huge garbage on screen:
     
-    $ make -j pkg
+    $ make -j12 pkg
 
 ***IMPORTANT!*** After this operation, Please double check that all packages are done at this point ("Repeat-command result"):
 
