@@ -66,16 +66,8 @@ Please see screen results or "host-check.txt" file. The common problem of check 
     
 ### Download all packages:
 
-Choose one type of download:
-
-(A) Slowly "step-by-step" download with clean screen results:
-
     $ make pkg
     
-Or (B) the "parallel" fast multijob download with huge garbage on screen:
-    
-    $ make -j12 pkg
-
 ***IMPORTANT!*** After this operation, Please double check that all packages are done at this point ("Repeat-command result"):
 
     $ make pkg
