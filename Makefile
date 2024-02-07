@@ -1208,9 +1208,9 @@ pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(
 	cd tmp/lfs-hst-gcc1/ins$(LFS)/tools && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 	cd tmp/lfs-hst-gcc1/ins$(LFS)/tools && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../../../../../pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
 	rm -fr tmp/lfs-hst-gcc1
-lfs/tools/lib/gcc/aarch64-rk3588-linux-gnu/10.2.0/include/arm_acle.h: pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
+lfs/tools/lib/gcc/$(LFS_TGT)/$(GCC_VER)/include/arm_acle.h: pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs/tools
-hst-gcc1: lfs/tools/lib/gcc/aarch64-rk3588-linux-gnu/10.2.0/include/arm_acle.h
+hst-gcc1: lfs/tools/lib/gcc/$(LFS_TGT)/$(GCC_VER)/include/arm_acle.h
 
 # === LFS-10.0-systemd :: 5.5. Glibc-2.32 :: "make hst-glibc" (deps : hst-gcc1)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/glibc.html
@@ -1221,7 +1221,7 @@ GLIBC_OPT1+= --enable-kernel=3.2
 GLIBC_OPT1+= --with-headers=$(LFS)/usr/include
 GLIBC_OPT1+= libc_cv_slibdir=/lib
 GLIBC_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glibc-$(GLIBC_VER)-fhs-1.patch lfs/tools/lib/gcc/aarch64-rk3588-linux-gnu/10.2.0/include/arm_acle.h
+pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glibc-$(GLIBC_VER)-fhs-1.patch lfs/tools/lib/gcc/$(LFS_TGT)/$(GCC_VER)/include/arm_acle.h
 	rm -fr tmp/lfs-hst-glibc
 	mkdir -p tmp/lfs-hst-glibc
 	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/lfs-hst-glibc
@@ -1296,9 +1296,9 @@ pkg1/lfs-hst-libcpp.pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER)
 	rm -fr tmp/lfs-hst-libcpp1/ins/usr/lib64
 	cd tmp/lfs-hst-libcpp1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg1/lfs-hst-libcpp.pass1.cpio.zst
 	rm -fr tmp/lfs-hst-libcpp1
-lfs/tools/aarch64-rk3588-linux-gnu/include/c++/10.2.0/any: pkg1/lfs-hst-libcpp.pass1.cpio.zst
+lfs/tools/$(LFS_TGT)/include/c++/$(GCC_VER)/any: pkg1/lfs-hst-libcpp.pass1.cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
-hst-libcpp1: lfs/tools/aarch64-rk3588-linux-gnu/include/c++/10.2.0/any
+hst-libcpp1: lfs/tools/$(LFS_TGT)/include/c++/$(GCC_VER)/any
 
 # === LFS-10.0-systemd :: 6.2. M4-1.4.18 :: "make hst-m4" (deps : hst-libcpp1)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/m4.html
@@ -1306,7 +1306,7 @@ hst-libcpp1: lfs/tools/aarch64-rk3588-linux-gnu/include/c++/10.2.0/any
 M4_OPT1+= --prefix=/usr
 M4_OPT1+= --host=$(LFS_TGT)
 M4_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-m4-$(M4_VER).cpio.zst: pkg/m4-$(M4_VER).tar.xz lfs/tools/aarch64-rk3588-linux-gnu/include/c++/10.2.0/any
+pkg1/lfs-hst-m4-$(M4_VER).cpio.zst: pkg/m4-$(M4_VER).tar.xz lfs/tools/$(LFS_TGT)/include/c++/$(GCC_VER)/any
 	rm -fr tmp/lfs-hst-m4
 	mkdir -p tmp/lfs-hst-m4
 	tar -xJf $< -C tmp/lfs-hst-m4
@@ -1751,16 +1751,27 @@ pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz lfs/usr/in
 	strip --strip-debug tmp/lfs-hst-gcc2/ins/usr/lib/gcc/$(LFS_TGT)/$(GCC_VER)/*.a
 	cd tmp/lfs-hst-gcc2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	rm -fr tmp/lfs-hst-gcc2
-lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
+lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	pv $< | zstd -d | cpio -iduH newc -D lfs
-hst-gcc2: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
+hst-gcc2: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
+
+# === TOTAL: STAGE0 = HOST BUILD
+# BUILD_TIME :: about 45 minutes
+#
+hst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
+
+hst-clean:
+	sudo rm -fr tmp
+	sudo rm -fr lfs2
+	rm -fr lfs
+	rm -fr pkg1
 
 # === LFS-10.0-systemd :: 7.2. Changing Ownership :: (deps : hst-gcc2)
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/changingowner.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # BUILD TIME :: 13s
-pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_VER)/install-tools/fixinc.sh
+pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
 	rm -fr tmp/lfs
 	mkdir -p tmp
 	cp -far lfs tmp/
@@ -1777,19 +1788,8 @@ pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/aarch64-rk3588-linux-gnu/$(GCC_V
 	cp -far README.md tmp/lfs/opt/mysdk
 	cp -far pkg tmp/lfs/opt/mysdk
 	cp -far Makefile tmp/lfs/opt/mysdk
-#	mkdir -p tmp/lfs/opt/mysdk/pkg2
-#	cp -far pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst tmp/lfs/opt/mysdk/pkg2/
 	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg1/lfs-hst-full.cpio.zst
 	sudo rm -fr tmp/lfs
-
-# === TOTAL: STAGE0 = HOST BUILD
-# BUILD_TIME :: about 45 minutes
-#
-hst: pkg1/lfs-hst-full.cpio.zst
-
-hst-clean:
-	sudo rm -fr /tmp/*
-	sudo rm -fr lfs2
 
 # chroot "$LFS" /usr/bin/env -i   \
 #    HOME=/root                  \
