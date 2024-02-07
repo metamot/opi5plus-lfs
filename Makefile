@@ -90,7 +90,7 @@ deepclean: easyclean clean_pkg
 
 # #############################################################################
 deps:
-	sudo apt install -y zstd u-boot-tools dosfstools libudev-dev libusb-1.0-0-dev dh-autoreconf texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext swig python-dev-is-python3 python3 python3-pyelftools
+	sudo apt install -y zstd pv u-boot-tools dosfstools libudev-dev libusb-1.0-0-dev dh-autoreconf texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext swig python-dev-is-python3 python3 python3-pyelftools
 
 chdeps: cfg/host-check.sh deps
 	cp -f $< .
