@@ -2821,7 +2821,23 @@ ifeq ($(BUILD_STRIP),y)
 endif
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
-# TEST not passed. Few FAILS ((
+# TEST not passed !
+# FAILS - (A) "--enable-gold".
+# gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
+# <etc>
+# gcctestdir/collect-ld: error: tls_test.o: unsupported reloc 549 in non-static TLSLE mode.
+# tls_test.o:tls_test.cc:function t1(): error: unexpected opcode while processing relocation R_AARCH64_TLSLE_ADD_TPREL_HI12
+# <etc>
+# https://www.mail-archive.com/bug-binutils@gnu.org/msg30791.html
+# This problem is repaired or not?
+# OK. We'll disable gold. But some problems are still exists.
+# FAILS - (B) "dwarf","libbar","libfoo".
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/dwarf.exp ...
+# FAIL: DWARF parse during linker error
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/shared.exp ...
+# FAIL: Build warn libbar.so
+# FAIL: Run warn with versioned libfoo.so
+# What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
 endif
 	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/binutils
