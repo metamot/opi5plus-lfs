@@ -667,6 +667,7 @@ BZIP2_VER=1.0.8
 CHECK_VER=0.15.2
 CORE_UTILS_VER=8.32
 CPIO_VER=2.13
+CRACKLIB_VER=2.9.7
 DBUS_VER=1.12.20
 DEJAGNU_VER=1.6.2
 DIFF_UTILS_VER=3.7
@@ -761,6 +762,8 @@ PKG+=pkg/bzip2-$(BZIP2_VER).tar.gz
 PKG+=pkg/check-$(CHECK_VER).tar.gz
 PKG+=pkg/coreutils-$(CORE_UTILS_VER).tar.xz
 PKG+=pkg/cpio-$(CPIO_VER).tar.bz2
+PKG+=pkg/cracklib-$(CRACKLIB_VER).tar.bz2
+PKG+=pkg/cracklib-words-$(CRACKLIB_VER).bz2
 PKG+=pkg/dbus-$(DBUS_VER).tar.gz
 PKG+=pkg/dejagnu-$(DEJAGNU_VER).tar.gz
 PKG+=pkg/diffutils-$(DIFF_UTILS_VER).tar.xz
@@ -881,6 +884,10 @@ pkg/coreutils-$(CORE_UTILS_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/coreutils/coreutils-$(CORE_UTILS_VER).tar.xz && touch $@
 pkg/cpio-$(CPIO_VER).tar.bz2: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/cpio/cpio-$(CPIO_VER).tar.bz2 && touch $@
+pkg/cracklib-$(CRACKLIB_VER).tar.bz2: pkg/.gitignore
+	wget -P pkg https://github.com/cracklib/cracklib/releases/download/v$(CRACKLIB_VER)/cracklib-$(CRACKLIB_VER).tar.bz2 && touch $@
+pkg/cracklib-words-$(CRACKLIB_VER).bz2: pkg/.gitignore
+	wget -P pkg https://github.com/cracklib/cracklib/releases/download/v$(CRACKLIB_VER)/cracklib-words-$(CRACKLIB_VER).bz2 && touch $@
 pkg/dbus-$(DBUS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://dbus.freedesktop.org/releases/dbus/dbus-$(DBUS_VER).tar.gz && touch $@
 pkg/dejagnu-$(DEJAGNU_VER).tar.gz: pkg/.gitignore
@@ -2221,6 +2228,8 @@ chroot-all: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 # SKIP THIS
 # You can install it using "pkg/man-pages-5.08.tar.xz"
 
+#==============================================================================
+
 # LFS-10.0-systemd :: 8.4. Tcl-8.6.10 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/tcl.html
 # BUILD_TIME :: 3m 3s
@@ -2267,7 +2276,8 @@ tgt-tcl: pkg3/tcl$(TCL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.5. Expect-5.45.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/expect.html
-# BUILD_TIME_WITH_TEST :: 30s
+# BUILD_TIME :: 20s
+# BUILD_TIME_WITH_TEST :: 36s
 EXPECT_OPT3+= --prefix=/usr
 EXPECT_OPT3+= --with-tcl=/usr/lib
 EXPECT_OPT3+= --enable-shared
@@ -2308,7 +2318,8 @@ tgt-expect: pkg3/expect$(EXPECT_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.6. DejaGNU-1.6.2 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/dejagnu.html
-# BUILD_TIME_WITH_TEST :: 9s
+# BUILD_TIME :: 6s
+# BUILD_TIME_WITH_TEST :: 10s
 DEJAGNU_OPT3+= --prefix=/usr
 DEJAGNU_OPT3+= $(OPT_FLAGS)
 pkg3/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg3/expect$(EXPECT_VER).cpio.zst
@@ -2349,7 +2360,7 @@ tgt-iana-etc: pkg3/iana-etc-$(IANA_ETC_VER).cpio.zst
 # LFS-10.0-systemd :: 8.8. Glibc-2.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
 # BUILD_TIME :: 5m 30s
-# BUILD_TIME_WITH_TEST :: 31m 45s
+# BUILD_TIME_WITH_TEST :: 68m 45s
 GLIBC_OPT3+= 
 GLIBC_OPT3+= --prefix=/usr
 GLIBC_OPT3+= --disable-werror
@@ -2439,7 +2450,7 @@ tgt-glibc: pkg3/glibc-$(GLIBC_VER).cpio.zst
 # LFS-10.0-systemd :: 8.8.2.2. Adding time zone data 
 # LFS-10.0-systemd :: set locales
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/glibc.html
-#
+# PROCESS TIME :: 4s
 /etc/localtime: pkg3/glibc-$(GLIBC_VER).cpio.zst
 	localedef -i POSIX -f UTF-8 C.UTF-8 2> /dev/null || true
 #	localedef -i en_US -f ISO-8859-1 en_US
@@ -2490,6 +2501,7 @@ tgt-local-time: /etc/localtime
 
 # LFS-10.0-systemd :: 8.9. Zlib-1.2.11
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/zlib.html
+# BUILD_TIME :: 4s
 # BUILD_TIME_WITH_TEST :: 4s
 ZLIB_OPT3+= --prefix=/usr
 pkg3/zlib-$(ZLIB_VER).cpio.zst: /etc/localtime
@@ -2548,8 +2560,8 @@ tgt-bzip2: pkg3/bzip2-$(BZIP2_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.11. Xz-5.2.5
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/xz.html
-# BUILD_TIME :: 23s
-# BUILD_TIME_WITH_TEST :: 38s
+# BUILD_TIME :: 25s
+# BUILD_TIME_WITH_TEST :: 44s
 XZ_OPT3+= --prefix=/usr
 XZ_OPT3+= --disable-static
 XZ_OPT3+= --docdir=/usr/share/doc/xz-$(XZ_VER)
@@ -2613,7 +2625,8 @@ tgt-zstd: pkg3/zstd-$(ZSTD_VER).cpio.zst
 
 # === extra (BLFS-10) :: cpio
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cpio.html
-# BUILD_TIME_WITH_TEST :: 1m 16s
+# BUILD_TIME :: 1m 19s
+# BUILD_TIME_WITH_TEST :: 1m 22s
 CPIO_OPT3+= --prefix=/usr
 CPIO_OPT3+= --enable-mt
 CPIO_OPT3+= --disable-nls
@@ -2642,7 +2655,8 @@ tgt-cpio: pkg3/cpio-$(CPIO_VER).cpio.zst
 # === extra :: pv
 # http://www.ivarch.com/programs/pv.shtml
 # https://github.com/icetee/pv
-# BUILD_TIME_WITH_TEST :: 34s
+# BUILD_TIME :: 13s
+# BUILD_TIME_WITH_TEST :: 1m 52s
 PV_OPT3+= --prefix=/usr
 PV_OPT3+= --disable-nls
 PV_OPT3+= $(OPT_FLAGS)
@@ -2666,7 +2680,8 @@ tgt-pv: pkg3/pv-$(PV_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.13. File-5.39 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/file.html
-# BUILD_TIME_WITH_TEST :: 22s
+# BUILD_TIME :: 22s
+# BUILD_TIME_WITH_TEST :: 25s
 FILE_OPT3+= --prefix=/usr
 FILE_OPT3+= $(OPT_FLAGS)
 pkg3/file-$(FILE_VER).cpio.zst: pkg3/pv-$(PV_VER).cpio.zst
@@ -2691,11 +2706,10 @@ tgt-file: pkg3/file-$(FILE_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.14. Readline-8.0 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/readline.html
-# BUILD_TIME :: 18s
+# BUILD_TIME :: 20s
 READLINE_OPT3+= --prefix=/usr
 READLINE_OPT3+= --disable-static
 READLINE_OPT3+= --with-curses
-#READLINE_OPT3+= --docdir=/usr/share/doc/readline-8.0
 READLINE_OPT3+= $(OPT_FLAGS)
 pkg3/readline-$(READLINE_VER).cpio.zst: pkg3/file-$(FILE_VER).cpio.zst
 	rm -fr tmp/readline
@@ -2716,7 +2730,8 @@ tgt-readline: pkg3/readline-$(READLINE_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.15. M4-1.4.18 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/m4.html
-# BUILD_TIME_WITH_TEST :: 1m 12s
+# BUILD_TIME :: 59s
+# BUILD_TIME_WITH_TEST :: 1m 58s
 M4_OPT3+= --prefix=/usr
 M4_OPT3+= $(OPT_FLAGS)
 pkg3/m4-$(M4_VER).cpio.zst: pkg3/readline-$(READLINE_VER).cpio.zst
@@ -2741,10 +2756,10 @@ tgt-m4: pkg3/m4-$(M4_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.16. Bc-3.1.5 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bc.html
-# BUILD_TIME_WITH_TEST :: 7s
+# BUILD_TIME :: 4s
+# BUILD_TIME_WITH_TEST :: 9s
 BC_OPT3+= --disable-man-pages
 BC_OPT3+= --disable-nls
-#BC_OPT3+= $(OPT_FLAGS)
 pkg3/bc-$(BC_VER).cpio.zst: pkg3/m4-$(M4_VER).cpio.zst
 	rm -fr tmp/bc
 	mkdir -p tmp/bc
@@ -2764,7 +2779,8 @@ tgt-bc: pkg3/bc-$(BC_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.17. Flex-2.6.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/flex.html
-# BUILD_TIME_WITH_TEST :: 39s
+# BUILD_TIME :: 25s
+# BUILD_TIME_WITH_TEST :: 1m 48s
 FLEX_OPT3+= --prefix=/usr
 FLEX_OPT3+= --disable-nls 
 FLEX_OPT3+= $(OPT_FLAGS)
@@ -2792,8 +2808,8 @@ tgt-flex: pkg3/flex-$(FLEX_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.18. Binutils-2.35 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/binutils.html
-# BUILD_TIME :: 3m 10s
-# BUILD_TIME_WITH_TEST :: 11m 50s
+# BUILD_TIME :: 1m 57s
+# BUILD_TIME_WITH_TEST :: 8m 40s (without gold)
 BINUTILS_OPT3+= --prefix=/usr
 #BINUTILS_OPT3+= --enable-gold
 BINUTILS_OPT3+= --enable-ld=default
@@ -2847,7 +2863,7 @@ tgt-binutils: pkg3/binutils-$(BINUTILS_VER).cpio.zst
 # LFS-10.0-systemd :: 8.19. GMP-6.2.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gmp.html
 # BUILD_TIME :: 1m 3s
-# BUILD_TIME_WITH_TEST :: 4m 10s
+# BUILD_TIME_WITH_TEST :: 4m 12s
 GMP_OPT3+= --prefix=/usr
 GMP_OPT3+= --enable-cxx
 GMP_OPT3+= --disable-static
@@ -2866,10 +2882,9 @@ endif
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/gmp/bld && make check 2>&1 | tee ../../../tst/gmp-check.log || true
 	echo "Must be 197 successul tests. Here is:"
-	awk '/# PASS:/{total+=$3} ; END{print total}' ../../../tst/gmp-check.log
+	awk '/# PASS:/{total+=$$3} ; END{print total}' tst/gmp-check.log
 # TEST OK
 endif
-	echo ""
 	cd tmp/gmp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/gmp
 	pv $@ | zstd -d | cpio -iduH newc -D /
@@ -2877,8 +2892,8 @@ tgt-gmp: pkg3/gmp-$(GMP_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.20. MPFR-4.1.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/mpfr.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 31s
+# BUILD_TIME_WITH_TEST :: 3m 17s
 MPFR_OPT3+= --prefix=/usr
 MPFR_OPT3+= --disable-static
 MPFR_OPT3+= --enable-thread-safe
@@ -2889,16 +2904,24 @@ pkg3/mpfr-$(MPFR_VER).cpio.zst: pkg3/gmp-$(GMP_VER).cpio.zst
 	mkdir -p tmp/mpfr/bld
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/mpfr
 	cd tmp/mpfr/bld && ../mpfr-$(MPFR_VER)/configure $(MPFR_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/mpfr/ins/usr/share
+	rm -f tmp/mpfr/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/mpfr/ins/usr/lib/*.so*
+endif
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/mpfr/bld && make check 2>&1 | tee ../../../tst/mpfr-check.log || true
 # TEST OK
 endif
+	cd tmp/mpfr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/mpfr
+	pv $@ | zstd -d | cpio -iduH newc -D /
 tgt-mpfr: pkg3/mpfr-$(MPFR_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.21. MPC-1.1.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/mpc.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 14s
+# BUILD_TIME_WITH_TEST :: 1m 15s
 MPC_OPT3+= --prefix=/usr
 MPC_OPT3+= --disable-static
 MPC_OPT3+= --docdir=/usr/share/doc/mpc-1.1.0
@@ -2908,45 +2931,166 @@ pkg3/mpc-$(MPC_VER).cpio.zst: pkg3/mpfr-$(MPFR_VER).cpio.zst
 	mkdir -p tmp/mpc/bld
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/mpc
 	cd tmp/mpc/bld && ../mpc-$(MPC_VER)/configure $(MPC_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/mpc/ins/usr/share
+	rm -fr tmp/mpc/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/mpc/ins/usr/lib/*.so*
+endif
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/mpc/bld && make check 2>&1 | tee ../../../tst/mpc-check.log || true
 # TEST OK
 endif
+	cd tmp/mpc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/mpc
+	pv $@ | zstd -d | cpio -iduH newc -D /
 tgt-mpc: pkg3/mpc-$(MPC_VER).cpio.zst
 
 # === extra :: gcc ISL build support
 #
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 45s
+# BUILD_TIME_WITH_TEST :: 1m 47s
 ISL_OPT3+= --prefix=/usr
-#ISL_OPT3+= --with-gcc-arch=aarch64
-#ISL_OPT3+= --with-gmp=build
-ISL_OPT3+= $(OPT_FLAGS)
+ISL_OPT3+= --disable-static
+ISL_OPT3+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
 pkg3/isl-$(ISL_VER).cpio.zst: pkg3/mpc-$(MPC_VER).cpio.zst
 	rm -fr tmp/isl
 	mkdir -p tmp/isl/bld
-	tar -xzf pkg/isl-$(ISL_VER).tar.xz -C tmp/isl
-	cd tmp/isl/bld && ../isl-$(ISL_VER)/configure $(ISL_OPT3)
-# && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	tar -xJf pkg/isl-$(ISL_VER).tar.xz -C tmp/isl
+	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/isl/isl-$(ISL_VER)/configure
+	cd tmp/isl/bld && ../isl-$(ISL_VER)/configure $(ISL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/isl/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/isl/ins/usr/lib/*.so*
+endif
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/isl/bld && make check 2>&1 | tee ../../../tst/isl-check.log || true
+# TEST OK
+endif
+	cd tmp/isl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/isl
+	pv $@ | zstd -d | cpio -iduH newc -D /
 tgt-isl: pkg3/isl-$(ISL_VER).cpio.zst
 
-tgt: pkg3/mpfr-$(MPFR_VER).cpio.zst
+# LFS-10.0-systemd :: 8.22. Attr-2.4.48
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/attr.html
+# BUILD_TIME :: 10s
+# BUILD_TIME_WITH_TEST :: 14s
+ATTR_OPT3+= --prefix=/usr
+ATTR_OPT3+= --disable-static
+ATTR_OPT3+= --sysconfdir=/etc
+ATTR_OPT3+= --disable-nls
+ATTR_OPT3+= $(OPT_FLAGS)
+pkg3/attr-$(ATTR_VER).cpio.zst: pkg3/isl-$(ISL_VER).cpio.zst
+	rm -fr tmp/attr
+	mkdir -p tmp/attr/bld
+	tar -xzf pkg/attr-$(ATTR_VER).tar.gz -C tmp/attr
+	cd tmp/attr/bld && ../attr-$(ATTR_VER)/configure $(ATTR_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/attr/ins/usr/share
+	rm -f tmp/attr/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/attr/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/attr/ins/usr/bin/* || true
+endif
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/attr/bld && make check 2>&1 | tee ../../../tst/attr-check.log || true
+# TEST OK
+endif
+	cd tmp/attr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/attr
+	pv $@ | zstd -d | cpio -iduH newc -D /
+tgt-attr: pkg3/attr-$(ATTR_VER).cpio.zst
 
+# LFS-10.0-systemd :: 8.23. Acl-2.2.53
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/acl.html
+# BUILD_TIME :: 12s
+# BUILD_TIME_WITH_TEST ::
+ACL_OPT3+= --prefix=/usr
+ACL_OPT3+= --disable-static
+ACL_OPT3+= --libexecdir=/usr/lib
+ACL_OPT3+= --disable-nls
+ACL_OPT3+= $(OPT_FLAGS)
+pkg3/acl-$(ACL_VER).cpio.zst: pkg3/attr-$(ATTR_VER).cpio.zst
+	rm -fr tmp/acl
+	mkdir -p tmp/acl/bld
+	tar -xzf pkg/acl-$(ACL_VER).tar.gz -C tmp/acl
+	cd tmp/acl/bld && ../acl-$(ACL_VER)/configure $(ACL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/acl/ins/usr/share
+	rm -f tmp/acl/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/acl/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/acl/ins/usr/bin/* || true
+endif
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/acl/bld && make check 2>&1 | tee ../../../tst/acl-check.log || true
+# ACL can be tested only with coreutils built with acl support
+#endif
+	cd tmp/acl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/acl
+	pv $@ | zstd -d | cpio -iduH newc -D /
+tgt-acl: pkg3/acl-$(ACL_VER).cpio.zst
 
+# LFS-10.0-systemd :: 8.24. Libcap-2.42
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/libcap.html
+# BUILD_TIME :: 3s
+# BUILD_TIME_WITH_TEST ::
+pkg3/libcap-$(LIBCAP_VER).cpio.zst: pkg3/acl-$(ACL_VER).cpio.zst
+	rm -fr tmp/libcap
+	mkdir -p tmp/libcap/ins/lib
+	tar -xJf pkg/libcap-$(LIBCAP_VER).tar.xz -C tmp/libcap
+	sed -i '/install -m.*STACAPLIBNAME/d' tmp/libcap/libcap-$(LIBCAP_VER)/libcap/Makefile
+	sed -i 's|-O2|$(BASE_OPT_FLAGS)|' tmp/libcap/libcap-$(LIBCAP_VER)/Make.Rules
+	cd tmp/libcap/libcap-$(LIBCAP_VER) && make $(JOBS) V=$(VERB) CC=gcc lib=lib && make CC=gcc lib=lib DESTDIR=`pwd`/../ins PKGCONFIGDIR=/usr/lib/pkgconfig install
+	mv -f tmp/libcap/ins/lib/* tmp/libcap/ins/usr/lib/
+	rm -fr tmp/libcap/ins/lib
+	rm -fr tmp/libcap/ins/usr/share
+	chmod 755 tmp/libcap/ins/usr/lib/libcap.so.$(LIBCAP_VER)
+	mv -f tmp/libcap/ins/sbin tmp/libcap/ins/usr/
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-debug tmp/libcap/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/libcap/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/libcap/ins/usr/sbin/*
+endif
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/libcap/libcap-$(LIBCAP_VER) && make CC=gcc test 2>&1 | tee ../../../tst/libcap-test.log || true
+# TEST OK
+endif
+	cd tmp/libcap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/libcap
+	pv $@ | zstd -d | cpio -iduH newc -D /
+tgt-libcap: pkg3/libcap-$(LIBCAP_VER).cpio.zst
 
-# === my extra :: gcc ISL build support
-# USES: GMP -- fall to future
-# BUILD_TIME ::
-#ISL1_OPT+= --prefix=/usr
-#ISL1_OPT+= --host=$(LFS_TGT)
-#ISL1_OPT+= --with-gcc-arch=aarch64
-#ISL1_OPT+= --with-gmp=build
-#ISL1_OPT+= --with-sysroot=$(LFS)
-#ISL1_OPT+= $(OPT_FLAGS)
-#pkg/lfs-hst-isl-$(ISL_VER).cpio.zst: pkg/isl-$(ISL_VER).tar.xz lfs/usr/bin/pv
-#	mkdir -p tmp/lfs-hst-isl/bld
-#	tar -xJf $< -C tmp/lfs-hst-isl
-#	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-isl/isl-$(ISL_VER)
-#	mv tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp-$(GMP_VER) tmp/lfs-hst-isl/isl-$(ISL_VER)/gmp
-#	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-isl/bld && ../isl-$(ISL_VER)/configure --build=`cat $(LFS)/tools/build-host.txt` $(ISL1_OPT) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
-#hst-isl: pkg/lfs-hst-isl-$(ISL_VER).cpio.zst
+# === extra (BLFS-10) :: CrackLib-2.9.7
+# https://www.linuxfromscratch.org/blfs/view/10.0/postlfs/cracklib.html
+# BUILD_TIME :: 12s
+# BUILD_TIME_WITH_TEST :: 16s
+CRACKLIB_OPT3+= --prefix=/usr
+CRACKLIB_OPT3+= --disable-static
+CRACKLIB_OPT3+= --with-default-dict=/lib/cracklib/pw_dict
+CRACKLIB_OPT3+= --disable-nls
+CRACKLIB_OPT3+= $(OPT_FLAGS)
+pkg3/cracklib-$(CRACKLIB_VER).cpio.zst: pkg3/libcap-$(LIBCAP_VER).cpio.zst
+	rm -fr tmp/cracklib
+	mkdir -p tmp/cracklib/bld
+	tar -xjf pkg/cracklib-$(CRACKLIB_VER).tar.bz2 -C tmp/cracklib
+	sed -i '/skipping/d' tmp/cracklib/cracklib-$(CRACKLIB_VER)/util/packer.c
+	cd tmp/cracklib/bld && ../cracklib-$(CRACKLIB_VER)/configure $(CRACKLIB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/cracklib/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/cracklib/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/cracklib/ins/usr/sbin/* || true
+endif
+	install -v -m644 -D pkg/cracklib-words-2.9.7.bz2 tmp/cracklib/ins/usr/share/dict/cracklib-words.bz2
+	cd tmp/cracklib/ins/usr/share/dict && bunzip2 cracklib-words.bz2 && ln -sf cracklib-words words && echo `hostname` >> cracklib-extra-words
+	install -v -m755 -d tmp/cracklib/ins/usr/lib/cracklib
+	cd tmp/cracklib/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	create-cracklib-dict /usr/share/dict/cracklib-words /usr/share/dict/cracklib-extra-words
+ifeq ($(RUN_TESTS),y)
+	cp -fa tmp/cracklib/cracklib-$(CRACKLIB_VER)/test-data tmp/cracklib/bld
+	mkdir -p tst && cd tmp/cracklib/bld && make test 2>&1 | tee ../../../tst/cracklib-test.log || true
+# TEST OK
+endif
+	rm -fr tmp/cracklib
+tgt-cracklib: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
+
+tgt: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
