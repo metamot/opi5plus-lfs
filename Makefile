@@ -36,7 +36,10 @@ KERNEL_CONFIG=kernel_my_config
 
 BUSYBOX_CONFIG=busybox_my_config
 
-RK3588_FLAGS = -mcpu=cortex-a76.cortex-a55+crypto
+RK3588_AFLG = +crypto
+RK3588_MCPU = cortex-a76.cortex-a55$(RK3588_AFLG)
+RK3588_ARCH = armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod$(RK3588_AFLG)
+RK3588_FLAGS = -mcpu=$(RK3588_MCPU)
 BASE_OPT_VALUE = -Os
 BASE_OPT_FLAGS = $(RK3588_FLAGS) $(BASE_OPT_VALUE)
 OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS)"
@@ -1811,15 +1814,19 @@ lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh: pkg1/lfs-hst-
 hst-gcc2: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
 
 # === TOTAL: STAGE0 = HOST BUILD
-# BUILD_TIME :: about 45 minutes
+# BUILD_TIME :: about 45 minutes (40-50min)
 #
 hst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
 
 hst-clean:
+	rm -fr tmp
 	sudo rm -fr lfs2
 	rm -fr lfs
-	rm -fr tmp
 	rm -fr pkg1
+
+chroot-clean:
+	rm -fr tmp
+	sudo rm -fr lfs2
 
 # === LFS-10.0-systemd :: 7.2. Changing Ownership :: (deps : hst-gcc2)
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
@@ -1910,55 +1917,61 @@ unchroot:
 # === LFS-10.0-systemd :: INSIDE CHROOT :: 7.6. Creating Essential Files and Symlinks
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/creatingdirs.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/createfiles.html
-/etc/group:
-	echo 'root:x:0:' > $@
-	echo 'bin:x:1:daemon' >> $@
-	echo 'sys:x:2:' >> $@
-	echo 'kmem:x:3:' >> $@
-	echo 'tape:x:4:' >> $@
-	echo 'tty:x:5:' >> $@
-	echo 'daemon:x:6:' >> $@
-	echo 'floppy:x:7:' >> $@
-	echo 'disk:x:8:' >> $@
-	echo 'lp:x:9:' >> $@
-	echo 'dialout:x:10:' >> $@
-	echo 'audio:x:11:' >> $@
-	echo 'video:x:12:' >> $@
-	echo 'utmp:x:13:' >> $@
-	echo 'usb:x:14:' >> $@
-	echo 'cdrom:x:15:' >> $@
-	echo 'adm:x:16:' >> $@
-	echo 'messagebus:x:18:' >> $@
-	echo 'systemd-journal:x:23:' >> $@
-	echo 'input:x:24:' >> $@
-	echo 'mail:x:34:' >> $@
-	echo 'kvm:x:61:' >> $@
-	echo 'systemd-bus-proxy:x:72:' >> $@
-	echo 'systemd-journal-gateway:x:73:' >> $@
-	echo 'systemd-journal-remote:x:74:' >> $@
-	echo 'systemd-journal-upload:x:75:' >> $@
-	echo 'systemd-network:x:76:' >> $@
-	echo 'systemd-resolve:x:77:' >> $@
-	echo 'systemd-timesync:x:78:' >> $@
-	echo 'systemd-coredump:x:79:' >> $@
-	echo 'wheel:x:97:' >> $@
-	echo 'nogroup:x:99:' >> $@
-	echo 'users:x:999:' >> $@
-	touch $@
-/etc/passwd: /etc/group
-	echo 'root::0:0:root:/root:/bin/bash' > $@
-	echo 'bin:x:1:1:bin:/dev/null:/bin/false' >> $@
-	echo 'daemon:x:6:6:Daemon User:/dev/null:/bin/false' >> $@
-	echo 'messagebus:x:18:18:D-Bus Message Daemon User:/var/run/dbus:/bin/false' >> $@
-	echo 'systemd-bus-proxy:x:72:72:systemd Bus Proxy:/:/bin/false' >> $@
-	echo 'systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/bin/false' >> $@
-	echo 'systemd-journal-remote:x:74:74:systemd Journal Remote:/:/bin/false' >> $@
-	echo 'systemd-journal-upload:x:75:75:systemd Journal Upload:/:/bin/false' >> $@
-	echo 'systemd-network:x:76:76:systemd Network Management:/:/bin/false' >> $@
-	echo 'systemd-resolve:x:77:77:systemd Resolver:/:/bin/false' >> $@
-	echo 'systemd-timesync:x:78:78:systemd Time Synchronization:/:/bin/false' >> $@
-	echo 'systemd-coredump:x:79:79:systemd Core Dumper:/:/bin/false' >> $@
-	echo 'nobody:x:99:99:Unprivileged User:/dev/null:/bin/false' >> $@
+pkg2/lfs-tgt-initial.cpio.zst:
+	rm -fr tmp/initial
+	mkdir -p tmp/initial/ins/etc
+#
+	echo 'root::0:0:root:/root:/bin/bash' > tmp/initial/ins/etc/passwd
+	echo 'bin:x:1:1:bin:/dev/null:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'daemon:x:6:6:Daemon User:/dev/null:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'messagebus:x:18:18:D-Bus Message Daemon User:/var/run/dbus:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-bus-proxy:x:72:72:systemd Bus Proxy:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-journal-gateway:x:73:73:systemd Journal Gateway:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-journal-remote:x:74:74:systemd Journal Remote:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-journal-upload:x:75:75:systemd Journal Upload:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-network:x:76:76:systemd Network Management:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-resolve:x:77:77:systemd Resolver:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-timesync:x:78:78:systemd Time Synchronization:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'systemd-coredump:x:79:79:systemd Core Dumper:/:/bin/false' >> tmp/initial/ins/etc/passwd
+	echo 'nobody:x:99:99:Unprivileged User:/dev/null:/bin/false' >> tmp/initial/ins/etc/passwd
+#
+	echo 'root:x:0:' > tmp/initial/ins/etc/group
+	echo 'bin:x:1:daemon' >> tmp/initial/ins/etc/group
+	echo 'sys:x:2:' >> tmp/initial/ins/etc/group
+	echo 'kmem:x:3:' >> tmp/initial/ins/etc/group
+	echo 'tape:x:4:' >> tmp/initial/ins/etc/group
+	echo 'tty:x:5:' >> tmp/initial/ins/etc/group
+	echo 'daemon:x:6:' >> tmp/initial/ins/etc/group
+	echo 'floppy:x:7:' >> tmp/initial/ins/etc/group
+	echo 'disk:x:8:' >> tmp/initial/ins/etc/group
+	echo 'lp:x:9:' >> tmp/initial/ins/etc/group
+	echo 'dialout:x:10:' >> tmp/initial/ins/etc/group
+	echo 'audio:x:11:' >> tmp/initial/ins/etc/group
+	echo 'video:x:12:' >> tmp/initial/ins/etc/group
+	echo 'utmp:x:13:' >> tmp/initial/ins/etc/group
+	echo 'usb:x:14:' >> tmp/initial/ins/etc/group
+	echo 'cdrom:x:15:' >> tmp/initial/ins/etc/group
+	echo 'adm:x:16:' >> tmp/initial/ins/etc/group
+	echo 'messagebus:x:18:' >> tmp/initial/ins/etc/group
+	echo 'systemd-journal:x:23:' >> tmp/initial/ins/etc/group
+	echo 'input:x:24:' >> tmp/initial/ins/etc/group
+	echo 'mail:x:34:' >> tmp/initial/ins/etc/group
+	echo 'kvm:x:61:' >> tmp/initial/ins/etc/group
+	echo 'systemd-bus-proxy:x:72:' >> tmp/initial/ins/etc/group
+	echo 'systemd-journal-gateway:x:73:' >> tmp/initial/ins/etc/group
+	echo 'systemd-journal-remote:x:74:' >> tmp/initial/ins/etc/group
+	echo 'systemd-journal-upload:x:75:' >> tmp/initial/ins/etc/group
+	echo 'systemd-network:x:76:' >> tmp/initial/ins/etc/group
+	echo 'systemd-resolve:x:77:' >> tmp/initial/ins/etc/group
+	echo 'systemd-timesync:x:78:' >> tmp/initial/ins/etc/group
+	echo 'systemd-coredump:x:79:' >> tmp/initial/ins/etc/group
+	echo 'wheel:x:97:' >> tmp/initial/ins/etc/group
+	echo 'nogroup:x:99:' >> tmp/initial/ins/etc/group
+	echo 'users:x:999:' >> tmp/initial/ins/etc/group
+	mkdir -p pkg2
+	cd tmp/initial/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/initial
+	pv $@ | zstd -d | cpio -iduH newc -D /
 	mknod -m 600 /dev/console c 5 1 || true
 	mknod -m 666 /dev/null c 1 3 || true
 	mkdir -pv /boot
@@ -1999,7 +2012,7 @@ unchroot:
 	chgrp -v utmp /var/log/lastlog
 	chmod -v 664  /var/log/lastlog
 	chmod -v 600  /var/log/btmp
-	touch $@
+chroot-initial: pkg2/lfs-tgt-initial.cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.7. Libstdc++ from GCC-10.2.0, Pass 2 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gcc-libstdc++-pass2.html
@@ -2010,7 +2023,7 @@ LIBCPP2_OPT2+= --disable-multilib
 LIBCPP2_OPT2+= --disable-nls
 LIBCPP2_OPT2+= --disable-libstdcxx-pch
 LIBCPP2_OPT2+= CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS) -D_GNU_SOURCE"
-pkg2/lfs-tgt-libcpp.pass2.cpio.zst: /etc/passwd
+pkg2/lfs-tgt-libcpp.pass2.cpio.zst: pkg2/lfs-tgt-initial.cpio.zst
 	rm -fr tmp/tgt-gcc-libcpp
 	mkdir -p tmp/tgt-gcc-libcpp/bld
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/tgt-gcc-libcpp
@@ -2026,7 +2039,6 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/tgt-gcc-libcpp/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/tgt-gcc-libcpp/ins/usr/lib/libstdc++.so.6.0.28
 endif
-	mkdir -p pkg2
 	cd tmp/tgt-gcc-libcpp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-gcc-libcpp
 	pv $@ | zstd -d | cpio -iduH newc -D /
@@ -2835,8 +2847,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
+# ... We will try to perfm tests later at 'binutils with isl' ...
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
 # TEST not passed !
 # FAILS - (A) "--enable-gold".
 # gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
@@ -2854,7 +2867,7 @@ ifeq ($(RUN_TESTS),y)
 # FAIL: Build warn libbar.so
 # FAIL: Run warn with versioned libfoo.so
 # What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
-endif
+#endif
 	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/binutils
 	pv $@ | zstd -d | cpio -iduH newc -D /
@@ -2945,7 +2958,7 @@ endif
 	pv $@ | zstd -d | cpio -iduH newc -D /
 tgt-mpc: pkg3/mpc-$(MPC_VER).cpio.zst
 
-# === extra :: gcc ISL build support
+# === extra :: ISL build support
 #
 # BUILD_TIME :: 45s
 # BUILD_TIME_WITH_TEST :: 1m 47s
@@ -2971,6 +2984,61 @@ endif
 	pv $@ | zstd -d | cpio -iduH newc -D /
 tgt-isl: pkg3/isl-$(ISL_VER).cpio.zst
 
+# === extra :: build again BINUTILS with isl
+#
+# BUILD_TIME :: 2m 11s
+# BUILD_TIME_WITH_TEST :: 10m
+BINUTILS_OPT3+= --prefix=/usr
+#BINUTILS_OPT3+= --enable-gold
+BINUTILS_OPT3+= --enable-ld=default
+BINUTILS_OPT3+= --enable-plugins
+BINUTILS_OPT3+= --enable-shared
+BINUTILS_OPT3+= --disable-werror
+BINUTILS_OPT3+= --enable-64-bit-bfd
+BINUTILS_OPT3+= --with-system-zlib
+BINUTILS_OPT3+= $(OPT_FLAGS)
+BINUTILS_OPT3+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg3/binutils-$(BINUTILS_VER).isl.cpio.zst: pkg3/isl-$(ISL_VER).cpio.zst
+	rm -fr tmp/binutils
+	mkdir -p tmp/binutils/bld
+	tar -xJf pkg/binutils-$(BINUTILS_VER).tar.xz -C tmp/binutils
+	expect -c "spawn ls"
+#OK	
+	sed -i '/@\tincremental_copy/d' tmp/binutils/binutils-$(BINUTILS_VER)/gold/testsuite/Makefile.in
+	cd tmp/binutils/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS_OPT3) && make tooldir=/usr $(JOBS) V=$(VERB) && make tooldir=/usr DESTDIR=`pwd`/../ins install
+	rm -fr tmp/binutils/ins/usr/share
+	rm -f tmp/binutils/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/binutils/ins/usr/bin/* || true
+	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
+endif
+	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
+# TEST not passed !
+# FAILS - (A) "--enable-gold".
+# gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
+# <etc>
+# gcctestdir/collect-ld: error: tls_test.o: unsupported reloc 549 in non-static TLSLE mode.
+# tls_test.o:tls_test.cc:function t1(): error: unexpected opcode while processing relocation R_AARCH64_TLSLE_ADD_TPREL_HI12
+# <etc>
+# https://www.mail-archive.com/bug-binutils@gnu.org/msg30791.html
+# This problem is repaired or not?
+# OK. We'll disable gold. But some problems are still exists.
+# FAILS - (B) "dwarf","libbar","libfoo".
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/dwarf.exp ...
+# FAIL: DWARF parse during linker error
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/shared.exp ...
+# FAIL: Build warn libbar.so
+# FAIL: Run warn with versioned libfoo.so
+# What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
+endif
+	rm -fr tmp/binutils
+tgt-binutils-isl: pkg3/binutils-$(BINUTILS_VER).isl.cpio.zst
+
+
 # LFS-10.0-systemd :: 8.22. Attr-2.4.48
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/attr.html
 # BUILD_TIME :: 10s
@@ -2980,7 +3048,7 @@ ATTR_OPT3+= --disable-static
 ATTR_OPT3+= --sysconfdir=/etc
 ATTR_OPT3+= --disable-nls
 ATTR_OPT3+= $(OPT_FLAGS)
-pkg3/attr-$(ATTR_VER).cpio.zst: pkg3/isl-$(ISL_VER).cpio.zst
+pkg3/attr-$(ATTR_VER).cpio.zst: pkg3/binutils-$(BINUTILS_VER).isl.cpio.zst
 	rm -fr tmp/attr
 	mkdir -p tmp/attr/bld
 	tar -xzf pkg/attr-$(ATTR_VER).tar.gz -C tmp/attr
@@ -3032,7 +3100,7 @@ tgt-acl: pkg3/acl-$(ACL_VER).cpio.zst
 # LFS-10.0-systemd :: 8.24. Libcap-2.42
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/libcap.html
 # BUILD_TIME :: 3s
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME_WITH_TEST :: 4s
 pkg3/libcap-$(LIBCAP_VER).cpio.zst: pkg3/acl-$(ACL_VER).cpio.zst
 	rm -fr tmp/libcap
 	mkdir -p tmp/libcap/ins/lib
@@ -3093,4 +3161,94 @@ endif
 	rm -fr tmp/cracklib
 tgt-cracklib: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
 
-tgt: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
+# LFS-10.0-systemd :: 8.25. Shadow-4.8.1
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/shadow.html
+# BUILD_TIME :: 40s
+SHADOW_OPT3+= --sysconfdir=/etc
+SHADOW_OPT3+= --with-group-name-max-length=32
+SHADOW_OPT3+= --with-libcrack
+SHADOW_OPT3+= --disable-nls
+SHADOW_OPT3+= $(OPT_FLAGS)
+pkg3/shadow-$(SHADOW_VER).cpio.zst: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
+	rm -fr tmp/shadow
+	mkdir -p tmp/shadow/bld
+	tar -xJf pkg/shadow-$(SHADOW_VER).tar.xz -C tmp/shadow
+	sed -i 's|groups$$(EXEEXT) ||' tmp/shadow/shadow-$(SHADOW_VER)/src/Makefile.in
+	cd tmp/shadow/shadow-$(SHADOW_VER) && find man -name Makefile.in -exec sed -i 's/groups\.1 / /'   {} \;
+	cd tmp/shadow/shadow-$(SHADOW_VER) && find man -name Makefile.in -exec sed -i 's/getspnam\.3 / /' {} \;
+	cd tmp/shadow/shadow-$(SHADOW_VER) && find man -name Makefile.in -exec sed -i 's/passwd\.5 / /'   {} \;
+	sed -i 's:#ENCRYPT_METHOD DES:ENCRYPT_METHOD SHA512:' tmp/shadow/shadow-$(SHADOW_VER)/etc/login.defs
+	sed -i 's:/var/spool/mail:/var/mail:' tmp/shadow/shadow-$(SHADOW_VER)/etc/login.defs
+	sed -i 's:DICTPATH.*:DICTPATH\t/lib/cracklib/pw_dict:' tmp/shadow/shadow-$(SHADOW_VER)/etc/login.defs
+	sed -i 's/1000/999/' tmp/shadow/shadow-$(SHADOW_VER)/etc/useradd
+	touch /usr/bin/passwd
+	cd tmp/shadow/bld && ../shadow-$(SHADOW_VER)/configure $(SHADOW_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/shadow/ins/usr/share
+	mv -f tmp/shadow/ins/bin/* tmp/shadow/ins/usr/bin/
+	rm -fr tmp/shadow/ins/bin
+	mv -f  tmp/shadow/ins/sbin/* tmp/shadow/ins/usr/sbin/
+	rm -fr tmp/shadow/ins/sbin
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/shadow/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/shadow/ins/usr/sbin/* || true
+endif
+	cd tmp/shadow/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/shadow
+	pwconv
+	grpconv
+	passwd -d root
+tgt-shadow: pkg3/shadow-$(SHADOW_VER).cpio.zst
+
+
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/config/aarch64/lse.S
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/configure.ac
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/configure
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/Makefile.am
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/Makefile.in
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/configure.ac
+# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/configure
+
+
+# LFS-10.0-systemd :: 8.26. GCC-10.2.0
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gcc.html
+# BUILD_TIME :: 14m 25s
+# BUILD_TIME_WITH_TEST ::
+GCC_OPT3+= --prefix=/usr
+GCC_OPT3+= LD=ld
+GCC_OPT3+= --enable-languages=c,c++
+GCC_OPT3+= --disable-multilib
+GCC_OPT3+= --disable-bootstrap
+GCC_OPT3+= --with-system-zlib
+GCC_OPT3+= --disable-nls
+GCC_OPT3+= $(OPT_FLAGS)
+GCC_OPT3+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
+GCC_OPT3+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg3/gcc-$(GCC_VER).cpio.zst: pkg3/shadow-$(SHADOW_VER).cpio.zst
+	rm -fr tmp/gcc
+	mkdir -p tmp/gcc/bld
+	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/gcc
+# https://mysqlonarm.github.io/ARM-LSE-and-MySQL/
+# Resolve '-march=armv8-a+lse' build error:
+# tmp/gcc/gcc-$(GCC_VER)/libatomic/Changelog
+# tmp/gcc/gcc-$(GCC_VER)/gcc/doc/invoke.texi
+# tmp/gcc/gcc-$(GCC_VER)/gcc/doc/gcc.info
+# tmp/gcc/gcc-$(GCC_VER)/gcc/testsuite/gcc.target/aarch64/atomic-inst-cas.c
+# tmp/gcc/gcc-$(GCC_VER)/gcc/testsuite/gcc.target/aarch64/atomic-inst-ldadd.c
+# tmp/gcc/gcc-$(GCC_VER)/gcc/testsuite/gcc.target/aarch64/atomic-inst-ldlogic.c
+# tmp/gcc/gcc-$(GCC_VER)/gcc/testsuite/gcc.target/aarch64/atomic-inst-swp.c
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libgcc/config/aarch64/lse.S
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libgcc/configure.ac
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libgcc/configure
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libatomic/Makefile.am
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libatomic/Makefile.in
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libatomic/configure.ac
+	sed -i 's|armv8-a+lse|$(RK3588_ARCH)|' tmp/gcc/gcc-$(GCC_VER)/libatomic/configure
+	cd tmp/gcc/bld && ../gcc-$(GCC_VER)/configure $(GCC_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/gcc/ins/usr/share/info
+	rm -fr tmp/gcc/ins/usr/share/man
+	mv -f tmp/gcc/ins/usr/lib64/* tmp/gcc/ins/usr/lib/
+	rm -fr tmp/gcc/ins/usr/lib64
+tgt-gcc: pkg3/gcc-$(GCC_VER).cpio.zst
+
+tgt: pkg3/shadow-$(SHADOW_VER).cpio.zst
