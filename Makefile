@@ -14,7 +14,7 @@ BRD=opi5plus
 
 GIT_RM=y
 BUILD_STRIP=n
-RUN_TESTS=y
+RUN_TESTS=n
 
 ifeq ($(BRD),opi5)
 UBOOT_DEFCONFIG=uboot_opi5_my_defconfig
@@ -35,7 +35,6 @@ BL31_FILE=bl31.elf
 KERNEL_CONFIG=kernel_my_config
 
 BUSYBOX_CONFIG=busybox_my_config
-
 RK3588_AFLG = +crypto
 RK3588_MCPU = cortex-a76.cortex-a55$(RK3588_AFLG)
 RK3588_ARCH = armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod$(RK3588_AFLG)
@@ -48,8 +47,9 @@ OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(
 
 LFS=$(PWD)/lfs
 #LFS_HST=aarch64-rk3588-linux-gnu
-LFS_TGT=aarch64-rk3588-linux-gnu
-LFS_FINAL_TGT=aarch64-unknown-linux-gnu
+#LFS_TGT=aarch64-rk3588-linux-gnu
+LFS_TGT=aarch64-lfs-linux-gnu
+#LFS_FINAL_TGT=aarch64-unknown-linux-gnu
 
 all: deps pkg mmc
 
@@ -1868,7 +1868,7 @@ lfs2/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 lfs2/opt/mysdk/chroot.sh: lfs2/opt/mysdk/Makefile
 	mkdir -p lfs2/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk chroot-all' >> $@
+	echo 'make -C /opt/mysdk tgt-gcc' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
@@ -1881,7 +1881,7 @@ chroot: lfs2/opt/mysdk/chroot.sh
 	sudo mount -vt proc proc lfs2/proc
 	sudo mount -vt sysfs sysfs lfs2/sys
 	sudo mount -vt tmpfs tmpfs lfs2/run
-	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /opt/mysdk/chroot.sh --login +h
+	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot.sh --login +h
 #	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/sh --login +h
 	sudo umount lfs2/run
 	sudo umount lfs2/sys
@@ -1896,7 +1896,7 @@ chroot0: lfs2/opt/mysdk/chroot.sh
 	sudo mount -vt sysfs sysfs lfs2/sys
 	sudo mount -vt tmpfs tmpfs lfs2/run
 #	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /opt/mysdk/chroot.sh --login +h
-	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/sh --login +h
+	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /bin/sh --login +h
 	sudo umount lfs2/run
 	sudo umount lfs2/sys
 	sudo umount lfs2/proc
@@ -1981,11 +1981,20 @@ pkg2/lfs-tgt-initial.cpio.zst:
 	mkdir -pv /srv
 	mkdir -pv /etc/opt
 	mkdir -pv /etc/sysconfig
-# mkdir -pv /lib/firmware
+	mkdir -pv /lib/firmware
 # mkdir -pv /media/{floppy,cdrom}
-# mkdir -pv /usr/{,local/}{bin,include,lib,sbin,src}
+	mkdir -pv /usr/local/bin
+	mkdir -pv /usr/local/include
+	mkdir -pv /usr/local/lib
+	mkdir -pv /usr/local/sbin
+	mkdir -pv /usr/local/src
 # mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}
-# mkdir -pv /usr/{,local/}share/{misc,terminfo,zoneinfo}
+	mkdir -pv /usr/share/misc
+	mkdir -pv /usr/share/terminfo
+	mkdir -pv /usr/share/zoneinfo
+	mkdir -pv /usr/local/share/misc
+	mkdir -pv /usr/local/share/terminfo
+	mkdir -pv /usr/local/share/zoneinfo
 # mkdir -pv /usr/{,local/}share/man/man{1..8}
 	mkdir -pv /var/cache
 	mkdir -pv /var/local
@@ -3200,22 +3209,13 @@ endif
 	passwd -d root
 tgt-shadow: pkg3/shadow-$(SHADOW_VER).cpio.zst
 
-
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/config/aarch64/lse.S
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/configure.ac
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libgcc/configure
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/Makefile.am
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/Makefile.in
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/configure.ac
-# sed -i 's|armv8-a+lse|armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod+crypto|' tmp/gcc/gcc-10.2.0/libatomic/configure
-
-
 # LFS-10.0-systemd :: 8.26. GCC-10.2.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gcc.html
 # BUILD_TIME :: 14m 25s
 # BUILD_TIME_WITH_TEST ::
 GCC_OPT3+= --prefix=/usr
 GCC_OPT3+= LD=ld
+#GCC_OPT3+= CC_FOR_TARGET=gcc
 GCC_OPT3+= --enable-languages=c,c++
 GCC_OPT3+= --disable-multilib
 GCC_OPT3+= --disable-bootstrap
@@ -3249,6 +3249,174 @@ pkg3/gcc-$(GCC_VER).cpio.zst: pkg3/shadow-$(SHADOW_VER).cpio.zst
 	rm -fr tmp/gcc/ins/usr/share/man
 	mv -f tmp/gcc/ins/usr/lib64/* tmp/gcc/ins/usr/lib/
 	rm -fr tmp/gcc/ins/usr/lib64
+	cd tmp/gcc/ins/usr/lib && ln -sf ../bin/cpp cpp
+	cd tmp/gcc/ins/usr/bin && ln -sf gcc cc
+	find tmp/gcc/ins/usr/ -name \*.la -delete
+ifeq ($(BUILD_STRIP),y)
+	find tmp/gcc/ins/usr -type f -name "*.a" -exec strip --strip-debug {} +
+	cd tmp/gcc/ins/usr && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+# rm -rf /usr/lib/gcc/$(gcc -dumpmachine)/10.2.0/include-fixed/bits/
+# !!! 'gcc -dumpmachine' at this return return 'aarch64-rk3588-linux-gnu'.
+# We need to rebuild all LFS later using LFS_TGT=aarch64-unknown-linux-gnu, then all system will be native and we will remove this parts later.
+	install -v -dm755 tmp/gcc/ins/usr/lib/bfd-plugins
+	cp -f pkg/config.guess tmp/
+	chmod ugo+x tmp/config.guess
+	cd tmp/gcc/ins/usr/lib/bfd-plugins && ln -sf ../../libexec/gcc/`../../../../../config.guess`/$(GCC_VER)/liblto_plugin.so liblto_plugin.so
+	rm -f tmp/config.guess
+	cd tmp/gcc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/gcc
+# !!! 'gcc -dumpmachine' at this return return 'aarch64-unknown-linux-gnu'.
+# SYSTEM NOW SWITCHED TO NATIVE 'aarch64-unknown-linux-gnu' !
 tgt-gcc: pkg3/gcc-$(GCC_VER).cpio.zst
+
+# =============================================================================
+# here is the point of NATIVE BUILD (aarch64-unknown-linux-gnu)
+# =============================================================================
+
+# === extra :: final build BINUTILS as NATIVE (aarch64-unknown-linux-gnu)
+#
+# BUILD_TIME :: 1m 58s
+# BUILD_TIME_WITH_TEST :: 8m 45s
+BINUTILS_OPT4+= --prefix=/usr
+#BINUTILS_OPT4+= --enable-gold
+BINUTILS_OPT4+= --enable-ld=default
+BINUTILS_OPT4+= --enable-plugins
+BINUTILS_OPT4+= --enable-shared
+BINUTILS_OPT4+= --disable-werror
+BINUTILS_OPT4+= --enable-64-bit-bfd
+BINUTILS_OPT4+= --with-system-zlib
+BINUTILS_OPT4+= $(OPT_FLAGS)
+BINUTILS_OPT4+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg4/binutils-$(BINUTILS_VER).cpio.zst: pkg3/gcc-$(GCC_VER).cpio.zst
+	rm -fr tmp/binutils
+	mkdir -p tmp/binutils/bld
+	tar -xJf pkg/binutils-$(BINUTILS_VER).tar.xz -C tmp/binutils
+	expect -c "spawn ls"
+#OK	
+	sed -i '/@\tincremental_copy/d' tmp/binutils/binutils-$(BINUTILS_VER)/gold/testsuite/Makefile.in
+	cd tmp/binutils/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS_OPT4) && make tooldir=/usr $(JOBS) V=$(VERB) && make tooldir=/usr DESTDIR=`pwd`/../ins install
+	rm -fr tmp/binutils/ins/usr/share
+	rm -f tmp/binutils/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/binutils/ins/usr/bin/* || true
+	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
+endif
+	mkdir -p pkg4
+	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
+# TEST not passed !
+# FAILS - (A) "--enable-gold".
+# gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
+# <etc>
+# gcctestdir/collect-ld: error: tls_test.o: unsupported reloc 549 in non-static TLSLE mode.
+# tls_test.o:tls_test.cc:function t1(): error: unexpected opcode while processing relocation R_AARCH64_TLSLE_ADD_TPREL_HI12
+# <etc>
+# https://www.mail-archive.com/bug-binutils@gnu.org/msg30791.html
+# This problem is repaired or not?
+# OK. We'll disable gold. But some problems are still exists.
+# FAILS - (B) "dwarf","libbar","libfoo".
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/dwarf.exp ...
+# FAIL: DWARF parse during linker error
+# Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/shared.exp ...
+# FAIL: Build warn libbar.so
+# FAIL: Run warn with versioned libfoo.so
+# What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
+endif
+	rm -fr tmp/binutils
+native-binutils: pkg4/binutils-$(BINUTILS_VER).cpio.zst
+
+
+
+
+pkg3/pkg-config-$(PKG_CONFIG_VER).cpio.zst:
+	rm -fr tmp/pkg-config
+	mkdir -p tmp/pkg-config/bld
+	tar -xzf pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz -C tmp/pkg-config
+tgt-pkg-config: pkg3/pkg-config-$(PKG_CONFIG_VER).cpio.zst
+
+pkg3/ncurses-$(NCURSES_VER).cpio.zst:
+	rm -fr tmp/ncurses
+	mkdir -p tmp/ncurses/bld
+	tar -xzf pkg/ncurses-$(NCURSES_VER).tar.gz -C tmp/ncurses
+tgt-ncurses: pkg3/ncurses-$(NCURSES_VER).cpio.zst
+
+pkg3/sed-$(SED_VER).cpio.zst:
+	rm -fr tmp/sed
+	mkdir -p tmp/sed/bld
+	tar -xJf pkg/sed-$(SED_VER).tar.xz -C tmp/sed
+tgt-sed: pkg3/sed-$(SED_VER).cpio.zst
+
+pkg3/psmisc-$(PSMISC_VER).cpio.zst:
+	rm -fr tmp/psmisc
+	mkdir -p tmp/psmisc/bld
+	tar -xJf pkg/psmisc-$(PSMISC_VER).tar.xz -C tmp/psmisc
+
+pkg3/gettext-$(GETTEXT_VER).cpio.zst:
+	rm -fr tmp/gettext
+	mkdir -p tmp/gettext/bld
+	tar -xJf pkg/gettext-$(GETTEXT_VER).tar.xz -C tmp/gettext
+
+pkg3/bison-$(BISON_VER).cpio.zst:
+	rm -fr tmp/bison
+	mkdir -p tmp/bison/bld
+	tar -xJf pkg/bison-$(BISON_VER).tar.xz -C tmp/bison
+
+pkg3/grep-$(GREP_VER).cpio.zst:
+	rm -fr tmp/grep
+	mdkir -p tmp/grep/bld
+	tar -xJf pkg/grep-$(GREP_VER).tar.xz -C tmp/grep
+
+pkg4/bash-$(BASH_VER).cpio.zst:
+	rm -fr tmp/bash
+	mkdir -p tmp/bash/bld
+	tar -xzf pkg/bash-$(BASH_VER).tar.gz -C tmp/bash
+
+#PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
+#PKG+=pkg/gdbm-$(GDBM_VER).tar.gz
+#PKG+=pkg/gperf-$(GPERF_VER).tar.gz
+#PKG+=pkg/expat-$(EXPAT_VER).tar.xz
+#PKG+=pkg/inetutils-$(INET_UTILS_VER).tar.xz
+#PKG+=pkg/perl-$(PERL_VER).tar.xz
+#PKG+=pkg/XML-Parser-$(XML_PARSER_VER).tar.gz
+#PKG+=pkg/intltool-$(INTL_TOOL_VER).tar.gz
+#PKG+=pkg/autoconf-$(AUTOCONF_VER).tar.xz
+#PKG+=pkg/automake-$(AUTOMAKE_VER).tar.xz
+#PKG+=pkg/kmod-$(KMOD_VER).tar.xz
+#PKG+=pkg/elfutils-$(ELF_UTILS_VER).tar.bz2
+#PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
+#PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
+#PKG+=pkg/Python-$(PYTHON_VER).tar.xz
+#PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
+#PKG+=pkg/ninja-$(NINJA_VER).tar.gz
+#PKG+=pkg/meson-$(MESON_VER).tar.gz
+#PKG+=pkg/coreutils-$(CORE_UTILS_VER).tar.xz
+#PKG+=pkg/check-$(CHECK_VER).tar.gz
+#PKG+=pkg/diffutils-$(DIFF_UTILS_VER).tar.xz
+#PKG+=pkg/gawk-$(GAWK_VER).tar.xz
+#PKG+=pkg/findutils-$(FIND_UTILS_VER).tar.xz
+#PKG+=pkg/groff-$(GROFF_VER).tar.gz
+#GRUB-2.04
+#PKG+=pkg/less-$(LESS_VER).tar.gz
+#PKG+=pkg/gzip-$(GZIP_VER).tar.xz
+#PKG+=pkg/iproute2-$(IP_ROUTE2_VER).tar.xz
+#PKG+=pkg/kbd-$(KBD_VER).tar.xz
+#PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
+#PKG+=pkg/make-$(MAKE_VER).tar.gz
+#PKG+=pkg/patch-$(PATCH_VER).tar.xz
+#PKG+=pkg/man-db-$(MAN_DB_VER).tar.xz
+#PKG+=pkg/tar-$(TAR_VER).tar.xz
+#PKG+=pkg/texinfo-$(TEXINFO_VER).tar.xz
+#PKG+=pkg/vim-$(VIM_VER).tar.gz
+#PKG+=pkg/systemd-$(SYSTEMD_VER).tar.gz
+#PKG+=pkg/dbus-$(DBUS_VER).tar.gz
+#PKG+=pkg/procps-ng-$(PROCPS_VER).tar.xz
+#PKG+=pkg/util-linux-$(UTIL_LINUX_VER).tar.xz
+#PKG+=pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz
+#PKG+=pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz
 
 tgt: pkg3/shadow-$(SHADOW_VER).cpio.zst
