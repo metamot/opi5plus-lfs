@@ -7,7 +7,8 @@ PWD=$(shell pwd)
 # Add sync for ESD-touch when Opi5 imidiately shutdown from ESD-touch #SYNC=
 SYNC=sync
 # How many parrallel jobs? If anything is wrong, pls use only ONE, i.e. "make JOBS=-j1"
-JOBS=-j12
+JOB=12
+JOBS=-j$(JOB)
 #Verbose - default minimal (=0) , set VERB=1 to lots of verbose
 VERB=1
 # You can create logs if VERB=1 and redirect "1"(stdout) to file and "2"(stderr) to file, like this:
@@ -734,6 +735,9 @@ PSMISC_VER=23.3
 PV_VER=1.8.5
 PYTHON_VER=3.8.5
 PYTHON_DOC_VER=$(PYTHON_VER)
+PYTHON_VER0=3.8
+PYTHON_VER00=3
+RE2C_VER=3.1
 READLINE_VER=8.0
 SED_VER=4.8
 SHADOW_VER=4.8.1
@@ -829,6 +833,7 @@ PKG+=pkg/psmisc-$(PSMISC_VER).tar.xz
 PKG+=pkg/pv-$(PV_VER).tar.gz
 PKG+=pkg/Python-$(PYTHON_VER).tar.xz
 PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
+PKG+=pkg/re2c-$(RE2C_VER).tar.gz
 PKG+=pkg/readline-$(READLINE_VER).tar.gz
 PKG+=pkg/sed-$(SED_VER).tar.xz
 PKG+=pkg/shadow-$(SHADOW_VER).tar.xz
@@ -1011,6 +1016,8 @@ pkg/Python-$(PYTHON_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.python.org/ftp/python/$(PYTHON_VER)/Python-$(PYTHON_VER).tar.xz && touch $@
 pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2: pkg/.gitignore
 	wget -P pkg https://www.python.org/ftp/python/doc/$(PYTHON_DOC_VER)/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2 && touch $@
+pkg/re2c-$(RE2C_VER).tar.gz: pkg/.gitignore
+	wget -O pkg/re2c-$(RE2C_VER).tar.gz https://github.com/skvadrik/re2c/archive/refs/tags/$(RE2C_VER).tar.gz && touch $@
 pkg/readline-$(READLINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/readline/readline-$(READLINE_VER).tar.gz && touch $@
 pkg/sed-$(SED_VER).tar.xz: pkg/.gitignore
@@ -3962,6 +3969,11 @@ endif
 	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	export BUILD_ZLIB=False && export BUILD_BZIP2=0 && cd tmp/perl/perl-$(PERL_VER) && make test -j1
+# ^^^ It cant runs under make invocation(( I has't any ideas about it. Both types of invocation from make-file via sh -c 'make test' or directly "make test" both are not working.
+# PERL TEST, NOW, WAS INVOKED FROM COMMAND LINE DIRECTLY FROM CHROOT!!!
+# bash # cd /opt/mysdk
+# bash # cd tmp/perl/perl-<TAB>
+# bash # make test -j1
 #Failed 9 tests out of 2554, 99.65% okay.
 #	../cpan/Compress-Raw-Zlib/t/01version.t
 #	../cpan/Compress-Raw-Zlib/t/02zlib.t
@@ -4202,8 +4214,8 @@ tgt-elfutils: pkg3/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst
 
 # LFS-10.0-systemd :: 8.47. Libffi-3.3
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/libffi.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 17s
+# BUILD_TIME_WITH_TEST :: 5m 53s
 LIBFFI_OPT3+= --prefix=/usr
 LIBFFI_OPT3+= --disable-static
 LIBFFI_OPT3+= --with-gcc-arch=native
@@ -4213,165 +4225,540 @@ pkg3/libffi-$(LIBFFI_VER).cpio.zst: pkg3/elfutils-$(ELF_UTILS_VER).libelf.cpio.z
 	mkdir -p tmp/libffi/bld
 	tar -xzf pkg/libffi-$(LIBFFI_VER).tar.gz -C tmp/libffi
 	cd tmp/libffi/bld && ../libffi-$(LIBFFI_VER)/configure $(LIBFFI_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libffi/ins/usr/share
+	mv -f tmp/libffi/ins/usr/lib64/* tmp/libffi/ins/usr/lib
+	rm -fr tmp/libffi/ins/usr/lib64
+	rm -f  tmp/libffi/ins/usr/lib/*.la
+	cd tmp/libffi/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libffi/ins/usr/lib/*.so*
+endif
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/libffi/bld && make check 2>&1 | tee ../../../tst/libffi-check.log || true
+#		=== libffi Summary ===
+# of expected passes		1554
+# Looks like OK!
 endif
+	rm -fr tmp/libffi
 tgt-libffi: pkg3/libffi-$(LIBFFI_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.48. OpenSSL-1.1.1g
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/openssl.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 3m 16s
+# BUILD_TIME_WITH_TEST :: 7m 8s
 OPENSSL_OPT3+= --prefix=/usr
 OPENSSL_OPT3+= --openssldir=/etc/ssl
 OPENSSL_OPT3+= --libdir=lib
 OPENSSL_OPT3+= shared
 OPENSSL_OPT3+= zlib-dynamic
 OPENSSL_OPT3+= $(OPT_FLAGS)
-pkg3/openssl-$(OPEN_SSL_VER).cpio.zst:
+pkg3/openssl-$(OPEN_SSL_VER).cpio.zst: pkg3/libffi-$(LIBFFI_VER).cpio.zst
 	rm -fr tmp/openssl
 	mkdir -p tmp/openssl/bld
 	tar -xzf pkg/openssl-$(OPEN_SSL_VER).tar.gz -C tmp/openssl
-	cd tmp/openssl/bld && ../openssl-$(OPEN_SSL_VER)/config $(OPENSSL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cd tmp/openssl/bld && ../openssl-$(OPEN_SSL_VER)/config $(OPENSSL_OPT3) && make $(JOBS) V=$(VERB)
+	sed -i '/INSTALL_LIBS/s/libcrypto.a libssl.a//' tmp/openssl/bld/Makefile
+	cd tmp/openssl/bld && make MANSUFFIX=ssl DESTDIR=`pwd`/../ins install
+	rm -fr tmp/openssl/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/openssl/ins/usr/bin/openssl
+	strip --strip-debug tmp/openssl/ins/usr/lib/*.a || true
+	cd tmp/openssl/ins/usr/lib && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+	cd tmp/openssl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/openssl/bld && make test 2>&1 | tee ../../../tst/openssl-test.log || true
+#../../openssl-1.1.1g/test/recipes/80-test_cms.t ...................... 
+#Dubious, test returned 5 (wstat 1280, 0x500)
+#Failed 5/6 subtests 
+#../../openssl-1.1.1g/test/recipes/80-test_ssl_new.t .................. 
+#Dubious, test returned 1 (wstat 256, 0x100)
+#Failed 1/29 subtests 
+#Test Summary Report
+#-------------------
+#../../openssl-1.1.1g/test/recipes/80-test_cms.t                    (Wstat: 1280 Tests: 6 Failed: 5)
+#  Failed tests:  1-5
+#  Non-zero exit status: 5
+#../../openssl-1.1.1g/test/recipes/80-test_ssl_new.t                (Wstat: 256 Tests: 29 Failed: 1)
+#  Failed test:  12
+#  Non-zero exit status: 1
+#Files=155, Tests=1468, 225 wallclock secs ( 6.18 usr  0.65 sys + 177.19 cusr 58.49 csys = 242.51 CPU)
+#Result: FAIL
 endif
+	rm -fr tmp/openssl
 tgt-openssl: pkg3/openssl-$(OPEN_SSL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.49. Python-3.8.5
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/Python.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 2m 48s
+# BUILD_TIME_WITH_TEST :: 7m 8s
 PYTHON_OPT3+= --prefix=/usr
 PYTHON_OPT3+= --enable-shared
 PYTHON_OPT3+= --with-system-expat
 PYTHON_OPT3+= --with-system-ffi
 PYTHON_OPT3+= --with-ensurepip=yes
 PYTHON_OPT3+= $(OPT_FLAGS)
-pkg3/Python-$(PYTHON_VER).cpio.zst:
+pkg3/Python-$(PYTHON_VER).cpio.zst: pkg3/openssl-$(OPEN_SSL_VER).cpio.zst
 	rm -fr tmp/python
 	mkdir -p tmp/python/bld
 	tar -xJf pkg/Python-$(PYTHON_VER).tar.xz -C tmp/python
 	cd tmp/python/bld && ../Python-$(PYTHON_VER)/configure $(PYTHON_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/python/ins/usr/share
+	chmod -v 755 tmp/python/ins/usr/lib/libpython$(PYTHON_VER0).so
+	chmod -v 755 tmp/python/ins/usr/lib/libpython$(PYTHON_VER00).so
+	cd tmp/python/ins/usr/bin && ln -sfv pip3.8 pip3
+ifeq ($(BUILD_STRIP),y)
+	cd tmp/python/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+	cd tmp/python/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 #PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/python/bld && make test 2>&1 | tee ../../../tst/python-test.log || true
+# == Tests result: FAILURE ==
+# 398 tests OK.
+# 5 tests failed:
+#    test_fcntl test_minidom test_normalization test_xml_etree
+#    test_xml_etree_c
+# 20 tests skipped:
+#    test_devpoll test_gdb test_idle test_ioctl test_kqueue test_msilib
+#    test_nis test_ossaudiodev test_sqlite test_startfile test_tcl
+#    test_tix test_tk test_ttk_guionly test_ttk_textonly test_turtle
+#    test_winconsoleio test_winreg test_winsound test_zipfile64
+# test_issue3151 (test.test_xml_etree.BugsTest) ... ERROR
+# ERROR: test_issue3151 (test.test_xml_etree.BugsTest)
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/etree/ElementTree.py", line 1693, in feed
+#    self.parser.Parse(data, 0)
+# xml.parsers.expat.ExpatError: syntax error: line 1, column 0
+# During handling of the above exception, another exception occurred:
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_xml_etree.py", line 1969, in test_issue3151
+#    e = ET.XML('<prefix:localname xmlns:prefix="${stuff}"/>')
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/etree/ElementTree.py", line 1320, in XML
+#    parser.feed(text)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/etree/ElementTree.py", line 1695, in feed
+#    self._raiseerror(v)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/etree/ElementTree.py", line 1602, in _raiseerror
+#    raise err
+#  File "<string>", line None
+# xml.etree.ElementTree.ParseError: syntax error: line 1, column 0
+# test_correct_import_pyET (test.test_xml_etree.NoAcceleratorTest) ... test test_xml_etree_c failed
+# ERROR: test_issue3151 (test.test_xml_etree.BugsTest)
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_xml_etree.py", line 1969, in test_issue3151
+#    e = ET.XML('<prefix:localname xmlns:prefix="${stuff}"/>')
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/etree/ElementTree.py", line 1320, in XML
+#    parser.feed(text)
+#  File "<string>", line None
+# xml.etree.ElementTree.ParseError: syntax error: line 1, column 0
+# Ran 177 tests in 0.506s
+# FAILED (errors=1, skipped=4)
+# 0:04:14 load avg: 8.33 Re-running test_fcntl in verbose mode
+# struct.pack:  b'\x01\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00'
+# test_fcntl_64_bit (test.test_fcntl.TestFcntl) ... ERROR
+# ERROR: test_fcntl_64_bit (test.test_fcntl.TestFcntl)
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_fcntl.py", line 138, in test_fcntl_64_bit
+#    fcntl.fcntl(fd, cmd, flags)
+# OSError: [Errno 22] Invalid argument
+# Ran 9 tests in 0.029s
+# FAILED (errors=1)
+# 0:04:15 load avg: 8.33 Re-running test_normalization in verbose mode
+# test_bug_834676 (test.test_normalization.NormalizationTest) ... ok
+# test_main (test.test_normalization.NormalizationTest) ... test test_normalization failed
+# 	fetching http://www.pythontest.net/unicode/12.1.0/NormalizationTest.txt ...
+# FAIL
+# FAIL: test_main (test.test_normalization.NormalizationTest)
+# Traceback (most recent call last):
+#   File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/urllib/request.py", line 1350, in do_open
+#   h.request(req.get_method(), req.selector, req.data, headers,
+# socket.gaierror: [Errno -3] Temporary failure in name resolution
+# During handling of the above exception, another exception occurred:
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_normalization.py", line 41, in test_main
+#    testdata = open_urlresource(TESTDATAURL, encoding="utf-8",
+# urllib.error.URLError: <urlopen error [Errno -3] Temporary failure in name resolution>
+# During handling of the above exception, another exception occurred:
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_normalization.py", line 47, in test_main
+#    self.fail(f"Could not retrieve {TESTDATAURL}")
+#AssertionError: Could not retrieve http://www.pythontest.net/unicode/12.1.0/NormalizationTest.txt
+# Ran 2 tests in 0.021s
+# FAILED (failures=1)
+# ERROR: testEncodings (test.test_minidom.MinidomTest)
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_minidom.py", line 1150, in testEncodings
+#    self.assertRaises(UnicodeDecodeError, parseString,
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/unittest/case.py", line 816, in assertRaises
+#    return context.handle('assertRaises', args, kwargs)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/unittest/case.py", line 202, in handle
+#    callable_obj(*args, **kwargs)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/minidom.py", line 1969, in parseString
+#    return expatbuilder.parseString(string)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/expatbuilder.py", line 925, in parseString
+#    return builder.parseString(string)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/expatbuilder.py", line 223, in parseString
+#    parser.Parse(string, True)
+# xml.parsers.expat.ExpatError: not well-formed (invalid token): line 1, column 5
+# ERROR: testExceptionOnSpacesInXMLNSValue (test.test_minidom.MinidomTest)
+# Traceback (most recent call last):
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/test/test_minidom.py", line 1597, in testExceptionOnSpacesInXMLNSValue
+#    parseString('<element xmlns:abc="http:abc.com/de f g/hi/j k"><abc:foo /></element>')
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/minidom.py", line 1969, in parseString
+#    return expatbuilder.parseString(string)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/expatbuilder.py", line 925, in parseString
+#    return builder.parseString(string)
+#  File "/opt/mysdk/tmp/python/Python-3.8.5/Lib/xml/dom/expatbuilder.py", line 223, in parseString
+#    parser.Parse(string, True)
+# xml.parsers.expat.ExpatError: syntax error: line 1, column 0
+# Ran 126 tests in 0.038s
+# FAILED (errors=2)
+# 5 tests failed again:
+#    test_fcntl test_minidom test_normalization test_xml_etree
+#    test_xml_etree_c
+# == Tests result: FAILURE then FAILURE ==
+# 398 tests OK.
+# 5 tests failed:
+#    test_fcntl test_minidom test_normalization test_xml_etree
+#    test_xml_etree_c
+# 20 tests skipped:
+#    test_devpoll test_gdb test_idle test_ioctl test_kqueue test_msilib
+#    test_nis test_ossaudiodev test_sqlite test_startfile test_tcl
+#    test_tix test_tk test_ttk_guionly test_ttk_textonly test_turtle
+#    test_winconsoleio test_winreg test_winsound test_zipfile64
+# 5 re-run tests:
+#    test_fcntl test_minidom test_normalization test_xml_etree
+#    test_xml_etree_c
+# Total duration: 4 min 15 sec
+# Tests result: FAILURE then FAILURE
+endif
+	rm -fr tmp/python
 tgt-python: pkg3/Python-$(PYTHON_VER).cpio.zst
+
+# extra : RE2C (for ninja)
+# https://github.com/skvadrik/re2c/releases/tag/3.1
+# BUILD_TIME :: 1m 18s
+# BUILD_TIME_WITH_TEST :: 1m 28s
+RE2C_OPT3+= --prefix=/usr
+RE2C_OPT3+= $(OPT_FLAGS)
+pkg3/re2c-$(RE2C_VER).cpio.zst: pkg3/Python-$(PYTHON_VER).cpio.zst
+	rm -fr tmp/re2c
+	mkdir -p tmp/re2c/bld
+	tar -xzf pkg/re2c-$(RE2C_VER).tar.gz -C tmp/re2c
+	cd tmp/re2c/re2c-$(RE2C_VER) && autoreconf -i -W all
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/re2c/re2c-$(RE2C_VER)/configure
+	cd tmp/re2c/bld && ../re2c-$(RE2C_VER)/configure $(RE2C_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/re2c/ins/usr/share/man
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/re2c/ins/usr/bin/*
+endif
+	cd tmp/re2c/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/re2c/bld && make check 2>&1 | tee ../../../tst/re2c-check.log || true
+#============================================================================
+#Testsuite summary for re2c 3.1
+#============================================================================
+# TOTAL: 5
+# PASS:  5
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/re2c
+tgt-re2c: pkg3/re2c-$(RE2C_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.50. Ninja-1.10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/ninja.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-pkg3/ninja-$(NINJA_VER).cpio.zst:
+# BUILD_TIME :: 36s
+# BUILD_TIME_WITH_TEST :: 50s
+pkg3/ninja-$(NINJA_VER).cpio.zst: pkg3/re2c-$(RE2C_VER).cpio.zst
 	rm -fr tmp/ninja
+	mkdir -p tmp/ninja
 	tar -xzf pkg/ninja-$(NINJA_VER).tar.gz -C tmp/ninja
-	cd tmp/ninja-$(NINJA_VER) && python3 configure.py --bootstrap
+	sed -i '/int Guess/a   int   j = 0;  char* jobs = getenv( "NINJAJOBS" );  if ( jobs != NULL ) j = atoi( jobs );  if ( j > 0 ) return j;' tmp/ninja/ninja-$(NINJA_VER)/src/ninja.cc
+	sed -i 's/-O2/$(BASE_OPT_VALUE)/' tmp/ninja/ninja-$(NINJA_VER)/configure.py
+# FROM:
+## int GuessParallelism() {
+##  switch (int processors = GetProcessorCount()) {
+#   TO:
+## int GuessParallelism() {
+#> int   j = 0;  char* jobs = getenv( "NINJAJOBS" );  if ( jobs != NULL ) j = atoi( jobs );  if ( j > 0 ) return j;
+##  switch (int processors = GetProcessorCount()) {
+### ----------
+	cd tmp/ninja/ninja-$(NINJA_VER) && sh -c 'export NINJAJOBS=$(JOB) && CFLAGS=$(RK3588_FLAGS) python3 -v configure.py --bootstrap --verbose'
+	mkdir -p tmp/ninja/ins/usr/bin
+	mkdir -p tmp/ninja/ins/usr/share/bash-completion/completions/ninja
+	mkdir -p tmp/ninja/ins/usr/share/zsh/site-functions/_ninja
+	install -vm755 tmp/ninja/ninja-$(NINJA_VER)/ninja tmp/ninja/ins/usr/bin
+	install -vDm644 tmp/ninja/ninja-$(NINJA_VER)/misc/bash-completion tmp/ninja/ins/usr/share/bash-completion/completions/ninja
+	install -vDm644 tmp/ninja/ninja-$(NINJA_VER)/misc/zsh-completion tmp/ninja/ins/usr/share/zsh/site-functions/_ninja
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/ninja/ins/usr/bin/ninja
+endif
+	cd tmp/ninja/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/ninja/ninja-$(NINJA_VER) && ./ninja ninja_test && ./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
+# [19/19] LINK ninja_test
+# [341/341] ElideMiddle.ElideInTheMiddle
+# passed
+endif
+	rm -fr tmp/ninja
 tgt-ninja: pkg3/ninja-$(NINJA_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.51. Meson-0.55.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/meson.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-pkg3/meson-$(MESON_VER).cpio.zst:
+# BUILD_TIME :: 3s
+pkg3/meson-$(MESON_VER).cpio.zst: pkg3/ninja-$(NINJA_VER).cpio.zst
 	rm -fr tmp/meson
+	mkdir -p tmp/meson
 	tar -xzf pkg/meson-$(MESON_VER).tar.gz -C tmp/meson
-	cd tmp/meson-$(MESON_VER) && python3 setup.py build
+	cd tmp/meson/meson-$(MESON_VER) && python3 setup.py build && python3 setup.py install --root=OUT
+	rm -fr tmp/meson/meson-$(MESON_VER)/OUT/usr/share/man
+	mkdir -p tmp/meson/ins
+	cp -far tmp/meson/meson-$(MESON_VER)/OUT/usr tmp/meson/ins/
+	cd tmp/meson/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/meson
 tgt-meson: pkg3/meson-$(MESON_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.52. Coreutils-8.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/coreutils.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst:
+# BUILD_TIME :: 2m 58s
+# BUILD_TIME_WITH_TEST :: 10m 44s
+COREUTILS_OPT3+= --prefix=/usr
+COREUTILS_OPT3+= --enable-no-install-program=kill,uptime
+COREUTILS_OPT3+= --disable-nls
+COREUTILS_OPT3+= $(OPT_FLAGS)
+pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst: pkg3/meson-$(MESON_VER).cpio.zst
 	rm -fr tmp/coreutils
 	mkdir -p tmp/coreutils/bld
 	tar -xJf pkg/coreutils-$(CORE_UTILS_VER).tar.xz -C tmp/coreutils
-	cp -f pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch tmp/coreutils/
-	cd tmp/coreutils/coreutils-$(CORE_UTILS_VER) && patch -Np1 -i ../coreutils-$(CORE_UTILS_VER)-i18n-1.patch
+#	cp -f pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch tmp/coreutils/
+#	cd tmp/coreutils/coreutils-$(CORE_UTILS_VER) && patch -Np1 -i ../coreutils-$(CORE_UTILS_VER)-i18n-1.patch
+### gcc   -mcpu=cortex-a76.cortex-a55+crypto -Os -Wl,--as-needed  -o src/expand src/expand.o src/expand-common.o src/libver.a lib/libcoreutils.a  lib/libcoreutils.a 
+### /bin/ld: src/expand.o: in function `main':
+### expand.c:(.text.startup+0x1e8): undefined reference to `mbfile_multi_getc'
+### collect2: error: ld returned 1 exit status
+# https://github.com/dslm4515/Musl-LFS/issues/11
 	sed -i '/test.lock/s/^/#/' tmp/coreutils/coreutils-$(CORE_UTILS_VER)/gnulib-tests/gnulib.mk
-# https://stackoverflow.com/questions/11647208/where-to-add-a-cflag-such-as-std-gnu99-into-an-autotools-project
+	sed -i "s/SYS_getdents/SYS_getdents64/" tmp/coreutils/coreutils-$(CORE_UTILS_VER)/src/ls.c
+	cd tmp/coreutils/coreutils-$(CORE_UTILS_VER) && autoreconf -fiv
+	cd tmp/coreutils/bld && FORCE_UNSAFE_CONFIGURE=1 ../coreutils-$(CORE_UTILS_VER)/configure $(COREUTILS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/coreutils/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/coreutils/ins/usr/libexec/coreutils/libstdbuf.so
+	strip --strip-unneeded tmp/coreutils/ins/usr/bin/* || true
+endif
+	cd tmp/coreutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/coreutils/bld && make NON_ROOT_USERNAME=tester check-root || true
+	echo "dummy:x:102:tester" >> /etc/group
+	cd tmp/coreutils/bld && chown -Rv tester .
+	cd tmp/coreutils/bld && su tester -c "PATH=$$PATH make RUN_EXPENSIVE_TESTS=yes check" || true
+	sed -i '/dummy/d' /etc/group
+# as root
+#============================================================================
+#Testsuite summary for GNU coreutils 8.32
+#============================================================================
+# TOTAL: 621
+# PASS:  489
+# SKIP:  132
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+# as tester
+#============================================================================
+#Testsuite summary for GNU coreutils 8.32
+#============================================================================
+# TOTAL: 345
+# PASS:  307
+# SKIP:  38
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/coreutils
 tgt-coreutils: pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.53. Check-0.15.2
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/check.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 25s
+# BUILD_TIME_WITH_TEST :: 6m 45s
 CHECK_OPT3+= --prefix=/usr
 CHECK_OPT3+= --disable-static
 CHECK_OPT3+= $(OPT_FLAGS)
-pkg3/check-$(CHECK_VER).cpio.zst:
+pkg3/check-$(CHECK_VER).cpio.zst: pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst
 	rm -fr tmp/check
 	mkdir -p tmp/check/bld
 	tar -xzf pkg/check-$(CHECK_VER).tar.gz -C tmp/check
 	cd tmp/check/bld && ../check-$(CHECK_VER)/configure $(CHECK_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/check/bld && make check 2>&1 | tee ../../../tst/check-check.log || true
+	rm -fr tmp/check/ins/usr/share/doc
+	rm -fr tmp/check/ins/usr/share/info
+	rm -fr tmp/check/ins/usr/share/man
+	rm -f  tmp/check/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/check/ins/usr/lib/*.so*
 endif
+	cd tmp/check/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/check/check-$(CHECK_VER) && ./configure $(CHECK_OPT3) && make $(JOBS) V=$(VERB) && make check 2>&1 | tee ../../../tst/check-check.log || true
+# TOTAL: 1
+# PASS:  1
+## make  check-TESTS
+## make[3]: Entering directory '/opt/mysdk/tmp/check/check-0.15.2/tests'
+## make[4]: Entering directory '/opt/mysdk/tmp/check/check-0.15.2/tests'
+# ^^^ Very Long Time without any activity at this point, but then it will continue!
+## PASS: check_check_export
+# ^^^ Very Long Time without any activity at this point, but then it will continue!
+#============================================================================
+#Testsuite summary for Check 0.15.2
+#============================================================================
+# TOTAL: 9
+# PASS:  9
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/check
 tgt-check: pkg3/check-$(CHECK_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.54. Diffutils-3.7
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/diffutils.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 58s
+# BUILD_TIME_WITH_TEST :: 1m 55s
 DIFFUTILS_OPT3+= --prefix=/usr
 DIFFUTILS_OPT3+= --disable-nls
 DIFFUTILS_OPT3+= $(OPT_FLAGS)
-pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst:
+pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg3/check-$(CHECK_VER).cpio.zst
 	rm -fr tmp/diffutils
 	mkdir -p tmp/diffutils/bld
 	tar -xJf pkg/diffutils-$(DIFF_UTILS_VER).tar.xz -C tmp/diffutils
 	cd tmp/diffutils/bld && ../diffutils-$(DIFF_UTILS_VER)/configure $(DIFFUTILS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/diffutils/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/diffutils/ins/usr/bin/*
+endif
+	cd tmp/diffutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/diffutils/bld && make check 2>&1 | tee ../../../tst/diffutils-check.log || true
+#============================================================================
+#Testsuite summary for GNU diffutils 3.7
+#============================================================================
+# TOTAL: 173
+# PASS:  145
+# SKIP:  28
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
 endif
+	rm -fr tmp/diffutils
 tgt-diffutils: pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.55. Gawk-5.1.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gawk.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 48s
+# BUILD_TIME_WITH_TEST :: 1m 18s
 GAWK_OPT3+= --prefix=/usr
 GAWK_OPT3+= --disable-nls
 GAWK_OPT3+= $(OPT_FLAGS)
-pkg3/gawk-$(GAWK_VER).cpio.zst:
+pkg3/gawk-$(GAWK_VER).cpio.zst: pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst
 	rm -fr tmp/gawk
 	mkdir -p tmp/gawk/bld
 	tar -xJf pkg/gawk-$(GAWK_VER).tar.xz -C tmp/gawk
 	sed -i 's/extras//' tmp/gawk/gawk-$(GAWK_VER)/Makefile.in
 	cd tmp/gawk/bld && ../gawk-$(GAWK_VER)/configure $(GAWK_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/gawk/ins/usr/share/info
+	rm -fr tmp/gawk/ins/usr/share/man
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/gawk/ins/usr/libexec/awk/*
+	strip --strip-unneeded tmp/gawk/ins/usr/lib/gawk/*
+	strip --strip-unneeded tmp/gawk/ins/usr/bin/*
+endif
+	cd tmp/gawk/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/gawk/bld && make check 2>&1 | tee ../../../tst/gawk-check.log || true
+# ALL TESTS PASSED
 endif
+	rm -fr tmp/gawk
 tgt-gawk: pkg3/gawk-$(GAWK_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.56. Findutils-4.7.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/findutils.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 35s
+# BUILD_TIME_WITH_TEST :: 3m 41s
 FINDUTILS_OPT3+= --prefix=/usr
 FINDUTILS_OPT3+= --localstatedir=/var/lib/locate
 FINDUTILS_OPT3+= --disable-nls
 FINDUTILS_OPT3+= $(OPT_FLAGS)
-pkg3/findutils-$(FIND_UTILS_VER).cpio.zst:
+pkg3/findutils-$(FIND_UTILS_VER).cpio.zst: pkg3/gawk-$(GAWK_VER).cpio.zst
 	rm -fr tmp/findutils
 	mkdir -p tmp/findutils/bld
 	tar -xJf pkg/findutils-$(FIND_UTILS_VER).tar.xz -C tmp/findutils
 	cd tmp/findutils/bld && ../findutils-$(FIND_UTILS_VER)/configure $(FINDUTILS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/findutils/bld && make check 2>&1 | tee ../../../tst/findutils-check.log || true
+	rm -fr tmp/findutils/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/findutils/ins/usr/libexec/frcode
+	strip --strip-unneeded tmp/findutils/ins/usr/bin/* || true
 endif
+	cd tmp/findutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/findutils/bld && chown -Rv tester . && su tester -c "PATH=$$PATH make check"
+#============================================================================
+#Testsuite summary for GNU findutils 4.7.0
+#============================================================================
+# TOTAL: 12
+# PASS:  11
+# SKIP:  1
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/findutils
 tgt-findutils: pkg3/findutils-$(FIND_UTILS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.57. Groff-1.22.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/groff.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 2m 7s
 GROFF_PREP_OPT3+= PAGE=A4
 GROFF_OPT3+= --prefix=/usr
 GROFF_OPT3+= $(OPT_FLAGS)
-pkg3/groff-$(GROFF_VER).cpio.zst:
+pkg3/groff-$(GROFF_VER).cpio.zst: pkg3/findutils-$(FIND_UTILS_VER).cpio.zst
 	rm -fr tmp/groff
 	mkdir -p tmp/groff/bld
 	tar -xzf pkg/groff-$(GROFF_VER).tar.gz -C tmp/groff
 	cd tmp/groff/bld && $(GROFF_PREP_OPT3) ../groff-$(GROFF_VER)/configure $(GROFF_OPT3) && make -j1 V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/groff/ins/usr/share/doc
+	rm -fr tmp/groff/ins/usr/share/info
+	rm -fr tmp/groff/ins/usr/share/man
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/groff/ins/usr/bin/* || true
+endif
+	cd tmp/groff/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/groff
 tgt-groff: pkg3/groff-$(GROFF_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.58. GRUB-2.04
@@ -4382,33 +4769,59 @@ tgt-groff: pkg3/groff-$(GROFF_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.59. Less-551
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/less.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 14s
 LESS_OPT3+= --prefix=/usr
 LESS_OPT3+= --sysconfdir=/etc
 LESS_OPT3+= $(OPT_FLAGS)
-pkg3/less-$(LESS_VER).cpio.zst:
+pkg3/less-$(LESS_VER).cpio.zst: pkg3/groff-$(GROFF_VER).cpio.zst
 	rm -fr tmp/less
 	mkdir -p tmp/less/bld
 	tar -xzf pkg/less-$(LESS_VER).tar.gz -C tmp/less
 	cd tmp/less/bld && ../less-$(LESS_VER)/configure $(LESS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/less/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/less/ins/usr/bin/* || true
+endif
+	cd tmp/less/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/less
 tgt-less: pkg3/less-$(LESS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.60. Gzip-1.10
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gzip.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 43s
+# BUILD_TIME_WITH_TEST :: 50s
 GZIP_OPT3+= --prefix=/usr
 GZIP_OPT3+= $(OPT_FLAGS)
-pkg3/gzip-$(GZIP_VER).cpio.zst:
+pkg3/gzip-$(GZIP_VER).cpio.zst: pkg3/less-$(LESS_VER).cpio.zst
 	rm -fr tmp/gzip
 	mkdir -p tmp/gzip/bld
 	tar -xJf pkg/gzip-$(GZIP_VER).tar.xz -C tmp/gzip
 	cd tmp/gzip/bld && ../gzip-$(GZIP_VER)/configure $(GZIP_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/gzip/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/gzip/ins/usr/bin/* || true
+endif
+	cd tmp/gzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/gzip/bld && make check 2>&1 | tee ../../../tst/gzip-check.log || true
+#============================================================================
+#Testsuite summary for gzip 1.10
+#============================================================================
+# TOTAL: 22
+# PASS:  22
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
 endif
+	rm -fr tmp/gzip
 tgt-gzip: pkg3/gzip-$(GZIP_VER).cpio.zst
+
+tgt: pkg3/gzip-$(GZIP_VER).cpio.zst
 
 # extra blfs :: Sharutils-4.15.2
 # https://www.linuxfromscratch.org/blfs/view/10.0/general/sharutils.html
