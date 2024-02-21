@@ -678,6 +678,7 @@ CHECK_VER=0.15.2
 CORE_UTILS_VER=8.32
 CPIO_VER=2.13
 CRACKLIB_VER=2.9.7
+DB_BERKELEY_VER=5.3.28
 DBUS_VER=1.12.20
 DEJAGNU_VER=1.6.2
 DIFF_UTILS_VER=3.7
@@ -705,12 +706,14 @@ IANA_ETC_VER=20200821
 INET_UTILS_VER=1.9.4
 INTL_TOOL_VER=0.51.0
 IP_ROUTE2_VER=5.8.0
+IP_TABLES_VER=1.8.5
 ISL_VER=0.23
 KBD_VER=2.3.0
 KMOD_VER=27
 LESS_VER=551
 LIBCAP_VER=2.42
 LIBFFI_VER=3.3
+LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
 LIBTOOL_VER=2.4.6
 M4_VER=1.4.18
@@ -723,6 +726,7 @@ MPC_VER=1.1.0
 MPFR_VER=4.1.0
 NANO_VER=5.2
 NCURSES_VER=6.2
+NFTABLES_VER=1.0.9
 NINJA_VER=1.10.0
 OPEN_SSL_VER=1.1.1g
 PATCH_VER=2.7.6
@@ -741,6 +745,7 @@ RE2C_VER=3.1
 READLINE_VER=8.0
 SED_VER=4.8
 SHADOW_VER=4.8.1
+SHARUTILS_VER=4.15.2
 SWIG_VER=4.0.2
 SYSTEMD_VER=246
 TAR_VER=1.32
@@ -751,6 +756,7 @@ TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
 UTIL_LINUX_VER=2.36
 VIM_VER=8.2.1361
+WHICH_VER=2.21
 XML_PARSER_VER=2.46
 XZ_VER=5.2.5
 #ZLIB_VER=1.2.11
@@ -779,6 +785,7 @@ PKG+=pkg/coreutils-$(CORE_UTILS_VER).tar.xz
 PKG+=pkg/cpio-$(CPIO_VER).tar.bz2
 PKG+=pkg/cracklib-$(CRACKLIB_VER).tar.bz2
 PKG+=pkg/cracklib-words-$(CRACKLIB_VER).bz2
+PKG+=pkg/db-$(DB_BERKELEY_VER).tar.gz
 PKG+=pkg/dbus-$(DBUS_VER).tar.gz
 PKG+=pkg/dejagnu-$(DEJAGNU_VER).tar.gz
 PKG+=pkg/diffutils-$(DIFF_UTILS_VER).tar.xz
@@ -804,12 +811,14 @@ PKG+=pkg/iana-etc-$(IANA_ETC_VER).tar.gz
 PKG+=pkg/inetutils-$(INET_UTILS_VER).tar.xz
 PKG+=pkg/intltool-$(INTL_TOOL_VER).tar.gz
 PKG+=pkg/iproute2-$(IP_ROUTE2_VER).tar.xz
+PKG+=pkg/iptables-$(IP_TABLES_VER).tar.bz2
 PKG+=pkg/isl-$(ISL_VER).tar.xz
 PKG+=pkg/kbd-$(KBD_VER).tar.xz
 PKG+=pkg/kmod-$(KMOD_VER).tar.xz
 PKG+=pkg/less-$(LESS_VER).tar.gz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
+PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
 PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
 PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
 PKG+=pkg/m4-$(M4_VER).tar.xz
@@ -822,6 +831,7 @@ PKG+=pkg/mpc-$(MPC_VER).tar.gz
 PKG+=pkg/mpfr-$(MPFR_VER).tar.xz
 PKG+=pkg/nano-$(NANO_VER).tar.xz
 PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
+PKG+=pkg/nftables-$(NFTABLES_VER).tar.xz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
 PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
@@ -837,6 +847,7 @@ PKG+=pkg/re2c-$(RE2C_VER).tar.gz
 PKG+=pkg/readline-$(READLINE_VER).tar.gz
 PKG+=pkg/sed-$(SED_VER).tar.xz
 PKG+=pkg/shadow-$(SHADOW_VER).tar.xz
+PKG+=pkg/sharutils-$(SHARUTILS_VER).tar.xz
 PKG+=pkg/swig-$(SWIG_VER).tar.gz
 PKG+=pkg/systemd-$(SYSTEMD_VER).tar.gz
 PKG+=pkg/tar-$(TAR_VER).tar.xz
@@ -846,6 +857,7 @@ PKG+=pkg/texinfo-$(TEXINFO_VER).tar.xz
 PKG+=pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz
 PKG+=pkg/util-linux-$(UTIL_LINUX_VER).tar.xz
 PKG+=pkg/vim-$(VIM_VER).tar.gz
+PKG+=pkg/which-$(WHICH_VER).tar.gz
 PKG+=pkg/XML-Parser-$(XML_PARSER_VER).tar.gz
 PKG+=pkg/xz-$(XZ_VER).tar.xz
 PKG+=pkg/zlib-$(ZLIB_VER).tar.xz
@@ -906,6 +918,8 @@ pkg/cracklib-$(CRACKLIB_VER).tar.bz2: pkg/.gitignore
 	wget -P pkg https://github.com/cracklib/cracklib/releases/download/v$(CRACKLIB_VER)/cracklib-$(CRACKLIB_VER).tar.bz2 && touch $@
 pkg/cracklib-words-$(CRACKLIB_VER).bz2: pkg/.gitignore
 	wget -P pkg https://github.com/cracklib/cracklib/releases/download/v$(CRACKLIB_VER)/cracklib-words-$(CRACKLIB_VER).bz2 && touch $@
+pkg/db-$(DB_BERKELEY_VER).tar.gz: pkg/.gitignore
+	wget -P pkg http://anduin.linuxfromscratch.org/BLFS/bdb/db-$(DB_BERKELEY_VER).tar.gz && touch $@
 pkg/dbus-$(DBUS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://dbus.freedesktop.org/releases/dbus/dbus-$(DBUS_VER).tar.gz && touch $@
 pkg/dejagnu-$(DEJAGNU_VER).tar.gz: pkg/.gitignore
@@ -956,6 +970,8 @@ pkg/intltool-$(INTL_TOOL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://launchpad.net/intltool/trunk/$(INTL_TOOL_VER)/+download/intltool-$(INTL_TOOL_VER).tar.gz && touch $@
 pkg/iproute2-$(IP_ROUTE2_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/utils/net/iproute2/iproute2-$(IP_ROUTE2_VER).tar.xz && touch $@
+pkg/iptables-$(IP_TABLES_VER).tar.bz2: pkg/.gitignore
+	wget -P pkg http://www.netfilter.org/projects/iptables/files/iptables-$(IP_TABLES_VER).tar.bz2 && touch $@
 pkg/isl-$(ISL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://libisl.sourceforge.io/isl-$(ISL_VER).tar.xz && touch $@
 pkg/kbd-$(KBD_VER).tar.xz: pkg/.gitignore
@@ -968,6 +984,8 @@ pkg/libcap-$(LIBCAP_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-$(LIBCAP_VER).tar.xz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
 	wget -P pkg ftp://sourceware.org/pub/libffi/libffi-$(LIBFFI_VER).tar.gz && touch $@
+pkg/libmnl-$(LIBMNL_VER).tar.bz2: pkg/.gitignore
+	wget -P pkg https://netfilter.org/projects/libmnl/files/libmnl-$(LIBMNL_VER).tar.bz2 && touch $@
 pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/libpipeline/libpipeline-$(LIBPIPILINE_VER).tar.gz && touch $@
 pkg/libtool-$(LIBTOOL_VER).tar.xz: pkg/.gitignore
@@ -993,6 +1011,8 @@ pkg/nano-$(NANO_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/nano/nano-$(NANO_VER).tar.xz && touch $@
 pkg/ncurses-$(NCURSES_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/ncurses/ncurses-$(NCURSES_VER).tar.gz && touch $@
+pkg/nftables-$(NFTABLES_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://netfilter.org/projects/nftables/files/nftables-$(NFTABLES_VER).tar.xz && touch $@
 pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/ninja-build/ninja/archive/v$(NINJA_VER)/ninja-$(NINJA_VER).tar.gz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
@@ -1024,6 +1044,8 @@ pkg/sed-$(SED_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/sed/sed-$(SED_VER).tar.xz && touch $@
 pkg/shadow-$(SHADOW_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/shadow-maint/shadow/releases/download/$(SHADOW_VER)/shadow-$(SHADOW_VER).tar.xz && touch $@
+pkg/sharutils-$(SHARUTILS_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/sharutils/sharutils-$(SHARUTILS_VER).tar.xz && touch $@
 pkg/swig-$(SWIG_VER).tar.gz: pkg/.gitignore	
 	wget -P pkg https://downloads.sourceforge.net/swig/swig-$(SWIG_VER).tar.gz && touch $@
 pkg/systemd-$(SYSTEMD_VER).tar.gz: pkg/.gitignore
@@ -1042,6 +1064,8 @@ pkg/util-linux-$(UTIL_LINUX_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/utils/util-linux/v$(UTIL_LINUX_VER)/util-linux-$(UTIL_LINUX_VER).tar.xz && touch $@
 pkg/vim-$(VIM_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://anduin.linuxfromscratch.org/LFS/vim-$(VIM_VER).tar.gz && touch $@
+pkg/which-$(WHICH_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/which/which-$(WHICH_VER).tar.gz && touch $@
 pkg/XML-Parser-$(XML_PARSER_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-$(XML_PARSER_VER).tar.gz && touch $@
 pkg/xz-$(XZ_VER).tar.xz: pkg/.gitignore
@@ -4821,37 +4845,163 @@ endif
 	rm -fr tmp/gzip
 tgt-gzip: pkg3/gzip-$(GZIP_VER).cpio.zst
 
-tgt: pkg3/gzip-$(GZIP_VER).cpio.zst
+# extra blfs :: Which-2.21 and Alternatives
+# https://www.linuxfromscratch.org/blfs/view/10.0/general/which.html
+# BUILD_TIME :: 8s
+WHICH_OPT3+= --prefix=/usr
+WHICH_OPT3+= $(OPT_FLAGS)
+pkg3/which-$(WHICH_VER).cpio.zst: pkg3/gzip-$(GZIP_VER).cpio.zst
+	rm -fr tmp/which
+	mkdir -p tmp/which/bld
+	tar -xzf pkg/which-$(WHICH_VER).tar.gz -C tmp/which
+	cd tmp/which/bld && ../which-$(WHICH_VER)/configure $(WHICH_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/which/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/which/ins/usr/bin/which
+endif
+	cd tmp/which/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/which
+# -------------------
+# "Which" alternative
+pkg3/which.cpio.zst: pkg3/gzip-$(GZIP_VER).cpio.zst
+	rm -fr tmp/which
+	mkdir -p tmp/which/ins/usr/bin
+	echo '#!/bin/bash' > tmp/which/ins/usr/bin/which
+	echo 'type -pa "$$@" | head -n 1 ; exit $${PIPESTATUS[0]}' >> tmp/which/ins/usr/bin/which
+	chmod -v 755 tmp/which/ins/usr/bin/which
+	chown -v root:root tmp/which/ins/usr/bin/which
+	cd tmp/which/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/which
+tgt-which: pkg3/which.cpio.zst
 
 # extra blfs :: Sharutils-4.15.2
 # https://www.linuxfromscratch.org/blfs/view/10.0/general/sharutils.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 29s
+# BUILD_TIME_WITH_TEST :: 1m 43s
+SHARUTILS_OPT3+= --prefix=/usr
+SHARUTILS_OPT3+= --disable-nls
+SHARUTILS_OPT3+= $(OPT_FLAGS)
+pkg3/sharutils-$(SHARUTILS_VER).cpio.zst: pkg3/which.cpio.zst
+	rm -fr tmp/sharutils
+	mkdir -p tmp/sharutils/bld
+	tar -xJf pkg/sharutils-$(SHARUTILS_VER).tar.xz -C tmp/sharutils
+	sed -i 's/BUFSIZ/rw_base_size/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/unshar.c
+	sed -i '/program_name/s/^/extern /' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/*opts.h
+	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/*.c
+	echo "#define _IO_IN_BACKUP 0x100" >> tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/stdio-impl.h
+	cd tmp/sharutils/bld && ../sharutils-$(SHARUTILS_VER)/configure $(SHARUTILS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/sharutils/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/sharutils/ins/usr/bin/*
+endif
+	cd tmp/sharutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/sharutils/bld && make check 2>&1 | tee ../../../tst/sharutils-check.log || true
+#============================================================================
+#Testsuite summary for GNU sharutils 4.15.2
+#============================================================================
+# TOTAL: 6
+# PASS:  6
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/sharutils
+tgt-sharutils: pkg3/sharutils-$(SHARUTILS_VER).cpio.zst
 
 # extra blfs :: Berkeley DB-5.3.28
 # https://www.linuxfromscratch.org/blfs/view/10.0/server/db.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 4s
+DB_BERKELEY_OPT3+= --prefix=/usr
+DB_BERKELEY_OPT3+= --enable-compat185
+DB_BERKELEY_OPT3+= --enable-dbm
+DB_BERKELEY_OPT3+= --disable-static
+DB_BERKELEY_OPT3+= --enable-cxx
+DB_BERKELEY_OPT3+= --enable-tcl
+DB_BERKELEY_OPT3+= --with-tcl=/usr/lib
+DB_BERKELEY_OPT3+= $(OPT_FLAGS)
+pkg3/db-$(DB_BERKELEY_VER).cpio.zst: pkg3/sharutils-$(SHARUTILS_VER).cpio.zst
+	rm -fr tmp/db
+	mkdir -p tmp/db/bld
+	tar -xzf pkg/db-$(DB_BERKELEY_VER).tar.gz -C tmp/db
+	sed -i 's/\(__atomic_compare_exchange\)/\1_db/' tmp/db/db-$(DB_BERKELEY_VER)/src/dbinc/atomic.h
+	cp -far pkg/config.guess tmp/db/db-$(DB_BERKELEY_VER)/dist/
+	cp -far pkg/config.sub tmp/db/db-$(DB_BERKELEY_VER)/dist/
+	cd tmp/db/bld && ../db-$(DB_BERKELEY_VER)/dist/configure $(DB_BERKELEY_OPT3) && make $(JOBS) V=$(VERB) && make docdir=/usr/share/doc/db-$(DB_BERKELEY_VER) DESTDIR=`pwd`/../ins install
+	rm -fr tmp/db/ins/usr/share
+	rm -f  tmp/db/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/db/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/db/ins/usr/lib/*.so*
+endif
+	cd tmp/db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/db
+tgt-db: pkg3/db-$(DB_BERKELEY_VER).cpio.zst
+
+# extra blfs :: libmnl-1.0.4
+# https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libmnl.html
+# https://git.netfilter.org/libmnl/
+# BUILD_TIME :: 9s
+LIBMNL_OPT3+= --prefix=/usr
+LIBMNL_OPT3+= $(OPT_FLAGS)
+pkg3/libmnl-$(LIBMNL_VER).cpio.zst: pkg3/db-$(DB_BERKELEY_VER).cpio.zst
+	rm -fr tmp/libmnl
+	mkdir -p tmp/libmnl/bld
+	tar -xjf pkg/libmnl-$(LIBMNL_VER).tar.bz2 -C tmp/libmnl
+	cd tmp/libmnl/bld && ../libmnl-$(LIBMNL_VER)/configure $(LIBMNL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f  tmp/libmnl/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libmnl/ins/usr/lib/*.so*
+endif
+	cd tmp/libmnl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libmnl
+tgt-libmnl: pkg3/libmnl-$(LIBMNL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.61. IPRoute2-5.8.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/iproute2.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst:
+# BUILD_TIME :: 18s
+pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst: pkg3/libmnl-$(LIBMNL_VER).cpio.zst
 	rm -fr tmp/iproute2
-	mkdir -p tmp/iproute2/bld
+	mkdir -p tmp/iproute2
 	tar -xJf pkg/iproute2-$(IP_ROUTE2_VER).tar.xz -C tmp/iproute2
+	sed -i 's/.m_ipt.o//' tmp/iproute2/iproute2-$(IP_ROUTE2_VER)/tc/Makefile
+	sed -i 's|-O2|$(BASE_OPT_FLAGS)|' tmp/iproute2/iproute2-$(IP_ROUTE2_VER)/Makefile
+# libc has setns: yes
+# ELF support: yes
+# need for strlcpy: yes
+# libcap support: yes
+# Berkeley DB: yes
+# libmnl support: yes
+### ATM	no
+### SELinux support: no
+	cd tmp/iproute2/iproute2-$(IP_ROUTE2_VER) && make $(JOBS) V=$(VERB) && make DOCDIR=/usr/share/doc/iproute2-$(IP_ROUTE2_VER) DESTDIR=`pwd`/../ins install
+	mv -fv tmp/iproute2/ins/sbin tmp/iproute2/ins/usr/
+	rm -fr tmp/iproute2/ins/usr/share/man
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/iproute2/ins/usr/sbin/* || true
+endif
+	cd tmp/iproute2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/iproute2
 tgt-iproute2: pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.62. Kbd-2.3.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/kbd.html
-# BUILD_TIME ::
+# BUILD_TIME :: 53s
 # BUILD_TIME_WITH_TEST ::
 KBD_OPT3+= --prefix=/usr
 KBD_OPT3+= --disable-vlock
 KBD_OPT3+= --disable-nls
-KBD_OPT3+= $(OPT_FLAGS)
-pkg3/kbd-$(KBD_VER).cpio.zst:
+KBD_OPT3+= CFLAGS="$(RK3588_FLAGS)"
+pkg3/kbd-$(KBD_VER).cpio.zst: pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst
 	rm -fr tmp/kbd
 	mkdir -p tmp/kbd/bld
 	tar -xJf pkg/kbd-$(KBD_VER).tar.xz -C tmp/kbd
@@ -4859,44 +5009,88 @@ pkg3/kbd-$(KBD_VER).cpio.zst:
 	cd tmp/kbd/kbd-$(KBD_VER) && patch -Np1 -i ../kbd-$(KBD_VER)-backspace-1.patch
 	sed -i '/RESIZECONS_PROGS=/s/yes/no/' tmp/kbd/kbd-$(KBD_VER)/configure
 	sed -i 's/resizecons.8 //' tmp/kbd/kbd-$(KBD_VER)/docs/man/man8/Makefile.in
+	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/m4/libtool.m4
+	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure.ac
+	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure
 	cd tmp/kbd/bld && ../kbd-$(KBD_VER)/configure $(KBD_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+# warning: remember to run 'libtool --finish /usr/lib'
+# This's because DESTDIR install. It's not a problem.
+	rm -fr tmp/kbd/ins/usr/share/man
+	rm -fr tmp/kbd/ins/usr/lib
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/kbd/ins/usr/bin/* || true
+endif
+	cd tmp/kbd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/kbd/bld && make check 2>&1 | tee ../../../tst/kbd-check.log || true
+# 36 tests were successful.
+# 4 tests were skipped.
 endif
+	rm -fr tmp/kbd
 tgt-kbd: pkg3/kbd-$(KBD_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.63. Libpipeline-1.5.3
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/libpipeline.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 57s
+# BUILD_TIME_WITH_TEST :: 1m 4s
 LIBPIPILINE_OPT3+= --prefix=/usr
 LIBPIPILINE_OPT3+= $(OPT_FLAGS)
-pkg3/libpipeline-$(LIBPIPILINE_VER).cpio.zst:
+pkg3/libpipeline-$(LIBPIPILINE_VER).cpio.zst: pkg3/kbd-$(KBD_VER).cpio.zst
 	rm -fr tmp/libpipeline
 	mkdir -p tmp/libpipeline/bld
 	tar -xzf pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz -C tmp/libpipeline
 	cd tmp/libpipeline/bld && ../libpipeline-$(LIBPIPILINE_VER)/configure $(LIBPIPILINE_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libpipeline/ins/usr/share
+	rm -f  tmp/libpipeline/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libpipeline/ins/usr/lib/*.so*
+endif
+	cd tmp/libpipeline/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/libpipeline/bld && make check 2>&1 | tee ../../../tst/libpipeline-check.log || true
+#============================================================================
+#Testsuite summary for libpipeline 1.5.3
+#============================================================================
+# TOTAL: 7
+# PASS:  7
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
 endif
+	rm -fr tmp/libpipeline
 tgt-libpipeline: pkg3/libpipeline-$(LIBPIPILINE_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.64. Make-4.3
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/make.html
-# BUILD_TIME ::
+# BUILD_TIME :: 30s
 # BUILD_TIME_WITH_TEST ::
 MAKE_OPT3+= --prefix=/usr
 MAKE_OPT3+= --disable-nls
 MAKE_OPT3+= $(OPT_FLAGS)
-pkg3/make-$(MAKE_VER).cpio.zst:
+pkg3/make-$(MAKE_VER).cpio.zst: pkg3/libpipeline-$(LIBPIPILINE_VER).cpio.zst
 	rm -fr tmp/make
 	mkdir -p tmp/make/bld
 	tar -xzf pkg/make-$(MAKE_VER).tar.gz -C tmp/make
 	cd tmp/make/bld && ../make-$(MAKE_VER)/configure $(MAKE_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/make/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/make/ins/usr/bin/make
+endif
+	cd tmp/make/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/make/bld && make check 2>&1 | tee ../../../tst/make-check.log || true
+# 690 Tests in 125 Categories Complete ... No Failures :-)
 endif
+	rm -fr tmp/make
 tgt-make: pkg3/make-$(MAKE_VER).cpio.zst
+
+tgt: tgt-make
 
 # LFS-10.0-systemd :: 8.65. Patch-2.7.6
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/patch.html
@@ -5186,3 +5380,36 @@ ifeq ($(RUN_TESTS),y)
 endif
 	rm -fr tmp/binutils
 tgt-binutils-native: pkg3/binutils-$(BINUTILS_VER).native.cpio.zst
+
+# https://netfilter.org/projects/nftables/
+# https://netfilter.org/projects/nftables/downloads.html
+# https://netfilter.org/projects/nftables/files/nftables-1.0.9.tar.xz
+
+# https://git.kernel.org/cgit/linux/kernel/git/netfilter/nf-next.git
+# https://git.netfilter.org/libnftnl/
+# https://git.netfilter.org/nftables/
+# https://git.netfilter.org/iptables/
+
+# extra :: libnetfilter_conntrack
+# https://netfilter.org/projects/libnetfilter_conntrack/
+# https://git.netfilter.org/libnetfilter_conntrack/
+# https://netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.0.8.tar.bz2
+# https://netfilter.org/projects/libnetfilter_conntrack/files/libnetfilter_conntrack-1.0.9.tar.bz2
+
+# extra :: libnfnetlink
+# https://netfilter.org/projects/libnfnetlink/
+# https://git.netfilter.org/libnfnetlink/
+# https://netfilter.org/projects/libnfnetlink/files/libnfnetlink-1.0.2.tar.bz2
+
+# extra
+# https://github.com/toszr/bpf-utils
+
+# BlueZ-5.54, libnl-3.5.0, libusb-1.0.23,
+
+# extra blfs :: libpcap-1.9.1
+# https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libpcap.html
+
+# extra blfs :: iptables-1.8.5
+# https://www.linuxfromscratch.org/blfs/view/10.0/postlfs/iptables.html
+# BUILD_TIME ::
+# BUILD_TIME_WITH_TEST ::
