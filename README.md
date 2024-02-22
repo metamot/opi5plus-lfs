@@ -81,6 +81,6 @@ NOW BUILD CHROOT-INITIAL STAGE:
 
 **BUILD TIME: about 2h 8m !!!**
 
-Here is we after point at '8.34. Bash-5.0'.
+Here is we are in after point at '8.34. Bash-5.0' now.
 
 
