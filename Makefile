@@ -1911,24 +1911,42 @@ pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-to
 lfs2/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 	mkdir -p lfs2
 	pv $< | zstd -d | cpio -iduH newc -D lfs2
-lfs2/opt/mysdk/chroot.sh: lfs2/opt/mysdk/Makefile
+lfs2/opt/mysdk/chroot0.sh: lfs2/opt/mysdk/Makefile
 	mkdir -p lfs2/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt' >> $@
+	echo 'make -C /opt/mysdk tgt0' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # === LFS-10.0-systemd :: 7.4. Entering the Chroot Environment 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/chroot.html
-chroot: lfs2/opt/mysdk/chroot.sh
+chroot0: lfs2/opt/mysdk/chroot0.sh
 	sudo mount -v --bind /dev lfs2/dev
 	sudo mount -v --bind /dev/pts lfs2/dev/pts
 	sudo mount -vt proc proc lfs2/proc
 	sudo mount -vt sysfs sysfs lfs2/sys
 	sudo mount -vt tmpfs tmpfs lfs2/run
-	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot.sh --login +h
-#	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/sh --login +h
+	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot0.sh --login +h
+	sudo umount lfs2/run
+	sudo umount lfs2/sys
+	sudo umount lfs2/proc
+	sudo umount lfs2/dev/pts
+	sudo umount lfs2/dev
+
+lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
+	mkdir -p lfs2/opt/mysdk
+	echo '#!/bin/bash' > $@
+	echo 'make -C /opt/mysdk tgt1' >> $@
+	chmod ugo+x $@
+
+chroot1: lfs2/opt/mysdk/chroot1.sh
+	sudo mount -v --bind /dev lfs2/dev
+	sudo mount -v --bind /dev/pts lfs2/dev/pts
+	sudo mount -vt proc proc lfs2/proc
+	sudo mount -vt sysfs sysfs lfs2/sys
+	sudo mount -vt tmpfs tmpfs lfs2/run
+	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot1.sh --login +h
 	sudo umount lfs2/run
 	sudo umount lfs2/sys
 	sudo umount lfs2/proc
@@ -3780,10 +3798,12 @@ ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/bash/bld && su tester -c "PATH=$$PATH make tests < $$(tty)"
 endif
 	rm -fr tmp/bash
-	exec /bin/bash --login +h
+#	exec /bin/bash --login +h
 tgt-bash: pkg3/bash-$(BASH_VER).cpio.zst
-
 tgt0: pkg3/bash-$(BASH_VER).cpio.zst
+###############################################################################
+# THIS POINT IS: 127m 48s (2h 8m)
+###############################################################################
 
 # === RE-ENTER TO CHROOT with new bash
 
@@ -5090,48 +5110,73 @@ endif
 	rm -fr tmp/make
 tgt-make: pkg3/make-$(MAKE_VER).cpio.zst
 
-tgt: tgt-make
-
 # LFS-10.0-systemd :: 8.65. Patch-2.7.6
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/patch.html
-# BUILD_TIME ::
+# BUILD_TIME :: 1m 19s
 # BUILD_TIME_WITH_TEST ::
 PATCH_OPT3+= --prefix=/usr
 PATCH_OPT3+= $(OPT_FLAGS)
-pkg3/patch-$(PATCH_VER).cpio.zst:
+pkg3/patch-$(PATCH_VER).cpio.zst: pkg3/make-$(MAKE_VER).cpio.zst
 	rm -fr tmp/patch
 	mkdir -p tmp/patch/bld
 	tar -xJf pkg/patch-$(PATCH_VER).tar.xz -C tmp/patch
 	cd tmp/patch/bld && ../patch-$(PATCH_VER)/configure $(PATCH_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/patch/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/patch/ins/usr/bin/patch
+endif
+	cd tmp/patch/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/patch/bld && make check 2>&1 | tee ../../../tst/patch-check.log || true
+#============================================================================
+#Testsuite summary for GNU patch 2.7.6
+#============================================================================
+# TOTAL: 44
+# PASS:  41
+# SKIP:  1
+# XFAIL: 2
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
 endif
+	rm -fr tmp/patch
 tgt-patch: pkg3/patch-$(PATCH_VER).cpio.zst
+tgt: tgt-patch
 
 # LFS-10.0-systemd :: 8.66. Man-DB-2.9.3
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/man-db.html
-# BUILD_TIME ::
+# BUILD_TIME :: 2m 10s
 # BUILD_TIME_WITH_TEST ::
-MANDB_OPT3+= --prefix=/usr
-MANDB_OPT3+= --docdir=/usr/share/doc/man-db-$(MAN_DB_VER)
-MANDB_OPT3+= --sysconfdir=/etc
-MANDB_OPT3+= --disable-setuid
-MANDB_OPT3+= --enable-cache-owner=bin
-MANDB_OPT3+= --with-browser=/usr/bin/lynx
-MANDB_OPT3+= --with-vgrind=/usr/bin/vgrind
-MANDB_OPT3+= --with-grap=/usr/bin/grap
-MANDB_OPT3+= --disable-nls
-MANDB_OPT3+= $(OPT_FLAGS)
-pkg3/man-db-$(MAN_DB_VER).cpio.zst:
-	rm -fr tmp/man-db
-	mkdir -p tmp/man-db/bld
-	tar -xJf pkg/man-db-$(MAN_DB_VER).tar.xz -C tmp/man-db
-	sed -i '/find/s@/usr@@' tmp/man-db/man-db-$(MAN_DB_VER)/init/systemd/man-db.service.in
-	cd tmp/man-db/bld && ../man-db-$(MAN_DB_VER)/configure $(MANDB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/man-db/bld && make check 2>&1 | tee ../../../tst/man-db-check.log || true
-endif
-tgt-man-db: pkg3/man-db-$(MAN_DB_VER).cpio.zst
+#MANDB_OPT3+= --prefix=/usr
+#MANDB_OPT3+= --docdir=/usr/share/doc/man-db-$(MAN_DB_VER)
+#MANDB_OPT3+= --sysconfdir=/etc
+#MANDB_OPT3+= --disable-setuid
+#MANDB_OPT3+= --enable-cache-owner=bin
+#MANDB_OPT3+= --with-browser=/usr/bin/lynx
+#MANDB_OPT3+= --with-vgrind=/usr/bin/vgrind
+#MANDB_OPT3+= --with-grap=/usr/bin/grap
+#MANDB_OPT3+= --disable-nls
+#MANDB_OPT3+= $(OPT_FLAGS)
+#pkg3/man-db-$(MAN_DB_VER).cpio.zst: pkg3/patch-$(PATCH_VER).cpio.zst
+#	rm -fr tmp/man-db
+#	mkdir -p tmp/man-db/bld
+#	tar -xJf pkg/man-db-$(MAN_DB_VER).tar.xz -C tmp/man-db
+#	sed -i '/find/s@/usr@@' tmp/man-db/man-db-$(MAN_DB_VER)/init/systemd/man-db.service.in
+#	cd tmp/man-db/bld && ../man-db-$(MAN_DB_VER)/configure $(MANDB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/man-db/ins/usr/share
+#	find tmp/man-db/ins -name \*.la -delete
+#ifeq ($(BUILD_STRIP),y)
+#	cd tmp/man-db/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+#endif
+#	cd tmp/man-db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	pv $@ | zstd -d | cpio -iduH newc -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/man-db/bld && make check 2>&1 | tee ../../../tst/man-db-check.log || true
+#endif
+#	rm -fr tmp/man-db
+#tgt-man-db: pkg3/man-db-$(MAN_DB_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.67. Tar-1.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/tar.html
@@ -5408,8 +5453,3 @@ tgt-binutils-native: pkg3/binutils-$(BINUTILS_VER).native.cpio.zst
 
 # extra blfs :: libpcap-1.9.1
 # https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libpcap.html
-
-# extra blfs :: iptables-1.8.5
-# https://www.linuxfromscratch.org/blfs/view/10.0/postlfs/iptables.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
