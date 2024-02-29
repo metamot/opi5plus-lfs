@@ -77,9 +77,7 @@ Please see screen results or "host-check.txt" file. The common problem of check 
 
 NOW BUILD CHROOT-INITIAL STAGE:
 
-    $ time make chroot0
-
-**BUILD TIME: about 2h 8m !!!**
+***TBD***
 
 Here is we are in after point at '8.34. Bash-5.0' now.
 
