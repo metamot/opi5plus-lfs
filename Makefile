@@ -1,8 +1,3 @@
-# usermod -aG sudo orangepi
-# sudo usermod -aG sudo orangepi
-# sudo touch /etc/sudoers.d/orangepi
-# echo "orangepi ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/orangepi 
-
 PWD=$(shell pwd)
 # Add sync for ESD-touch when Opi5 imidiately shutdown from ESD-touch #SYNC=
 SYNC=sync
@@ -45,7 +40,12 @@ RK3588_AFLG = +crypto
 RK3588_MCPU = cortex-a76.cortex-a55$(RK3588_AFLG)
 RK3588_ARCH = armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod$(RK3588_AFLG)
 RK3588_FLAGS = -mcpu=$(RK3588_MCPU)
-BASE_OPT_VALUE = -Os
+# s 0 2 3
+BASE_OPT_VAL=s
+BASE_OPT_VALUE= -O$(BASE_OPT_VAL)
+ifeq ($(BASE_OPT_VALUE),-O1)
+$(error BASE_OPT_VALUE = -O1 : is not supported)
+endif
 BASE_OPT_FLAGS = $(RK3588_FLAGS) $(BASE_OPT_VALUE)
 OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS)"
 
@@ -660,6 +660,11 @@ write_run: out/mmc.img
 
 # ============================= LFS
 
+longsudo:
+	sudo /sbin/usermod -a -G sudo $$(whoami)
+	sudo touch /etc/sudoers.d/$$(whoami)
+	echo `whoami` 'ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/`whoami`
+
 LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
@@ -675,6 +680,7 @@ BINUTILS_VER=2.35
 BISON_VER=3.7.1
 BZIP2_VER=1.0.8
 CHECK_VER=0.15.2
+CONVMV_VER=2.05
 CORE_UTILS_VER=8.32
 CPIO_VER=2.13
 CRACKLIB_VER=2.9.7
@@ -711,6 +717,7 @@ ISL_VER=0.23
 KBD_VER=2.3.0
 KMOD_VER=27
 LESS_VER=551
+LIBARCHIVE_VER=3.4.3
 LIBCAP_VER=2.42
 LIBFFI_VER=3.3
 LIBMNL_VER=1.0.4
@@ -737,6 +744,7 @@ PKG_CONFIG_VER=0.29.2
 PROCPS_VER=3.3.16
 PSMISC_VER=23.3
 PV_VER=1.8.5
+PYELFTOOLS_VER=0.30
 PYTHON_VER=3.8.5
 PYTHON_DOC_VER=$(PYTHON_VER)
 PYTHON_VER0=3.8
@@ -754,6 +762,8 @@ TCL_VER_BRIEF=8.6
 TCL_DOC_VER=$(TCL_VER)
 TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
+UNZIP_VER0=60
+UNZIP_VER=6.0
 UTIL_LINUX_VER=2.36
 VIM_VER=8.2.1361
 WHICH_VER=2.21
@@ -761,6 +771,8 @@ XML_PARSER_VER=2.46
 XZ_VER=5.2.5
 #ZLIB_VER=1.2.11
 #ZLIB_VER=1.3
+ZIP_VER0=30
+ZIP_VER=3.0
 ZLIB_VER=1.3.1
 ZSTD_VER=1.4.5
 
@@ -771,6 +783,7 @@ PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
 PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
 PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
 PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
+PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
 PKG+=pkg/acl-$(ACL_VER).tar.gz
 PKG+=pkg/attr-$(ATTR_VER).tar.gz
 PKG+=pkg/autoconf-$(AUTOCONF_VER).tar.xz
@@ -781,6 +794,7 @@ PKG+=pkg/binutils-$(BINUTILS_VER).tar.xz
 PKG+=pkg/bison-$(BISON_VER).tar.xz	
 PKG+=pkg/bzip2-$(BZIP2_VER).tar.gz
 PKG+=pkg/check-$(CHECK_VER).tar.gz
+PKG+=pkg/convmv-$(CONVMV_VER).tar.gz
 PKG+=pkg/coreutils-$(CORE_UTILS_VER).tar.xz
 PKG+=pkg/cpio-$(CPIO_VER).tar.bz2
 PKG+=pkg/cracklib-$(CRACKLIB_VER).tar.bz2
@@ -816,6 +830,7 @@ PKG+=pkg/isl-$(ISL_VER).tar.xz
 PKG+=pkg/kbd-$(KBD_VER).tar.xz
 PKG+=pkg/kmod-$(KMOD_VER).tar.xz
 PKG+=pkg/less-$(LESS_VER).tar.gz
+PKG+=pkg/libarchive-$(LIBARCHIVE_VER).tar.xz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
 PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
@@ -841,6 +856,7 @@ PKG+=pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz
 PKG+=pkg/procps-ng-$(PROCPS_VER).tar.xz
 PKG+=pkg/psmisc-$(PSMISC_VER).tar.xz
 PKG+=pkg/pv-$(PV_VER).tar.gz
+PKG+=pkg/pyelftools-$(PYELFTOOLS_VER).zip
 PKG+=pkg/Python-$(PYTHON_VER).tar.xz
 PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
 PKG+=pkg/re2c-$(RE2C_VER).tar.gz
@@ -855,12 +871,14 @@ PKG+=pkg/tcl$(TCL_VER)-src.tar.gz
 PKG+=pkg/tcl$(TCL_DOC_VER)-html.tar.gz
 PKG+=pkg/texinfo-$(TEXINFO_VER).tar.xz
 PKG+=pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz
+PKG+=pkg/unzip$(UNZIP_VER0).tar.gz
 PKG+=pkg/util-linux-$(UTIL_LINUX_VER).tar.xz
 PKG+=pkg/vim-$(VIM_VER).tar.gz
 PKG+=pkg/which-$(WHICH_VER).tar.gz
 PKG+=pkg/XML-Parser-$(XML_PARSER_VER).tar.gz
 PKG+=pkg/xz-$(XZ_VER).tar.xz
 PKG+=pkg/zlib-$(ZLIB_VER).tar.xz
+PKG+=pkg/zip$(ZIP_VER0).tar.gz
 PKG+=pkg/zstd-$(ZSTD_VER).tar.gz
 
 PKG+=pkg/config.guess
@@ -890,6 +908,8 @@ pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/lfs/$(LFS_VER)/coreutils-$(CORE_UTILS_VER)-i18n-1.patch && touch $@
 pkg/kbd-$(KBD_VER)-backspace-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/lfs/$(LFS_VER)/kbd-$(KBD_VER)-backspace-1.patch && touch $@
+pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch: pkg/.gitignore
+	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch && touch $@
 pkg/acl-$(ACL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/acl/acl-$(ACL_VER).tar.gz && touch $@
 pkg/attr-$(ATTR_VER).tar.gz: pkg/.gitignore
@@ -910,6 +930,8 @@ pkg/bzip2-$(BZIP2_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.sourceware.org/pub/bzip2/bzip2-$(BZIP2_VER).tar.gz && touch $@
 pkg/check-$(CHECK_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/libcheck/check/releases/download/$(CHECK_VER)/check-$(CHECK_VER).tar.gz && touch $@
+pkg/convmv-$(CONVMV_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://j3e.de/linux/convmv/convmv-$(CONVMV_VER).tar.gz && touch $@
 pkg/coreutils-$(CORE_UTILS_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/coreutils/coreutils-$(CORE_UTILS_VER).tar.xz && touch $@
 pkg/cpio-$(CPIO_VER).tar.bz2: pkg/.gitignore
@@ -980,6 +1002,8 @@ pkg/kmod-$(KMOD_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/utils/kernel/kmod/kmod-$(KMOD_VER).tar.xz && touch $@
 pkg/less-$(LESS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://www.greenwoodsoftware.com/less/less-$(LESS_VER).tar.gz && touch $@
+pkg/libarchive-$(LIBARCHIVE_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://github.com/libarchive/libarchive/releases/download/v$(LIBARCHIVE_VER)/libarchive-$(LIBARCHIVE_VER).tar.xz && touch $@
 pkg/libcap-$(LIBCAP_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-$(LIBCAP_VER).tar.xz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
@@ -1032,6 +1056,8 @@ pkg/psmisc-$(PSMISC_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-$(PSMISC_VER).tar.xz && touch $@
 pkg/pv-$(PV_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.ivarch.com/programs/sources/pv-$(PV_VER).tar.gz && touch $@
+pkg/pyelftools-$(PYELFTOOLS_VER).zip: pkg/.gitignore
+	wget -O $@ https://github.com/eliben/pyelftools/archive/refs/tags/v$(PYELFTOOLS_VER).zip && touch $@
 pkg/Python-$(PYTHON_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.python.org/ftp/python/$(PYTHON_VER)/Python-$(PYTHON_VER).tar.xz && touch $@
 pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2: pkg/.gitignore
@@ -1060,6 +1086,8 @@ pkg/texinfo-$(TEXINFO_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/texinfo/texinfo-$(TEXINFO_VER).tar.xz && touch $@
 pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.iana.org/time-zones/repository/releases/tzdata$(TIME_ZONE_DATA_VER).tar.gz && touch $@
+pkg/unzip$(UNZIP_VER0).tar.gz: pkg/.gitignore
+	wget -P pkg https://downloads.sourceforge.net/infozip/unzip$(UNZIP_VER0).tar.gz && touch $@
 pkg/util-linux-$(UTIL_LINUX_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/utils/util-linux/v$(UTIL_LINUX_VER)/util-linux-$(UTIL_LINUX_VER).tar.xz && touch $@
 pkg/vim-$(VIM_VER).tar.gz: pkg/.gitignore
@@ -1070,6 +1098,8 @@ pkg/XML-Parser-$(XML_PARSER_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://cpan.metacpan.org/authors/id/T/TO/TODDR/XML-Parser-$(XML_PARSER_VER).tar.gz && touch $@
 pkg/xz-$(XZ_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://tukaani.org/xz/xz-$(XZ_VER).tar.xz && touch $@
+pkg/zip$(ZIP_VER0).tar.gz: pkg/.gitignore
+	wget -P pkg https://downloads.sourceforge.net/infozip/zip$(ZIP_VER0).tar.gz && touch $@
 pkg/zlib-$(ZLIB_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://zlib.net/zlib-$(ZLIB_VER).tar.xz && touch $@
 pkg/zstd-$(ZSTD_VER).tar.gz: pkg/.gitignore
@@ -1168,11 +1198,13 @@ endif
 # MOST IMPORTANT(!) ENVIROMENT SETTINGS FOR HOST BUILD(!)
 PRE_CMD=set +h && export PATH=$(LFS)/tools/bin:/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin && export LC_ALL=POSIX
 
-# Here is full stage0 clean
-hst-deepclean: hst-clean
+chroot-clean:
+	rm -fr tmp
+	sudo rm -fr lfs2
+
+hst-clean: chroot-clean
 	rm -fr lfs
 	rm -fr pkg1
-	rm -fr tmp
 
 # =============================================================================
 # BEGIN OF HOST BUILD
@@ -1863,16 +1895,7 @@ hst-gcc2: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
 # BUILD_TIME :: about 45 minutes (40-50min)
 #
 hst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/fixinc.sh
-
-hst-clean:
-	rm -fr tmp
-	sudo rm -fr lfs2
-	rm -fr lfs
-	rm -fr pkg1
-
-chroot-clean:
-	rm -fr tmp
-	sudo rm -fr lfs2
+stage0: hst
 
 # === LFS-10.0-systemd :: 7.2. Changing Ownership :: (deps : hst-gcc2)
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
@@ -1911,35 +1934,16 @@ pkg1/lfs-hst-full.cpio.zst: lfs/usr/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-to
 lfs2/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 	mkdir -p lfs2
 	pv $< | zstd -d | cpio -iduH newc -D lfs2
-lfs2/opt/mysdk/chroot0.sh: lfs2/opt/mysdk/Makefile
+lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
 	mkdir -p lfs2/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt0' >> $@
+	echo 'make -C /opt/mysdk tgt-patch' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # === LFS-10.0-systemd :: 7.4. Entering the Chroot Environment 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/chroot.html
-chroot0: lfs2/opt/mysdk/chroot0.sh
-	sudo mount -v --bind /dev lfs2/dev
-	sudo mount -v --bind /dev/pts lfs2/dev/pts
-	sudo mount -vt proc proc lfs2/proc
-	sudo mount -vt sysfs sysfs lfs2/sys
-	sudo mount -vt tmpfs tmpfs lfs2/run
-	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot0.sh --login +h
-	sudo umount lfs2/run
-	sudo umount lfs2/sys
-	sudo umount lfs2/proc
-	sudo umount lfs2/dev/pts
-	sudo umount lfs2/dev
-
-lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
-	mkdir -p lfs2/opt/mysdk
-	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt1' >> $@
-	chmod ugo+x $@
-
 chroot1: lfs2/opt/mysdk/chroot1.sh
 	sudo mount -v --bind /dev lfs2/dev
 	sudo mount -v --bind /dev/pts lfs2/dev/pts
@@ -1952,8 +1956,27 @@ chroot1: lfs2/opt/mysdk/chroot1.sh
 	sudo umount lfs2/proc
 	sudo umount lfs2/dev/pts
 	sudo umount lfs2/dev
+stage1: chroot1
+#lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
+#	mkdir -p lfs2/opt/mysdk
+#	echo '#!/bin/bash' > $@
+#	echo 'make -C /opt/mysdk tgt1' >> $@
+#	chmod ugo+x $@
 
-chroot-nl: lfs2/opt/mysdk/chroot.sh
+#chroot1: lfs2/opt/mysdk/chroot1.sh
+#	sudo mount -v --bind /dev lfs2/dev
+#	sudo mount -v --bind /dev/pts lfs2/dev/pts
+#	sudo mount -vt proc proc lfs2/proc
+#	sudo mount -vt sysfs sysfs lfs2/sys
+#	sudo mount -vt tmpfs tmpfs lfs2/run
+#	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot1.sh --login +h
+#	sudo umount lfs2/run
+#	sudo umount lfs2/sys
+#	sudo umount lfs2/proc
+#	sudo umount lfs2/dev/pts
+#	sudo umount lfs2/dev
+
+chroot-nl:
 	sudo mount -v --bind /dev lfs2/dev
 	sudo mount -v --bind /dev/pts lfs2/dev/pts
 	sudo mount -vt proc proc lfs2/proc
@@ -1961,20 +1984,6 @@ chroot-nl: lfs2/opt/mysdk/chroot.sh
 	sudo mount -vt tmpfs tmpfs lfs2/run
 #	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /opt/mysdk/chroot.sh --login +h
 	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /bin/sh --login +h
-	sudo umount lfs2/run
-	sudo umount lfs2/sys
-	sudo umount lfs2/proc
-	sudo umount lfs2/dev/pts
-	sudo umount lfs2/dev
-
-chroot1: lfs2/opt/mysdk/chroot.sh
-	sudo mount -v --bind /dev lfs2/dev
-	sudo mount -v --bind /dev/pts lfs2/dev/pts
-	sudo mount -vt proc proc lfs2/proc
-	sudo mount -vt sysfs sysfs lfs2/sys
-	sudo mount -vt tmpfs tmpfs lfs2/run
-#	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot.sh --login +h
-	sudo chroot lfs2 /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin /bin/bash --login +h
 	sudo umount lfs2/run
 	sudo umount lfs2/sys
 	sudo umount lfs2/proc
@@ -3800,7 +3809,6 @@ endif
 	rm -fr tmp/bash
 #	exec /bin/bash --login +h
 tgt-bash: pkg3/bash-$(BASH_VER).cpio.zst
-tgt0: pkg3/bash-$(BASH_VER).cpio.zst
 ###############################################################################
 # THIS POINT IS: 127m 48s (2h 8m)
 ###############################################################################
@@ -5144,107 +5152,237 @@ endif
 	rm -fr tmp/patch
 tgt-patch: pkg3/patch-$(PATCH_VER).cpio.zst
 tgt: tgt-patch
+###############################################################################
+# THIS POINT IS: 144m 38s (2h 42m)
+###############################################################################
 
 # LFS-10.0-systemd :: 8.66. Man-DB-2.9.3
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/man-db.html
-# BUILD_TIME :: 2m 10s
-# BUILD_TIME_WITH_TEST ::
-#MANDB_OPT3+= --prefix=/usr
-#MANDB_OPT3+= --docdir=/usr/share/doc/man-db-$(MAN_DB_VER)
-#MANDB_OPT3+= --sysconfdir=/etc
-#MANDB_OPT3+= --disable-setuid
-#MANDB_OPT3+= --enable-cache-owner=bin
-#MANDB_OPT3+= --with-browser=/usr/bin/lynx
-#MANDB_OPT3+= --with-vgrind=/usr/bin/vgrind
-#MANDB_OPT3+= --with-grap=/usr/bin/grap
-#MANDB_OPT3+= --disable-nls
-#MANDB_OPT3+= $(OPT_FLAGS)
-#pkg3/man-db-$(MAN_DB_VER).cpio.zst: pkg3/patch-$(PATCH_VER).cpio.zst
-#	rm -fr tmp/man-db
-#	mkdir -p tmp/man-db/bld
-#	tar -xJf pkg/man-db-$(MAN_DB_VER).tar.xz -C tmp/man-db
-#	sed -i '/find/s@/usr@@' tmp/man-db/man-db-$(MAN_DB_VER)/init/systemd/man-db.service.in
-#	cd tmp/man-db/bld && ../man-db-$(MAN_DB_VER)/configure $(MANDB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-#	rm -fr tmp/man-db/ins/usr/share
-#	find tmp/man-db/ins -name \*.la -delete
-#ifeq ($(BUILD_STRIP),y)
-#	cd tmp/man-db/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
-#endif
-#	cd tmp/man-db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	pv $@ | zstd -d | cpio -iduH newc -D /
-#ifeq ($(RUN_TESTS),y)
-#	mkdir -p tst && cd tmp/man-db/bld && make check 2>&1 | tee ../../../tst/man-db-check.log || true
-#endif
-#	rm -fr tmp/man-db
-#tgt-man-db: pkg3/man-db-$(MAN_DB_VER).cpio.zst
+# SKIP THIS STEP.
 
 # LFS-10.0-systemd :: 8.67. Tar-1.32
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/tar.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 27s
+# BUILD_TIME_WITH_TEST :: 5m 13s
 TAR_OPT3+= --prefix=/usr
 TAR_OPT3+= --disable-nls
 TAR_OPT3+= $(OPT_FLAGS)
-pkg3/tar-$(TAR_VER).cpio.zst:
+pkg3/tar-$(TAR_VER).cpio.zst: pkg3/patch-$(PATCH_VER).cpio.zst
 	rm -fr tmp/tar
 	mkdir -p tmp/tar/bld
 	tar -xJf pkg/tar-$(TAR_VER).tar.xz -C tmp/tar
 	cd tmp/tar/bld && FORCE_UNSAFE_CONFIGURE=1 ../tar-$(TAR_VER)/configure $(TAR_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/tar/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/tar/ins/usr/libexec/rmt
+	strip --strip-unneeded tmp/tar/ins/usr/bin/tar
+endif
+	cd tmp/tar/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/tar/bld && make check 2>&1 | tee ../../../tst/tar-check.log || true
+# 223: capabilities: binary store/restore              FAILED (capabs_raw01.at:28)
+# ERROR: 215 tests were run,
+# 1 failed unexpectedly.
+# 19 tests were skipped.
 endif
+	rm -fr tmp/tar
 tgt-tar: pkg3/tar-$(TAR_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.68. Texinfo-6.7
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/texinfo.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 9s
+# BUILD_TIME_WITH_TEST :: 3m 7s
 TEXINFO_OPT3+= --prefix=/usr
 TEXINFO_OPT3+= --disable-static
 TEXINFO_OPT3+= --disable-nls
 TEXINFO_OPT3+= $(OPT_FLAGS)
-pkg3/texinfo-$(TEXINFO_VER).cpio.zst:
+pkg3/texinfo-$(TEXINFO_VER).cpio.zst: pkg3/tar-$(TAR_VER).cpio.zst
 	rm -fr tmp/texinfo
 	mkdir -p tmp/texinfo/bld
 	tar -xJf pkg/texinfo-$(TEXINFO_VER).tar.xz -C tmp/texinfo
 	cd tmp/texinfo/bld && ../texinfo-$(TEXINFO_VER)/configure $(TEXINFO_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/texinfo/ins/usr/share/info
+	rm -fr tmp/texinfo/ins/usr/share/man
+	rm -f  tmp/texinfo/ins/usr/lib/texinfo/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/texinfo/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/texinfo/ins/usr/lib/texinfo/*.so*
+endif
+	cd tmp/texinfo/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/texinfo/bld && make check 2>&1 | tee ../../../tst/texinfo-check.log || true
+# TEST OK
 endif
+	rm -fr tmp/texinfo
 tgt-texinfo: pkg3/texinfo-$(TEXINFO_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.69. Vim-8.2.1361
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/vim.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 2s
+# BUILD_TIME_WITH_TEST :: 3m 53s
 VIM_OPT3+= --prefix=/usr
 VIM_OPT3+= --disable-nls
 VIM_OPT3+= $(OPT_FLAGS)
-pkg3/vim-$(VIM_VER).cpio.zst:
+pkg3/vim-$(VIM_VER).cpio.zst: pkg3/texinfo-$(TEXINFO_VER).cpio.zst
 	rm -fr tmp/vim
-	mkdir -p tmp/vim/bld
+	mkdir -p tmp/vim
 	tar -xzf pkg/vim-$(VIM_VER).tar.gz -C tmp/vim
 	echo '#define SYS_VIMRC_FILE "/etc/vimrc"' >> tmp/vim/vim-$(VIM_VER)/src/feature.h
-	cd tmp/vim/bld && ../vim-$(VIM_VER)/configure $(VIM_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/vim/bld && LANG=en_US.UTF-8 make -j1 test 2>&1 | tee ../../../tst/vim-test.log || true
+	cd tmp/vim/vim-$(VIM_VER) && ./configure $(VIM_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/vim/ins/usr/share/applications
+	rm -fr tmp/vim/ins/usr/share/icons
+	rm -fr tmp/vim/ins/usr/share/man
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/vim/ins/usr/bin/* || true
 endif
+	cd tmp/vim/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/vim/vim-$(VIM_VER) && LANG=en_US.UTF-8 make -j1 test 2>&1 | tee ../../../tst/vim-test.log || true
+# Executed:  3139 Tests
+#  Skipped:    57 Tests
+#   FAILED:     5 Tests
+#Failures: 
+#	From test_edit.vim:
+#	Found errors in Test_edit_file_no_read_perm():
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_edit_file_no_read_perm line 8: Expected 1 but got 0
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_edit_file_no_read_perm line 9: Expected [''] but got ['one', 'two']
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_edit_file_no_read_perm line 10: Pattern '\\[Permission Denied\\]' does not match '\n"Xfile" \r\n"Xfile" 2L, 8B'
+#	From test_excmd.vim:
+#	Found errors in Test_redir_cmd():
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_redir_cmd line 20: command did not fail: redir! > Xfile
+#	From test_functions.vim:
+#	Found errors in Test_Executable():
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_Executable line 41: Expected '/bin/cat' but got '/usr/bin/cat'
+#	From test_help.vim:
+#	Found errors in Test_helptag_cmd():
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_helptag_cmd line 20: command did not fail: r-xr--r--
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_helptag_cmd line 31: command did not fail: -w-------
+#	From test_writefile.vim:
+#	Found errors in Test_write_readonly_dir():
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_write_readonly_dir line 9: command did not fail: write
+#	command line..script /opt/mysdk/tmp/vim/vim-8.2.1361/src/testdir/runtest.vim[449]..function RunTheTest[39]..Test_write_readonly_dir line 14: Expected 'E509:' but got '"Xdir/Xfile1" E510: Can''t make backup file (add ! to override)': write
+#TEST FAILURE
+endif
+	rm -fr tmp/vim
 tgt-vim: pkg3/vim-$(VIM_VER).cpio.zst
+
+# extra BFS-10.0-systemd :: Nano-5.2
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/nano.html
+# BUILD_TIME :: 52s
+NANO_OPT3+= --prefix=/usr
+NANO_OPT3+= --sysconfdir=/etc
+NANO_OPT3+= --enable-utf8
+NANO_OPT3+= --docdir=/usr/share/doc/nano-$(NANO_VER)
+NANO_OPT3+= --disable-nls
+NANO_OPT3+= $(OPT_FLAGS)
+pkg3/nano-$(NANO_VER).cpio.zst: pkg3/vim-$(VIM_VER).cpio.zst
+	rm -fr tmp/nano
+	mkdir -p tmp/nano/bld
+	tar -xJf pkg/nano-$(NANO_VER).tar.xz -C tmp/nano
+	cd tmp/nano/bld && ../nano-$(NANO_VER)/configure $(NANO_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/nano/ins/usr/share/doc
+	rm -fr tmp/nano/ins/usr/share/info
+	rm -fr tmp/nano/ins/usr/share/man
+	mkdir -p tmp/nano/ins/etc
+	echo 'set autoindent' > tmp/nano/ins/etc/nanorc
+	echo 'set linenumbers' >> tmp/nano/ins/etc/nanorc
+	echo 'set smooth' >> tmp/nano/ins/etc/nanorc
+	echo 'set mouse' >> tmp/nano/ins/etc/nanorc
+	echo 'set tabsize 4' >> tmp/nano/ins/etc/nanorc
+	echo 'set titlecolor red,green' >> tmp/nano/ins/etc/nanorc
+#	echo 'set constantshow' >> tmp/nano/ins/etc/nanorc
+#	echo 'set fill 72' >> tmp/nano/ins/etc/nanorc
+#	echo 'set historylog' >> tmp/nano/ins/etc/nanorc
+#	echo 'set multibuffer' >> tmp/nano/ins/etc/nanorc
+#	echo 'set positionlog' >> tmp/nano/ins/etc/nanorc
+#	echo 'set quickblank' >> tmp/nano/ins/etc/nanorc
+#	echo 'set regexp' >> tmp/nano/ins/etc/nanorc
+#	echo 'set suspend' >> tmp/nano/ins/etc/nanorc
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/nano/ins/usr/bin/nano
+endif
+	cd tmp/nano/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/nano
+tgt-nano: pkg3/nano-$(NANO_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.70. Systemd-246
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/systemd.html
-# BUILD_TIME ::
+# BUILD_TIME :: 2m 8s
 # BUILD_TIME_WITH_TEST ::
-pkg3/systemd-$(SYSTEMD_VER).cpio.zst:
+SYSTEMD_MOPT3+= --prefix=/usr
+SYSTEMD_MOPT3+= --sysconfdir=/etc
+SYSTEMD_MOPT3+= --localstatedir=/var
+SYSTEMD_MOPT3+= -Dblkid=true
+#SYSTEMD_MOPT3+= -Dbuildtype=release
+SYSTEMD_MOPT3+= -Ddebug=false
+SYSTEMD_MOPT3+= -Doptimization=$(BASE_OPT_VAL)
+SYSTEMD_MOPT3+= -Dc_args="$(RK3588_FLAGS)"
+SYSTEMD_MOPT3+= -Dcpp_args="$(RK3588_FLAGS)"
+SYSTEMD_MOPT3+= -Ddefault-dnssec=no
+SYSTEMD_MOPT3+= -Dfirstboot=false
+SYSTEMD_MOPT3+= -Dinstall-tests=false
+SYSTEMD_MOPT3+= -Dkmod-path=/usr/bin/kmod
+SYSTEMD_MOPT3+= -Dmount-path=/usr/bin/mount
+SYSTEMD_MOPT3+= -Dumount-path=/usr/bin/umount
+SYSTEMD_MOPT3+= -Dsulogin-path=/usr/sbin/sulogin
+SYSTEMD_MOPT3+= -Drootlibdir=/usr/lib
+SYSTEMD_MOPT3+= -Dldconfig=false
+SYSTEMD_MOPT3+= -Drootprefix=
+SYSTEMD_MOPT3+= -Dsplit-usr=true
+SYSTEMD_MOPT3+= -Dsysusers=false
+SYSTEMD_MOPT3+= -Db_lto=false
+SYSTEMD_MOPT3+= -Drpmmacrosdir=no
+SYSTEMD_MOPT3+= -Dhomed=false
+SYSTEMD_MOPT3+= -Duserdb=false
+SYSTEMD_MOPT3+= -Ddocdir=/usr/share/doc/systemd-$(SYSTEMD_VER)
+SYSTEMD_MOPT3+= -Dman=false
+SYSTEMD_BUILD_VERB=
+ifeq ($(VERB),1)
+SYSTEMD_BUILD_VERB=-v
+endif
+pkg3/systemd-$(SYSTEMD_VER).cpio.zst: pkg3/nano-$(NANO_VER).cpio.zst
 	rm -fr tmp/systemd
 	mkdir -p tmp/systemd/bld
 	tar -xzf pkg/systemd-$(SYSTEMD_VER).tar.gz -C tmp/systemd
+	ln -sf /bin/true /usr/bin/xsltproc
+	sed -i '177,$$ d' tmp/systemd/systemd-$(SYSTEMD_VER)/src/resolve/meson.build
+	sed -i 's/GROUP="render", //' tmp/systemd/systemd-$(SYSTEMD_VER)/rules.d/50-udev-default.rules.in
+	cd tmp/systemd/bld && LANG=en_US.UTF-8 meson $(SYSTEMD_MOPT3) ../systemd-$(SYSTEMD_VER)/
+	cd tmp/systemd/bld && LANG=en_US.UTF-8 ninja $(SYSTEMD_BUILD_VERB)
+	cd tmp/systemd/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
+	mv -fv tmp/systemd/ins/bin/* tmp/systemd/ins/usr/bin/
+	rm -fr tmp/systemd/ins/bin
+	mkdir -p tmp/systemd/ins/usr/sbin
+	mv -fv tmp/systemd/ins/sbin/* tmp/systemd/ins/usr/sbin/
+	rm -fr tmp/systemd/ins/sbin
+	cd tmp/systemd/ins/usr/sbin && ln -fs ../bin/resolvectl resolvconf
+	cp -far tmp/systemd/ins/lib/* tmp/systemd/ins/usr/lib/
+	rm -fr tmp/systemd/ins/lib
+	rm -f  tmp/systemd/ins/var/log/README
+	rm -f  tmp/systemd/ins/etc/init.d/README
+	rm -fr tmp/systemd/ins/usr/share/doc
+	rm -fr tmp/systemd/ins/usr/share/locale
+ifeq ($(BUILD_STRIP),y)
+	cd tmp/systemd/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+	cd tmp/systemd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/systemd
+	touch /etc/environment
+	rm -fv /usr/bin/xsltproc
+	systemd-machine-id-setup
+	systemctl preset-all
+	systemctl disable systemd-time-wait-sync.service
+	rm -fv /usr/lib/sysctl.d/50-pid-max.conf 
 tgt-systemd: pkg3/systemd-$(SYSTEMD_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.71. D-Bus-1.12.20
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/dbus.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 52s
 DBUS_OPT3+= --prefix=/usr
 DBUS_OPT3+= --sysconfdir=/etc
 DBUS_OPT3+= --localstatedir=/var
@@ -5254,40 +5392,76 @@ DBUS_OPT3+= --disable-xml-docs
 DBUS_OPT3+= --docdir=/usr/share/doc/dbus-$(DBUS_VER)
 DBUS_OPT3+= --with-console-auth-dir=/run/console
 DBUS_OPT3+= $(OPT_FLAGS)
-pkg3/dbus-$(DBUS_VER).cpio.zst:
+pkg3/dbus-$(DBUS_VER).cpio.zst: pkg3/systemd-$(SYSTEMD_VER).cpio.zst
 	rm -fr tmp/dbus
 	mkdir -p tmp/dbus/bld
 	tar -xzf pkg/dbus-$(DBUS_VER).tar.gz -C tmp/dbus
 	cd tmp/dbus/bld && ../dbus-$(DBUS_VER)/configure $(DBUS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cp -far tmp/dbus/ins/lib/* tmp/dbus/ins/usr/lib/
+	rm -fr tmp/dbus/ins/lib
+	rm -fr tmp/dbus/ins/usr/share/doc
+	rm -f  tmp/dbus/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	cd tmp/dbus/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+	sed -i 's:/var/run:/run:' tmp/dbus/ins/usr/lib/systemd/system/dbus.socket
+	mv -f tmp/dbus/ins/var/run tmp/dbus/ins/
+	cd tmp/dbus/ins/var/lib/dbus && ln -sf /etc/machine-id machine-id
+	cd tmp/dbus/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/dbus
 tgt-dbus: pkg3/dbus-$(DBUS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.72. Procps-ng-3.3.16
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/procps-ng.html
-# BUILD_TIME ::
+# BUILD_TIME :: 29s
 # BUILD_TIME_WITH_TEST ::
 PROCPS_OPT3+= --prefix=/usr
 PROCPS_OPT3+= --exec-prefix=
 PROCPS_OPT3+= --libdir=/usr/lib
-PROCPS_OPT3+= --docdir=/usr/share/doc/procps-ng-3.3.16
+PROCPS_OPT3+= --docdir=/usr/share/doc/procps-ng-$(PROCPS_VER)
 PROCPS_OPT3+= --disable-static
 PROCPS_OPT3+= --disable-kill
 PROCPS_OPT3+= --with-systemd
 PROCPS_OPT3+= --disable-nls
 PROCPS_OPT3+= $(OPT_FLAGS)
-pkg3/procps-ng-$(PROCPS_VER).cpio.zst:
+pkg3/procps-ng-$(PROCPS_VER).cpio.zst: pkg3/dbus-$(DBUS_VER).cpio.zst
 	rm -fr tmp/procps-ng
 	mkdir -p tmp/procps-ng/bld
 	tar -xJf pkg/procps-ng-$(PROCPS_VER).tar.xz -C tmp/procps-ng
 	cd tmp/procps-ng/bld && ../procps-ng-$(PROCPS_VER)/configure $(PROCPS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	mv -f tmp/procps-ng/ins/bin tmp/procps-ng/ins/usr/
+	mv -f tmp/procps-ng/ins/sbin tmp/procps-ng/ins/usr/
+	rm -fr tmp/procps-ng/ins/usr/share
+	rm -f  tmp/procps-ng/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/procps-ng/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/procps-ng/ins/usr/sbin/* || true
+	strip --strip-unneeded tmp/procps-ng/ins/usr/lib/*.so*
+endif
+	cd tmp/procps-ng/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/procps-ng/bld && make check 2>&1 | tee ../../../tst/procps-ng-check.log || true
+#============================================================================
+#Testsuite summary for procps-ng 3.3.16
+#============================================================================
+# TOTAL: 1
+# PASS:  1
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
 endif
+	rm -fr tmp/procps-ng
 tgt-procps-ng: pkg3/procps-ng-$(PROCPS_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.73. Util-linux-2.36
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/util-linux.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 28s
+# BUILD_TIME_WITH_TEST :: 2m 34s
 UTILLINUX_OPT3+= ADJTIME_PATH=/var/lib/hwclock/adjtime
 UTILLINUX_OPT3+= --docdir=/usr/share/doc/util-linux-$(UTIL_LINUX_VER)
 UTILLINUX_OPT3+= --disable-chfn-chsh
@@ -5301,23 +5475,51 @@ UTILLINUX_OPT3+= --disable-static
 UTILLINUX_OPT3+= --without-python
 UTILLINUX_OPT3+= --disable-nls
 UTILLINUX_OPT3+= $(OPT_FLAGS)
-pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst:
+pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg3/procps-ng-$(PROCPS_VER).cpio.zst
 	rm -fr tmp/util-linux
 	mkdir -p tmp/util-linux/bld
 	tar -xJf pkg/util-linux-$(UTIL_LINUX_VER).tar.xz -C tmp/util-linux
 	mkdir -pv /var/lib/hwclock
 	cd tmp/util-linux/bld && ../util-linux-$(UTIL_LINUX_VER)/configure $(UTILLINUX_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/util-linux/bld && make check 2>&1 | tee ../../../tst/util-linux-check.log || true
+	cp -far tmp/util-linux/ins/bin/* tmp/util-linux/ins/usr/bin/
+	cp -far tmp/util-linux/ins/sbin/* tmp/util-linux/ins/usr/sbin/
+	cp -far tmp/util-linux/ins/lib/* tmp/util-linux/ins/usr/lib/
+	rm -fr tmp/util-linux/ins/bin
+	rm -fr tmp/util-linux/ins/lib
+	rm -fr tmp/util-linux/ins/sbin
+	rm -fr tmp/util-linux/ins/usr/share/doc
+	rm -fr tmp/util-linux/ins/usr/share/man
+	rm -f  tmp/util-linux/ins/usr/lib/*.la
+	cd tmp/util-linux/ins/usr/lib && ln -sfv libblkid.so.1.1.0 libblkid.so
+	cd tmp/util-linux/ins/usr/lib && ln -sfv libfdisk.so.1.1.0 libfdisk.so
+	cd tmp/util-linux/ins/usr/lib && ln -sfv libmount.so.1.1.0 libmount.so
+	cd tmp/util-linux/ins/usr/lib && ln -sfv libsmartcols.so.1.1.0 libsmartcols.so
+	cd tmp/util-linux/ins/usr/lib && ln -sfv libuuid.so.1.3.0 libuuid.so
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/util-linux/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/util-linux/ins/usr/sbin/* || true
+	strip --strip-unneeded tmp/util-linux/ins/usr/lib/*.so*
 endif
+	cd tmp/util-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	chown -Rv tester tmp/util-linux/bld
+	mkdir -p tst && cd tmp/util-linux/bld && su tester -c "make -k check"
+#---------------------------------------------------------------------
+#  All 207 tests PASSED
+#---------------------------------------------------------------------
+endif
+	rm -fr tmp/util-linux
 tgt-util-linux: pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.74. E2fsprogs-1.45.6
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/e2fsprogs.html
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
+# BUILD_TIME :: 1m 3s
+# BUILD_TIME_WITH_TEST :: 4m 30s
 E2FSPROGS_OPT3+= --prefix=/usr
-E2FSPROGS_OPT3+= --bindir=/bin
+E2FSPROGS_OPT3+= --bindir=/usr/bin
+E2FSPROGS_OPT3+= --libdir=/usr/lib
+E2FSPROGS_OPT3+= --sbindir=/usr/sbin
 E2FSPROGS_OPT3+= --with-root-prefix=""
 E2FSPROGS_OPT3+= --enable-elf-shlibs
 E2FSPROGS_OPT3+= --disable-libblkid
@@ -5326,50 +5528,278 @@ E2FSPROGS_OPT3+= --disable-uuidd
 E2FSPROGS_OPT3+= --disable-fsck
 E2FSPROGS_OPT3+= --disable-nls
 E2FSPROGS_OPT3+= $(OPT_FLAGS)
-pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst:
+pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst: pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst
 	rm -fr tmp/e2fsprogs
 	mkdir -p tmp/e2fsprogs/bld
 	tar -xzf pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz -C tmp/e2fsprogs
 	cd tmp/e2fsprogs/bld && ../e2fsprogs-$(E2FSPROGS_VER)/configure $(E2FSPROGS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	cp -far tmp/e2fsprogs/ins/lib/* tmp/e2fsprogs/ins/usr/lib/
+	rm -fr tmp/e2fsprogs/ins/lib
+	rm -fr tmp/e2fsprogs/ins/usr/share/info
+	rm -fr tmp/e2fsprogs/ins/usr/share/man
+	chmod -v u+w tmp/e2fsprogs/ins/usr/lib/*.a
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/e2fsprogs/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/e2fsprogs/ins/usr/sbin/* || true
+	strip --strip-debug    tmp/e2fsprogs/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/e2fsprogs/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/e2fsprogs/ins/usr/lib/e2initrd_helper
+endif
+	cd tmp/e2fsprogs/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
 	mkdir -p tst && cd tmp/e2fsprogs/bld && make check 2>&1 | tee ../../../tst/e2fsprogs-check.log || true
+# 357 tests succeeded	0 tests failed
 endif
+	rm -fr tmp/e2fsprogs
 tgt-e2fsprogs: pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst
 
-# LFS-10.0-systemd ::
-#
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-pkg3/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst:
+# extra BLFS-10.0-systemd ::dosfstools-4.1
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/dosfstools.html
+# BUILD_TIME :: 8s
+DOS_FS_TOOLS_OPT3+= --prefix=/usr
+DOS_FS_TOOLS_OPT3+= --enable-compat-symlinks
+DOS_FS_TOOLS_OPT3+= --mandir=/usr/share/man
+DOS_FS_TOOLS_OPT3+= --docdir=/usr/share/doc/dosfstools-$(DOS_FS_TOOLS_VER)
+DOS_FS_TOOLS_OPT3+= $(OPT_FLAGS)
+pkg3/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst: pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst
 	rm -fr tmp/dosfstools
 	mkdir -p tmp/dosfstools/bld
 	tar -xJf pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz -C tmp/dosfstools
+	cd tmp/dosfstools/bld && ../dosfstools-$(DOS_FS_TOOLS_VER)/configure $(DOS_FS_TOOLS_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/dosfstools/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/dosfstools/ins/usr/sbin/* || true
+endif
+	cd tmp/dosfstools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/dosfstools
 tgt-dosfstools: pkg3/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
 
-# LFS-10.0-systemd ::
+# extra :: microcom-2023.09.0
 #
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-#--disable-nls
-#--enable-utf8
-pkg3/nano-$(NANO_VER).cpio.zst:
-	rm -fr tmp/nano
-	mkdir -p tmp/nano/bld
-	tar -xJf pkg/nano-$(NANO_VER).tar.xz -C tmp/nano
-tgt-nano: pkg3/nano-$(NANO_VER).cpio.zst
-
-# LFS-10.0-systemd ::
-#
-# BUILD_TIME ::
-# BUILD_TIME_WITH_TEST ::
-#--enable-can
-pkg3/microcom-$(MICROCOM_VER).cpio.zst:
+# BUILD_TIME :: 14s
+MICROCOM_OPT3+= --prefix=/usr
+MICROCOM_OPT3+= --enable-can
+MICROCOM_OPT3+= $(OPT_FLAGS)
+pkg3/microcom-$(MICROCOM_VER).cpio.zst: pkg3/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
 	rm -fr tmp/microcom
 	mkdir -p tmp/microcom/bld
 	tar -xzf pkg/microcom-$(MICROCOM_VER).tar.gz -C tmp/microcom
+	cd tmp/microcom/microcom-$(MICROCOM_VER) && autoreconf -i
+	cd tmp/microcom/bld && ../microcom-$(MICROCOM_VER)/configure $(MICROCOM_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/microcom/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/microcom/ins/usr/bin/microcom
+endif
+	cd tmp/microcom/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/microcom
 tgt-microcom: pkg3/microcom-$(MICROCOM_VER).cpio.zst
 
-# SWIG
+# extra BLFS-10.0-systemd :: PCRE-8.44
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/pcre.html
+# BUILD_TIME :: 33s
+# BUILD_TIME_WITH_TEST :: 43s
+PCRE_OPT3+= --prefix=/usr
+PCRE_OPT3+= --docdir=/usr/share/doc/pcre-$(PCRE_VER)
+PCRE_OPT3+= --enable-unicode-properties
+PCRE_OPT3+= --enable-pcre16
+PCRE_OPT3+= --enable-pcre32
+PCRE_OPT3+= --enable-pcregrep-libz
+PCRE_OPT3+= --enable-pcregrep-libbz2
+PCRE_OPT3+= --enable-pcretest-libreadline
+PCRE_OPT3+= --disable-static
+PCRE_OPT3+= $(OPT_FLAGS)
+pkg3/pcre-$(PCRE_VER).cpio.zst: pkg3/microcom-$(MICROCOM_VER).cpio.zst
+	rm -fr tmp/pcre
+	mkdir -p tmp/pcre/bld
+	tar -xzf pkg/pcre-$(PCRE_VER).tar.gz -C tmp/pcre
+	cd tmp/pcre/bld && ../pcre-$(PCRE_VER)/configure $(PCRE_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/pcre/ins/usr/share
+	rm -f  tmp/pcre/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/pcre/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/pcre/ins/usr/lib/*.so*
+endif
+	cd tmp/pcre/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/pcre/bld && make check 2>&1 | tee ../../../tst/pcre-check.log || true
+#============================================================================
+#Testsuite summary for PCRE 8.44
+#============================================================================
+# TOTAL: 5
+# PASS:  5
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/pcre
+tgt-pcre: pkg3/pcre-$(PCRE_VER).cpio.zst
+
+# extra BLFS-10.0-systemd :: Zip-3.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/zip.html
+# BUILD_TIME :: 8s
+pkg3/zip$(ZIP_VER0).cpio.zst: pkg3/pcre-$(PCRE_VER).cpio.zst
+	rm -fr tmp/zip
+	mkdir -p tmp/zip
+	tar -xzf pkg/zip$(ZIP_VER0).tar.gz -C tmp/zip
+	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/zip/zip$(ZIP_VER0)/unix/configure
+	cd tmp/zip/zip$(ZIP_VER0) && make $(JOBS) -f unix/Makefile generic_gcc
+	mkdir -p tmp/zip/ins/usr
+	cd tmp/zip/zip$(ZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
+	rm -fr tmp/zip/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/zip/ins/usr/bin/* || true
+endif
+	cd tmp/zip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/zip
+tgt-zip: pkg3/zip$(ZIP_VER0).cpio.zst
+
+# extra BLFS-10.0-systemd :: UnZip-6.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/unzip.html
+# BUILD_TIME :: 7s
+# WARNING: This unzip has problems with non-latin file-names! See 'Caution' on html-page above.
+# Workaround1: Uze WinZip under Wine. -- Looks like terrific! (sarcasm)
+# Workaround2: Use 'bsdtar -xf' (from libarchive) for unpack zip-files with convmv-fixing
+# Workaround3: Use this UnZip and hope that filenames has no non-latin characters.
+pkg/unzip$(UNZIP_VER0).cpio.zst: pkg3/zip$(ZIP_VER0).cpio.zst
+	rm -fr tmp/unzip
+	mkdir -p tmp/unzip
+	tar -xzf pkg/unzip$(UNZIP_VER0).tar.gz -C tmp/unzip
+	cp -f pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch tmp/unzip/
+	cd tmp/unzip/unzip$(UNZIP_VER0) && patch -Np1 -i ../unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
+	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/unzip/unzip$(UNZIP_VER0)/unix/configure
+	cd tmp/unzip/unzip$(UNZIP_VER0) && make $(JOBS) -f unix/Makefile generic
+	mkdir -p tmp/unzip/ins/usr
+	cd tmp/unzip/unzip$(UNZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
+	rm -fr tmp/unzip/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/unzip/ins/usr/bin/* || true
+endif
+	cd tmp/unzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/unzip
+tgt-unzip: pkg/unzip$(UNZIP_VER0).cpio.zst
+
+# EXTRA: this pkg reccommended on UnZip LFS-page
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/unzip.html
+# see ... Workaround2: Use 'bsdtar -xf' (from libarchive) for unpack zip-files with convmv-fixing
+#### The following is an example for the zh_CN.UTF-8 locale:
+#### convmv -f cp936 -t utf-8 -r --nosmart --notest </path/to/unzipped/files>
+# BUILD_TIME :: 0s
+pkg3/convmv-$(CONVMV_VER).cpio.zst: pkg/unzip$(UNZIP_VER0).cpio.zst
+	rm -fr tmp/convmv
+	mkdir -p tmp/convmv
+	tar -xzf pkg/convmv-$(CONVMV_VER).tar.gz -C tmp/convmv
+# Why? Makefile? -- Looks like terrific! (sarcasm) -- for man pages of course
+	mkdir -p tmp/convmv/ins/usr/bin
+	cp -f tmp/convmv/convmv-$(CONVMV_VER)/convmv tmp/convmv/ins/usr/bin
+	chown root:root tmp/convmv/ins/usr/bin/convmv
+# This is PERL file!
+	cd tmp/convmv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/convmv
+tgt-convmv: pkg3/convmv-$(CONVMV_VER).cpio.zst
+
+# extra BLFS-10.0-systemd :: Boost-1.74.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/boost.html
+
+# extra BLFS-10.0-systemd :: SWIG-4.0.2
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/swig.html
+# BUILD_TIME :: 48s
+# BUILD_TIME_WITH_TEST :: (perl5, python, tcl)
+SWIG_OPT3+= --prefix=/usr
+SWIG_OPT3+= --without-maximum-compile-warnings
+SWIG_OPT3+= $(OPT_FLAGS)
+pkg3/swig-$(SWIG_VER).cpio.zst: pkg3/pcre-$(PCRE_VER).cpio.zst
+	rm -fr tmp/swig
+	mkdir -p tmp/swig/bld
+	tar -xzf pkg/swig-$(SWIG_VER).tar.gz -C tmp/swig
+	cd tmp/swig/bld && ../swig-$(SWIG_VER)/configure $(SWIG_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/swig/ins/usr/bin/* || true
+endif
+	cd tmp/swig/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE=
+endif
+	rm -fr tmp/swig
+tgt-swig: pkg3/swig-$(SWIG_VER).cpio.zst
+
+# RK3588-BOOTSTRAP
+# BUILD_TIME :: 5s
+pkg3/rk3588-bootstrap.cpio.zst: pkg3/swig-$(SWIG_VER).cpio.zst
+	rm -fr tmp/rk3588-bootstrap
+	mkdir -p tmp/rk3588-bootstrap/bins
+	pv pkg/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
+	mkdir -p tmp/rk3588-bootstrap/ins
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin tmp/rk3588-bootstrap/ins/
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_bl31_v1.28.elf tmp/rk3588-bootstrap/ins/
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin tmp/rk3588-bootstrap/ins/
+	mkdir -p tmp/rk3588-bootstrap/atf-src
+	pv pkg/orangepi5-atf.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
+	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
+	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
+	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
+	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
+	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/rk3588-bootstrap
+tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
+
+# pyelftools
+
+pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst:
+	rm -fr tmp/pyelftools
+	mkdir -p tmp/pyelftools
+#	cd tmp/pyelftools && gunzip ../../pkg/pyelftools-$(PYELFTOOLS_VER).zip
+	tar -xzf pkg/pyelftools-$(PYELFTOOLS_VER).zip -C tmp/pyelftools
+tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
+#PKG+=pkg/pyelftools-$(PYELFTOOLS_VER).zip
+
+# UBOOT -- OFFICIAL
+pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
+	rm -fr tmp/uboot
+	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
+	pv pkg/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/Makefile
+	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/arch/arm/Makefile
+	mkdir -p tmp/uboot/bld
+	mkdir -p tmp/uboot/bins
+	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
+	cd tmp/uboot/uboot-$(UBOOT_VER) && make O=../bld V=$(VERB) orangepi-5-plus-rk3588_defconfig
+	rm -f tmp/uboot/bld/source
+	cd tmp/uboot/bld && ln -sfv ../uboot-$(UBOOT_VER) source
+	cd tmp/uboot/uboot-$(UBOOT_VER) && make O=../bld V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
+tgt-uboot: pkg3/uboot-$(UBOOT_VER).cpio.zst
+
+#parts/u-boot/uboot-$(UBOOT_VER)/README: pkg/uboot-$(UBOOT_VER).cpio.zst
+#	mkdir -p parts/u-boot/uboot-$(UBOOT_VER)
+#	pv $< | zstd -d | cpio -iduH newc -D parts/u-boot/uboot-$(UBOOT_VER)
+#	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" parts/u-boot/uboot-$(UBOOT_VER)/Makefile
+#	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" parts/u-boot/uboot-$(UBOOT_VER)/arch/arm/Makefile
+#parts/u-boot/bld_mkimage/.config: parts/u-boot/uboot-$(UBOOT_VER)/README
+#	cp -far cfg/orangepi-5-plus-rk3588_defconfig parts/u-boot/uboot-$(UBOOT_VER)/configs/
+#	mkdir -p parts/u-boot/bld_mkimage 
+#	cd parts/u-boot/uboot-$(UBOOT_VER) && make O=../bld_mkimage V=$(VERB) orangepi-5-plus-rk3588_defconfig
+#parts/u-boot/bld_mkimage/tools/mkimage: parts/u-boot/bld_mkimage/.config
+#	cd parts/u-boot/uboot-$(UBOOT_VER) && make O=../bld_mkimage V=$(VERB) $(JOBS) tools
+#parts/u-boot/bld/.config: parts/u-boot/bld_mkimage/tools/mkimage
+#	cp -far cfg/orangepi-5-plus-rk3588_defconfig parts/u-boot/uboot-$(UBOOT_VER)/configs/
+#	mkdir -p parts/u-boot/bld
+#	cd parts/u-boot/uboot-$(UBOOT_VER) && make O=../bld V=$(VERB) orangepi-5-plus-rk3588_defconfig
+#uboot0: parts/u-boot/bld/.config
+#	cd parts/u-boot/uboot-$(UBOOT_VER) && make O=../bld V=$(VERB) BL31=../blobs/$(BL31_FILE) ROCKCHIP_TPL=../blobs/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin 1>1.txt 2>2.txt
+	
+#uboot0-clean:
+#	rm -fr parts/u-boot/uboot-$(UBOOT_VER)
+#	rm -fr parts/u-boot/bld_mkimage
 
 
 # === extra :: final build BINUTILS as NATIVE (aarch64-unknown-linux-gnu)
@@ -5453,3 +5883,36 @@ tgt-binutils-native: pkg3/binutils-$(BINUTILS_VER).native.cpio.zst
 
 # extra blfs :: libpcap-1.9.1
 # https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libpcap.html
+
+# LFS-10.0-systemd :: 8.66. Man-DB-2.9.3
+# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/man-db.html
+# BUILD_TIME :: 2m 10s
+# BUILD_TIME_WITH_TEST ::
+#MANDB_OPT3+= --prefix=/usr
+#MANDB_OPT3+= --docdir=/usr/share/doc/man-db-$(MAN_DB_VER)
+#MANDB_OPT3+= --sysconfdir=/etc
+#MANDB_OPT3+= --disable-setuid
+#MANDB_OPT3+= --enable-cache-owner=bin
+#MANDB_OPT3+= --with-browser=/usr/bin/lynx
+#MANDB_OPT3+= --with-vgrind=/usr/bin/vgrind
+#MANDB_OPT3+= --with-grap=/usr/bin/grap
+#MANDB_OPT3+= --disable-nls
+#MANDB_OPT3+= $(OPT_FLAGS)
+#pkg3/man-db-$(MAN_DB_VER).cpio.zst: pkg3/patch-$(PATCH_VER).cpio.zst
+#	rm -fr tmp/man-db
+#	mkdir -p tmp/man-db/bld
+#	tar -xJf pkg/man-db-$(MAN_DB_VER).tar.xz -C tmp/man-db
+#	sed -i '/find/s@/usr@@' tmp/man-db/man-db-$(MAN_DB_VER)/init/systemd/man-db.service.in
+#	cd tmp/man-db/bld && ../man-db-$(MAN_DB_VER)/configure $(MANDB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/man-db/ins/usr/share
+#	find tmp/man-db/ins -name \*.la -delete
+#ifeq ($(BUILD_STRIP),y)
+#	cd tmp/man-db/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+#endif
+#	cd tmp/man-db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	pv $@ | zstd -d | cpio -iduH newc -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/man-db/bld && make check 2>&1 | tee ../../../tst/man-db-check.log || true
+#endif
+#	rm -fr tmp/man-db
+#tgt-man-db: pkg3/man-db-$(MAN_DB_VER).cpio.zst
