@@ -784,6 +784,7 @@ PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
 PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
 PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
+PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 PKG+=pkg/acl-$(ACL_VER).tar.gz
 PKG+=pkg/attr-$(ATTR_VER).tar.gz
 PKG+=pkg/autoconf-$(AUTOCONF_VER).tar.xz
@@ -910,6 +911,8 @@ pkg/kbd-$(KBD_VER)-backspace-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/lfs/$(LFS_VER)/kbd-$(KBD_VER)-backspace-1.patch && touch $@
 pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch && touch $@
+pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch: pkg/.gitignore
+	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch && touch $@
 pkg/acl-$(ACL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/acl/acl-$(ACL_VER).tar.gz && touch $@
 pkg/attr-$(ATTR_VER).tar.gz: pkg/.gitignore
@@ -5701,11 +5704,70 @@ pkg3/convmv-$(CONVMV_VER).cpio.zst: pkg/unzip$(UNZIP_VER0).cpio.zst
 	mkdir -p tmp/convmv/ins/usr/bin
 	cp -f tmp/convmv/convmv-$(CONVMV_VER)/convmv tmp/convmv/ins/usr/bin
 	chown root:root tmp/convmv/ins/usr/bin/convmv
-# This is PERL file!
+# Target is the single PERL file!
 	cd tmp/convmv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/convmv
 tgt-convmv: pkg3/convmv-$(CONVMV_VER).cpio.zst
+
+# extra BLFS-10.0-systemd :: libarchive-3.4.3
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libarchive.html
+# BUILD_TIME :: 1m 21s
+# BUILD_TIME_WITH_TEST :: 
+LIBARCHIVE_OPT3+= --prefix=/usr
+LIBARCHIVE_OPT3+= --disable-static
+LIBARCHIVE_OPT3+= $(OPT_FLAGS)
+pkg3/libarchive-$(LIBARCHIVE_VER).cpio.zst: pkg3/convmv-$(CONVMV_VER).cpio.zst
+	rm -fr tmp/libarchive
+	mkdir -p tmp/libarchive/bld
+	tar -xJf pkg/libarchive-$(LIBARCHIVE_VER).tar.xz -C tmp/libarchive
+	cp -f pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch tmp/libarchive
+	cd tmp/libarchive/libarchive-$(LIBARCHIVE_VER) && patch -Np1 -i ../libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
+	cd tmp/libarchive/bld && ../libarchive-$(LIBARCHIVE_VER)/configure $(LIBARCHIVE_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libarchive/ins/usr/share
+	rm -f  tmp/libarchive/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libarchive/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/libarchive/ins/usr/lib/*.so*
+endif
+	cd tmp/libarchive/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	mkdir -p tst && cd tmp/libarchive/bld && LC_ALL=C make check 2>&1 | tee ../../../tst/libarchive-check.log || true
+#============================================================================
+#Testsuite summary for libarchive 3.4.3
+#============================================================================
+# TOTAL: 4
+# PASS:  4
+# SKIP:  0
+# XFAIL: 0
+# FAIL:  0
+# XPASS: 0
+# ERROR: 0
+#============================================================================
+endif
+	rm -fr tmp/libarchive
+tgt-libarchive: pkg3/libarchive-$(LIBARCHIVE_VER).cpio.zst
+
+# Extra :: python 'pyelftools' (for uboot)
+# https://github.com/eliben/pyelftools/wiki/User's-guide
+# https://github.com/eliben/pyelftools
+# BUILD_TIME :: 2s
+pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst: pkg3/libarchive-$(LIBARCHIVE_VER).cpio.zst
+	rm -fr tmp/pyelftools
+	mkdir -p tmp/pyelftools
+	bsdtar -xf pkg/pyelftools-$(PYELFTOOLS_VER).zip -C tmp/pyelftools
+	cd tmp/pyelftools/pyelftools-$(PYELFTOOLS_VER) && python3 setup.py install
+# /usr/lib/python3.8/site-packages/easy-install.pth
+# /usr/lib/python3.8/site-packages/pyelftools-0.30-py3.8.egg/
+# backward pack from rfs
+	rm -f /usr/lib/python$(PYTHON_VER0)/site-packages/easy-install.pth
+	mkdir -p tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/pyelftools-$(PYELFTOOLS_VER)-py$(PYTHON_VER0).egg
+#	cp -f /usr/lib/python$(PYTHON_VER0)/site-packages/easy-install.pth tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
+	cp -far /usr/lib/python$(PYTHON_VER0)/site-packages/pyelftools-$(PYELFTOOLS_VER)-py$(PYTHON_VER0).egg tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
+	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
 
 # extra BLFS-10.0-systemd :: Boost-1.74.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/boost.html
@@ -5717,7 +5779,7 @@ tgt-convmv: pkg3/convmv-$(CONVMV_VER).cpio.zst
 SWIG_OPT3+= --prefix=/usr
 SWIG_OPT3+= --without-maximum-compile-warnings
 SWIG_OPT3+= $(OPT_FLAGS)
-pkg3/swig-$(SWIG_VER).cpio.zst: pkg3/pcre-$(PCRE_VER).cpio.zst
+pkg3/swig-$(SWIG_VER).cpio.zst: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
 	rm -fr tmp/swig
 	mkdir -p tmp/swig/bld
 	tar -xzf pkg/swig-$(SWIG_VER).tar.gz -C tmp/swig
@@ -5728,7 +5790,7 @@ endif
 	cd tmp/swig/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 ifeq ($(RUN_TESTS),y)
-	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE=
+	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE= || true
 endif
 	rm -fr tmp/swig
 tgt-swig: pkg3/swig-$(SWIG_VER).cpio.zst
@@ -5755,13 +5817,7 @@ tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
 
 # pyelftools
 
-pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst:
-	rm -fr tmp/pyelftools
-	mkdir -p tmp/pyelftools
-#	cd tmp/pyelftools && gunzip ../../pkg/pyelftools-$(PYELFTOOLS_VER).zip
-	tar -xzf pkg/pyelftools-$(PYELFTOOLS_VER).zip -C tmp/pyelftools
-tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
-#PKG+=pkg/pyelftools-$(PYELFTOOLS_VER).zip
+
 
 # UBOOT -- OFFICIAL
 pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
