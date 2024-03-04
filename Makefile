@@ -891,7 +891,7 @@ PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
 PKG+=pkg/orangepi5-atf.cpio.zst
 PKG+=pkg/orangepi5-uboot.cpio.zst
 PKG+=pkg/uboot-$(UBOOT_VER).cpio.zst
-PKG+=pkg/orangepi5-linux510-xunlong.cpio.zst
+PKG+=pkg/linux-orange-pi-5.10-rk3588.cpio.zst
 PKG+=pkg/busybox.cpio.zst
 PKG+=pkg/rkdeveloptool.cpio.zst
 
@@ -1165,7 +1165,7 @@ endif
 	cd tmp/uboot && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../pkg/uboot-$(UBOOT_VER).cpio.zst
 	rm -fr tmp/uboot
 
-pkg/orangepi5-linux510-xunlong.cpio.zst:
+pkg/linux-orange-pi-5.10-rk3588.cpio.zst:
 	mkdir -p pkg
 	mkdir -p tmp/orangepi5-linux510-xunlong
 	git clone https://github.com/orangepi-xunlong/linux-orangepi.git -b orange-pi-5.10-rk3588 tmp/orangepi5-linux510-xunlong
@@ -1940,14 +1940,15 @@ lfs2/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
 	mkdir -p lfs2/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt-patch' >> $@
+	echo 'make -C /opt/mysdk tgt-swig' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # === LFS-10.0-systemd :: 7.4. Entering the Chroot Environment 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/chroot.html
-chroot1: lfs2/opt/mysdk/chroot1.sh
+lfs2/opt/mysdk/pkg3/swig-$(SWIG_VER).cpio.zst: lfs2/opt/mysdk/chroot1.sh
+# CHROOT STAGE1
 	sudo mount -v --bind /dev lfs2/dev
 	sudo mount -v --bind /dev/pts lfs2/dev/pts
 	sudo mount -vt proc proc lfs2/proc
@@ -1959,7 +1960,13 @@ chroot1: lfs2/opt/mysdk/chroot1.sh
 	sudo umount lfs2/proc
 	sudo umount lfs2/dev/pts
 	sudo umount lfs2/dev
-stage1: chroot1
+stage1: lfs2/opt/mysdk/pkg3/swig-$(SWIG_VER).cpio.zst
+
+lfs2/etc/resolv.conf: /etc/resolv.conf
+	sudo cp -f $< $@
+	sudo touch $@
+stage2: lfs2/etc/resolv.conf
+
 #lfs2/opt/mysdk/chroot1.sh: lfs2/opt/mysdk/Makefile
 #	mkdir -p lfs2/opt/mysdk
 #	echo '#!/bin/bash' > $@
@@ -5749,6 +5756,129 @@ endif
 	rm -fr tmp/libarchive
 tgt-libarchive: pkg3/libarchive-$(LIBARCHIVE_VER).cpio.zst
 
+# extra BLFS-10.0-systemd :: SWIG-4.0.2
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/swig.html
+# BUILD_TIME :: 48s
+# BUILD_TIME_WITH_TEST :: 52m 15s (perl5, python, tcl)
+SWIG_OPT3+= --prefix=/usr
+SWIG_OPT3+= --without-maximum-compile-warnings
+SWIG_OPT3+= $(OPT_FLAGS)
+pkg3/swig-$(SWIG_VER).cpio.zst: pkg3/libarchive-$(LIBARCHIVE_VER).cpio.zst
+	rm -fr tmp/swig
+	mkdir -p tmp/swig/bld
+	tar -xzf pkg/swig-$(SWIG_VER).tar.gz -C tmp/swig
+	cd tmp/swig/bld && ../swig-$(SWIG_VER)/configure $(SWIG_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/swig/ins/usr/bin/* || true
+endif
+	cd tmp/swig/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+ifeq ($(RUN_TESTS),y)
+	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE= || true
+#make[3]: Leaving directory '/opt/mysdk/tmp/swig/bld/Examples/test-suite/python'
+#make[2]: Target 'check' not remade because of errors.
+#make[2]: Leaving directory '/opt/mysdk/tmp/swig/bld/Examples/test-suite/python'
+#make[1]: *** [Makefile:241: check-python-test-suite] Error 1
+endif
+	rm -fr tmp/swig
+tgt-swig: pkg3/swig-$(SWIG_VER).cpio.zst
+
+###############################################################################
+# THIS POINT IS: 180m 50s ( 3h )
+###############################################################################
+
+# Linux Out-Of-Src-Tree-BUILD :: Original from Orangepi :: Linux 5.10.110
+# BUILD_TIME ::
+pkg3/orangepi-linux.5.10.110.cpio.zst: pkg3/swig-$(SWIG_VER).cpio.zst
+	rm -fr tmp/opi5-linux
+	mkdir -p tmp/opi5-linux/src
+	mkdir -p tmp/opi5-linux/bld
+	pv pkg/orangepi5-linux510-xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
+	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(BCMDHD_ROOT)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rkwifi\/bcmdhd\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/Makefile
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
+	sed -i "s/-I\$$(src)\/core\/crypto/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/core\/crypto/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/common.mk
+	sed -i "s/phl_path_d1 := \$$(src)/phl_path_d1 := \$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/phl/phl.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/core\/crypto/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/core\/crypto/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/hal/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/hal/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/hal/phydm/phydm.mk
+tgt-linux-kernel: pkg3/orangepi-linux.5.10.110.cpio.zst
+#pkg/linux_src4bld_rtl8852be.cpio.zst: tmp/opi5-linux/src/MAINTAINERS
+#	mkdir -p tmp
+#	cp -far tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be tmp/
+#	cd tmp/rtl8852be && find . -name "*.c" -type f -delete
+#	cd tmp/rtl8852be && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+#	rm -fr tmp/rtl8852be
+#parts/kernel/bld/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile: pkg/linux_src4bld_rtl8852be.cpio.zst
+#	mkdir -p parts/kernel/bld/drivers/net/wireless/rockchip_wlan/rtl8852be
+#	pv pkg/linux_src4bld_rtl8852be.cpio.zst | zstd -d | cpio -iduH newc -D parts/kernel/bld/drivers/net/wireless/rockchip_wlan/rtl8852be
+#parts/kernel/bld/.config: cfg/$(KERNEL_CONFIG) parts/kernel/bld/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
+#	mkdir -p parts/kernel/bld	
+#	cp -far $< $@ && touch $@
+	
+#parts/kernel/bld/Makefile: parts/kernel/bld/.config
+##	cd tmp/opi5-linux/src && make O=../bld V=$(VERB) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 EXTRAVERSION=$(KERNAM) olddefconfig && cd ../../ && touch $@
+#	cd tmp/opi5-linux/src && make O=../bld V=$(VERB) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 olddefconfig
+#kernel_config: parts/kernel/bld/Makefile
+#out/fat/Image: parts/kernel/bld/Makefile
+#	mkdir -p out/fat/dtb
+#	mkdir -p out/rd/kermod
+#	cd tmp/opi5-linux/src && make O=../bld $(JOBS) V=$(VERB) KCFLAGS="$(RK3588_FLAGS)" CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 dtbs && make O=../bld $(JOBS) V=$(VERB) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 INSTALL_DTBS_PATH=../../../out/fat/dtb dtbs_install && make O=../bld $(JOBS) V=$(VERB) KCFLAGS="$(RK3588_FLAGS)" CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 Image && make O=../bld $(JOBS) V=$(VERB) KCFLAGS="$(RK3588_FLAGS)" CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 modules && make O=../bld $(JOBS) V=$(VERB) CROSS_COMPILE=aarch64-linux-gnu- ARCH=arm64 INSTALL_MOD_PATH=../../../out/rd/kermod modules_install 
+#	cp -far parts/kernel/bld/arch/arm64/boot/Image out/fat/
+#	touch $@
+#kernel: out/fat/Image
+
+
 # Extra :: python 'pyelftools' (for uboot)
 # https://github.com/eliben/pyelftools/wiki/User's-guide
 # https://github.com/eliben/pyelftools
@@ -5767,33 +5897,27 @@ pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst: pkg3/libarchive-$(LIBARCHIVE_VER).cp
 	cp -far /usr/lib/python$(PYTHON_VER0)/site-packages/pyelftools-$(PYELFTOOLS_VER)-py$(PYTHON_VER0).egg tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
 	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
+
+
+pkg3/pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst:
+#	pip3 install pyelftools
+	rm -fr tmp/pyelftools
+	mkdir -p tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages
+	cp -far /usr/lib/python3.8/site-packages/elftools tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
+	cp -far /usr/lib/python3.8/site-packages/pyelftools-$(PYELFTOOLS_VER).dist-info tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
+	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+# backward pack from rfs
+
+tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst
+
+# pip3 install pyelftools
+# /usr/lib/python3.8/site-packages/pyelftools-$(PYELFTOOLS_VER)
+# /usr/lib/python3.8/site-packages/elftools/*
+
 
 # extra BLFS-10.0-systemd :: Boost-1.74.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/boost.html
 
-# extra BLFS-10.0-systemd :: SWIG-4.0.2
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/swig.html
-# BUILD_TIME :: 48s
-# BUILD_TIME_WITH_TEST :: (perl5, python, tcl)
-SWIG_OPT3+= --prefix=/usr
-SWIG_OPT3+= --without-maximum-compile-warnings
-SWIG_OPT3+= $(OPT_FLAGS)
-pkg3/swig-$(SWIG_VER).cpio.zst: pkg3/pyelftools-$(PYELFTOOLS_VER).cpio.zst
-	rm -fr tmp/swig
-	mkdir -p tmp/swig/bld
-	tar -xzf pkg/swig-$(SWIG_VER).tar.gz -C tmp/swig
-	cd tmp/swig/bld && ../swig-$(SWIG_VER)/configure $(SWIG_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/swig/ins/usr/bin/* || true
-endif
-	cd tmp/swig/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE= || true
-endif
-	rm -fr tmp/swig
-tgt-swig: pkg3/swig-$(SWIG_VER).cpio.zst
 
 # RK3588-BOOTSTRAP
 # BUILD_TIME :: 5s
@@ -5815,12 +5939,10 @@ pkg3/rk3588-bootstrap.cpio.zst: pkg3/swig-$(SWIG_VER).cpio.zst
 	rm -fr tmp/rk3588-bootstrap
 tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
 
-# pyelftools
-
-
-
 # UBOOT -- OFFICIAL
+# BUILD_TIME :: 56s
 pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
+	pv cfg/pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/uboot
 	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
 	pv pkg/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
@@ -5833,6 +5955,8 @@ pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	rm -f tmp/uboot/bld/source
 	cd tmp/uboot/bld && ln -sfv ../uboot-$(UBOOT_VER) source
 	cd tmp/uboot/uboot-$(UBOOT_VER) && make O=../bld V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
+	mkdir -p tmp/uboot/ins/usr/share/myboot
+	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
 tgt-uboot: pkg3/uboot-$(UBOOT_VER).cpio.zst
 
 #parts/u-boot/uboot-$(UBOOT_VER)/README: pkg/uboot-$(UBOOT_VER).cpio.zst
