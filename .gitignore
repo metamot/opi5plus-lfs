@@ -2,3 +2,5 @@ host-check.*
 pkg*
 lfs*
 tmp
+*.txt
+*.sh
