@@ -1,4 +1,41 @@
-host-check.sh: deps longsudo 
+help:
+	@clear
+	@echo '================================================================================'
+	@echo 'WARNING1: Your system must be Orange5/5b/5+ with Debian11/Ubuntu22.04 host'
+	@echo '  (original Xunlong or Armbian or JoshuaRiek distros can be used).'
+	@echo '================================================================================'
+	@echo 'Please, use the next command workflow:'
+	@echo ''
+	@echo 'sudo dpkg-reconfigure dash'
+	@echo ''
+	@echo '^^^ Say "NO" to dash(debian/ubuntu ash), this will select "bash".'
+	@echo ''
+	@echo 'make host'
+	@echo ''
+	@echo "make pkg"
+	@echo ''
+	@echo "time make stage1"
+	@echo ''
+
+host: host-check.txt deps longsudo
+	@echo '================================================================================'
+	@echo 'WARNING5: We will need tmp(temporary catalog). Because chroot will be used      '
+	@echo 'it can not link to upward dir. So we will create "lfs-chroot/opt/mysdk/tmp".    '
+	@echo '  At 1st stage, the "tmp" is symlink used for host-build purposes.'
+	@echo '  At 2nd stage, the "tmp" is natively-tmp-catalog under chroot.'
+	@echo 'PLEASE: do not remove upward-tmp or downward-tmp at all.'
+	@echo 'PLEASE: examine it content and delete parts manually.'
+	@echo ''
+	@echo '================================================================================'
+	@echo 'Please, use the next command workflow now:'
+	@echo ''
+	@echo "make pkg"
+	@echo ''
+	@echo "time make stage1"
+	@echo ''
+
+host-check.sh: Makefile
+	sudo dpkg-reconfigure dash
 	echo '#!/bin/bash' > $@
 	echo '# Simple script to list version numbers of critical development tools' >> $@
 	echo '# https://www.linuxfromscratch.org/lfs/view/10.0-systemd' >> $@
@@ -50,63 +87,48 @@ host-check.sh: deps longsudo
 	echo '  else echo "g++ compilation failed"; fi' >> $@
 	echo 'rm -f dummy.c dummy' >> $@
 	chmod ugo+x $@
-	@echo ""
-	@echo "=== Checking Host Deps ==="
-	@echo ""
-	./$@ > host-check.txt
-	@echo ""
-	cat host-check.txt
-	@echo ""
-	@echo "========================================"
-	@echo 'WARNING4: Please carefully check "host-check.txt" and there are not has problems with bash and etc.'
-	@echo ""
-	@echo "========================================"
-	@echo 'WARNING5: We will need tmp(temporary catalog). Because we will use chroot, it can not link to upwards!'
-	@echo 'so we create "lfs-chroot/opt/mysdk/tmp" catalog for any temp-ops.'
-	@echo 'At 1st stage the "tmp" is symlink to deep-chroot.'
-	@echo 'At 2nd stage the "tmp" is natively-tmp-catalog under chroot.'
-	@echo 'PLEASE: do not remove upward-tmp or downward-tmp at all.'
-	@echo 'PLEASE: examine it content and delete parts manually.'
-	@echo ""
-	@echo "========================================"
-	@echo "You need to dowload all pakages via..."
-	@echo "time make pkg"
+
+host-check.txt: host-check.sh
+	@echo '================================================================================'
+	@echo 'WARNING2: Now we will create "host-check.txt". Please check it before build.'
+	@echo '================================================================================'
+	@read -p 'Press ENTER if you reads this message and AGREE to continue...'
+	./$< > host-check.txt
+	@echo '================================================================================'
+	cat ./$@
+	@echo '================================================================================'
+	@read -p 'Please read above info. Press ENTER if all is OK, or strike Ctrl-C ...'
+
+deps:
+	@echo '================================================================================'
+	@echo 'WARNING3: Here is we will install host build dependicies via "sudo apt install".'
+	@echo '"libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop"'
+	@echo '================================================================================'
+	@read -p 'Press ENTER if you reads this message and AGREE, or stroke Ctrl-C to cancel...'
+	sudo apt install -y libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop
+#	sudo apt install -y btop zstd pv texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext
 
 longsudo:
-	@echo ""
-	@echo "========================================"
-	@echo 'WARNING3: This Operation add YOU(as user) to sudo group! So you will may not enter sudo password in future!'
-	@echo "The sudo password expiries after 5 minutes by-default."
-	@echo "The build process will need to ENTERING chroot-environment(need sudo) after 40-45 minutes of build, and then it needs EXITING chroot after 3-4 hours of builds (need sudo)."
-	@echo 'You can have problems to check elapse time with "time make ..." command. So, we reccommend to disable sudo password to make it automatic.'
-	@echo 'If you beware this, you can disable this feature by pressing Ctrl-C and edit 1st line of this make-file, so you can remove word "longsudo" at the end of 1st line.'
+	@echo '================================================================================'
+	@echo 'WARNING4: This Operation add YOU(as user) to sudo group!'
+	@echo 'So you will may not enter sudo password in future!'
+	@echo 'The sudo password expiries after 5 minutes by-default.'
+	@echo 'The build process will need to ENTERING chroot-environment(need sudo) at first'
+	@echo 'stages and need to ENTERING sudo in last stages.So 5min period is not sufficient.'
+	@echo 'You also can not elapse time with "time make ..." command.'
+	@echo 'So, we reccommend you to disable sudo password to make it automatic.'
+	@echo 'If you beware this, you can disable this feature by:'
+	@echo '  1) Pressing Ctrl-C now and ivoke build process as usual'
+	@echo '  2) Edit this make-file. Find "host:" target (about 20 lines from start)'
+	@echo 'end remove word "longsudo" at the end of this line.'
+	@echo '  3) You can restore your sudo-password invocation in future if you remove'
+	@echo '    file with user-name from "/etc/sudoers.d"'
 	@echo 'Are you ready?'
-	@read -p 'Press ENTER if you reads this message and AGREE to continue, or stroke Ctrl-C to cancel...'
-	@echo ""
+	@read -p 'Press ENTER if you reads this message and AGREE, or stroke Ctrl-C to cancel...'
+	@echo ''
 	sudo /sbin/usermod -a -G sudo $$(whoami)
 	sudo touch /etc/sudoers.d/$$(whoami)
 	echo `whoami` 'ALL=(ALL) NOPASSWD:ALL' | sudo tee /etc/sudoers.d/`whoami`
-	@echo ""
-
-deps:
-	@echo ""
-	@echo "========================================"
-	@echo 'WARNING1: Your system must be Orange5/5b/5+ with Debian11/Ubuntu22.04 host (original Xunlong or Armbian or JoshuaRiek distros can be used).'
-	@echo ""
-	@echo 'Here is we will install dependicies: "sudo apt install -y btop zstd pv texinfo libgmp-dev libmpc-dev libmpfr-dev gawk gettext" ...'
-	@echo ""
-	@read -p 'Press ENTER if you reads this message and AGREE to continue, or stroke Ctrl-C to cancel...'
-#	sudo apt install -y btop zstd pv u-boot-tools dosfstools libudev-dev libusb-1.0-0-dev dh-autoreconf texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext swig python-dev-is-python3 python3 python3-pyelftools
-	sudo apt install -y btop zstd pv texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext
-	@echo ""
-	@echo "========================================"
-	@echo 'WARNING2: Build system uses "bash" instead of "dash"(debian/ubuntu basic)'
-	@echo ""
-	@echo 'Please, CHOOSE BASH instead of DASH in next screen (select "No")...'
-	@read -p 'Press ENTER if you reads this message and AGREE to continue, or stroke Ctrl-C to cancel...'
-	@echo ""
-	sudo dpkg-reconfigure dash
-	@echo ""
 
 dummy-clean:
 	rm -f host-check.*
@@ -151,6 +173,7 @@ LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
 UBOOT_VER=v2024.01
+BUSYBOX_VER=1_36
 
 # LFS-packages versions:
 ACL_VER=2.2.53
@@ -177,7 +200,9 @@ E2FSPROGS_VER=1.45.6
 ELF_UTILS_VER=0.180
 # EXPAT_VER=2.2.9
 # ^^^ is unaviable now(01.01.24) for download. Original expat-site say to replace it with 2.5.0.
-EXPAT_VER=2.5.0
+#EXPAT_VER=2.5.0
+# ^^^ is unaviable now(15.03.24) for download. Original expat-site say to replace it with 2.6.2.
+EXPAT_VER=2.6.2
 EXPECT_VER=5.45.4
 FILE_VER=5.39
 FIND_UTILS_VER=4.7.0
@@ -380,7 +405,7 @@ PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
 PKG+=pkg/orangepi5-atf.cpio.zst
 PKG+=pkg/uboot-$(UBOOT_VER).cpio.zst
 PKG+=pkg/orangepi5-uboot.cpio.zst
-PKG+=pkg/busybox.cpio.zst
+PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
 PKG+=pkg/rkdeveloptool.cpio.zst
 PKG+=pkg/orangepi5-linux510-xunlong.cpio.zst
 
@@ -668,15 +693,15 @@ endif
 	rm -fr tmp/orangepi5-uboot
 	rm -fr tmp/tmp
 # GIT: busybox :: 1.36
-pkg/busybox.cpio.zst:
+pkg/busybox-$(BUSYBOX_VER).src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
 	rm -fr tmp/busybox && mkdir -p tmp/busybox/git
-	git clone https://git.busybox.net/busybox -b 1_36_stable tmp/busybox/git
+	git clone https://git.busybox.net/busybox -b $(BUSYBOX_VER)_stable tmp/busybox/git
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/busybox/git/.git
 endif
-	cd tmp/busybox/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../busybox.cpio.zst
-	mkdir -p pkg && mv -fv tmp/busybox/busybox.cpio.zst pkg/
+	cd tmp/busybox/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../busybox.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/busybox/busybox.src.cpio.zst $@
 	rm -fr tmp/busybox
 	rm -fr tmp/tmp
 # GIT: rkdeveloptool :: 46bb4c073624226c3f05b37b9ecc50bbcf543f5a
@@ -1461,7 +1486,7 @@ lfs-chroot/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt-boot-scr' >> $@
+	echo 'make -C /opt/mysdk tgt-linux-kernel' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
@@ -5574,11 +5599,66 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/boot-scr.cpio.zst
 	sync
 tgt-linux-kernel: pkg3/kernel.5.10.110.xunlong.cpio.zst
 
+# BUILD_TIME :: 54s
+pkg3/busybox.static.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+	rm -fr tmp/busybox
+	mkdir -p tmp/busybox/src
+	mkdir -p tmp/busybox/bld
+	pv pkg/busybox-$(BUSYBOX_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/busybox/src	
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/bin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/bin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
+	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
+	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
+	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
+#	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS) CONFIG_PREFIX=../ins install
+	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
+	mkdir -p tmp/busybox/ins/abin
+	cp tmp/busybox/bld/busybox tmp/busybox/ins/abin
+	echo '#!/bin/bash' > tmp/busybox/ins/abin/gen.sh
+	echo 'for i in $$(./busybox --list)' >> tmp/busybox/ins/abin/gen.sh
+	echo 'do' >> tmp/busybox/ins/abin/gen.sh
+	echo '  ln -s busybox $$i' >> tmp/busybox/ins/abin/gen.sh
+	echo 'done' >> tmp/busybox/ins/abin/gen.sh
+	chmod ugo+x tmp/busybox/ins/abin/gen.sh
+	cd tmp/busybox/ins/abin && ./gen.sh
+	rm -f tmp/busybox/ins/abin/gen.sh
+	rm -fv tmp/busybox/ins/abin/linuxrc
+	cd tmp/busybox/ins && ln -sfv abin/busybox linuxrc
+	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/busybox
+tgt-busybox-static: pkg3/busybox.static.cpio.zst
+
+#pkg3/busybox.ready
+#mkdir -p src/busybox
+#pv src/busybox.cpio.zst | zstd -d | cpio -iduH newc -D src/busybox
+#cd src/busybox && make defconfig && cd -
+
+
 tgt-mmc:
 	rm -fr tmp/mmc
 	mkdir -p tmp/mmc/rd
 	mkdir -p tmp/mmc/fat
-	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+	pv pkg3/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+	mv -f  tmp/mmc/rd/usr/share/myboot/boot-fat/* tmp/mmc/fat/
+	rm -fr tmp/mmc/rd/usr/share/myboot/boot-fat
+	mv -f  tmp/mmc/rd/usr/share/myboot/* tmp/mmc/
+	rm -fr tmp/mmc/rd/usr/share/myboot
+#	cd tmp/mmc/rd/usr && ln -sf lib lib64
+#	cd tmp/mmc/rd && ln -sf usr/lib lib && ln -sf usr/lib64 lib64
+#	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+#	cd tmp/mmc/rd && ln -sf usr/bin bin && ln -sf usr/sbin sbin
+#	rm -fr tmp/mmc/rd/usr/share
+#	rm -fr tmp/mmc/rd/usr/include
+#	rm -fr tmp/mmc/tmp/*
+#	rm -fr tmp/mmc/rd/usr/include
 
 # Extra :: python 'pyelftools' (for uboot)
 # https://github.com/eliben/pyelftools/wiki/User's-guide
@@ -5615,61 +5695,6 @@ tgt-mmc:
 
 # extra BLFS-10.0-systemd :: Boost-1.74.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/boost.html
-
-
-# === extra :: final build BINUTILS as NATIVE (aarch64-unknown-linux-gnu)
-#
-# BUILD_TIME :: 1m 58s
-# BUILD_TIME_WITH_TEST :: 8m 45s
-BINUTILS_OPT3_N+= --prefix=/usr
-#BINUTILS_OPT3_N+= --enable-gold
-BINUTILS_OPT3_N+= --enable-ld=default
-BINUTILS_OPT3_N+= --enable-plugins
-BINUTILS_OPT3_N+= --enable-shared
-BINUTILS_OPT3_N+= --disable-werror
-BINUTILS_OPT3_N+= --enable-64-bit-bfd
-BINUTILS_OPT3_N+= --with-system-zlib
-BINUTILS_OPT3_N+= $(OPT_FLAGS)
-BINUTILS_OPT3_N+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg3/binutils-$(BINUTILS_VER).native.cpio.zst: pkg3/gcc-$(GCC_VER).cpio.zst
-	rm -fr tmp/binutils
-	mkdir -p tmp/binutils/bld
-	tar -xJf pkg/binutils-$(BINUTILS_VER).tar.xz -C tmp/binutils
-	expect -c "spawn ls"
-#OK	
-	sed -i '/@\tincremental_copy/d' tmp/binutils/binutils-$(BINUTILS_VER)/gold/testsuite/Makefile.in
-	cd tmp/binutils/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS_OPT3_N) && make tooldir=/usr $(JOBS) V=$(VERB) && make tooldir=/usr DESTDIR=`pwd`/../ins install
-	rm -fr tmp/binutils/ins/usr/share
-	rm -f tmp/binutils/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/binutils/ins/usr/bin/* || true
-	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
-	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
-endif
-	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
-## TEST not passed !
-## FAILS - (A) "--enable-gold".
-## gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
-## <etc>
-## gcctestdir/collect-ld: error: tls_test.o: unsupported reloc 549 in non-static TLSLE mode.
-## tls_test.o:tls_test.cc:function t1(): error: unexpected opcode while processing relocation R_AARCH64_TLSLE_ADD_TPREL_HI12
-## <etc>
-## https://www.mail-archive.com/bug-binutils@gnu.org/msg30791.html
-## This problem is repaired or not?
-## OK. We'll disable gold. But some problems are still exists.
-## FAILS - (B) "dwarf","libbar","libfoo".
-## Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/dwarf.exp ...
-## FAIL: DWARF parse during linker error
-## Running /opt/mysdk/tmp/binutils/binutils-2.35/ld/testsuite/ld-elf/shared.exp ...
-## FAIL: Build warn libbar.so
-## FAIL: Run warn with versioned libfoo.so
-## What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
-endif
-	rm -fr tmp/binutils
-tgt-binutils-native: pkg3/binutils-$(BINUTILS_VER).native.cpio.zst
 
 # https://netfilter.org/projects/nftables/
 # https://netfilter.org/projects/nftables/downloads.html
