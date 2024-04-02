@@ -196,6 +196,8 @@ DBUS_VER=1.12.20
 DEJAGNU_VER=1.6.2
 DIFF_UTILS_VER=3.7
 DOS_FS_TOOLS_VER=4.1
+#DTC_VER=1.6.1
+DTC_VER=1.7.0
 E2FSPROGS_VER=1.45.6
 ELF_UTILS_VER=0.180
 # EXPAT_VER=2.2.9
@@ -245,6 +247,7 @@ NCURSES_VER=6.2
 NFTABLES_VER=1.0.9
 NINJA_VER=1.10.0
 OPEN_SSL_VER=1.1.1g
+PARTED_VER=3.3
 PATCH_VER=2.7.6
 PCRE_VER=8.44
 PERL_VER=5.32.0
@@ -318,6 +321,7 @@ PKG+=pkg/dbus-$(DBUS_VER).tar.gz
 PKG+=pkg/dejagnu-$(DEJAGNU_VER).tar.gz
 PKG+=pkg/diffutils-$(DIFF_UTILS_VER).tar.xz
 PKG+=pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz
+PKG+=pkg/dtc-$(DTC_VER).tar.gz
 PKG+=pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz
 PKG+=pkg/elfutils-$(ELF_UTILS_VER).tar.bz2
 PKG+=pkg/expat-$(EXPAT_VER).tar.xz
@@ -363,6 +367,7 @@ PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
 PKG+=pkg/nftables-$(NFTABLES_VER).tar.xz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
 PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
+PKG+=pkg/parted-$(PARTED_VER).tar.xz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
 PKG+=pkg/pcre-$(PCRE_VER).tar.gz
 PKG+=pkg/perl-$(PERL_VER).tar.xz
@@ -402,12 +407,12 @@ PKG+=pkg/config.sub
 
 # Opi5 additional downloads:
 PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
-PKG+=pkg/orangepi5-atf.cpio.zst
-PKG+=pkg/uboot-$(UBOOT_VER).cpio.zst
-PKG+=pkg/orangepi5-uboot.cpio.zst
+PKG+=pkg/rockchip-rk35-atf.src.cpio.zst
+PKG+=pkg/uboot-$(UBOOT_VER).src.cpio.zst
+PKG+=pkg/orangepi5-uboot.src.cpio.zst
 PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
-PKG+=pkg/rkdeveloptool.cpio.zst
-PKG+=pkg/orangepi5-linux510-xunlong.cpio.zst
+PKG+=pkg/rkdeveloptool.src.cpio.zst
+PKG+=pkg/orangepi5-linux510.src.cpio.zst
 
 pkg: $(PKG)
 # 20min at usual internet connection
@@ -470,6 +475,8 @@ pkg/diffutils-$(DIFF_UTILS_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/diffutils/diffutils-$(DIFF_UTILS_VER).tar.xz && touch $@
 pkg/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz: pkg/.gitignore 	
 	wget -P pkg https://github.com/dosfstools/dosfstools/releases/download/v$(DOS_FS_TOOLS_VER)/dosfstools-$(DOS_FS_TOOLS_VER).tar.xz && touch $@
+pkg/dtc-$(DTC_VER).tar.gz: pkg/.gitignore 
+	wget -P pkg https://git.kernel.org/pub/scm/utils/dtc/dtc.git/snapshot/dtc-$(DTC_VER).tar.gz && touch $@
 pkg/e2fsprogs-$(E2FSPROGS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://downloads.sourceforge.net/project/e2fsprogs/e2fsprogs/v$(E2FSPROGS_VER)/e2fsprogs-$(E2FSPROGS_VER).tar.gz && touch $@
 pkg/elfutils-$(ELF_UTILS_VER).tar.bz2: pkg/.gitignore
@@ -561,6 +568,8 @@ pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/ninja-build/ninja/archive/v$(NINJA_VER)/ninja-$(NINJA_VER).tar.gz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
+pkg/parted-$(PARTED_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/parted/parted-$(PARTED_VER).tar.xz && touch $@
 pkg/patch-$(PATCH_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/patch/patch-$(PATCH_VER).tar.xz && touch $@
 pkg/pcre-$(PCRE_VER).tar.gz: pkg/.gitignore
@@ -650,17 +659,17 @@ endif
 	rm -fr tmp/orangepi5-rkbin
 	rm -fr tmp/tmp
 # GIT: ATF = 21840
-pkg/orangepi5-atf.cpio.zst:
+pkg/rockchip-rk35-atf.src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
-	rm -fr tmp/orangepi5-atf && mkdir -p tmp/orangepi5-atf/git
-	git clone https://review.trustedfirmware.org/TF-A/trusted-firmware-a tmp/orangepi5-atf/git
-	cd tmp/orangepi5-atf/git && git fetch https://review.trustedfirmware.org/TF-A/trusted-firmware-a refs/changes/40/21840/5 && git checkout -b change-21840 FETCH_HEAD
+	rm -fr tmp/rockchip-rk35-atf && mkdir -p tmp/rockchip-rk35-atf/git
+	git clone https://review.trustedfirmware.org/TF-A/trusted-firmware-a tmp/rockchip-rk35-atf/git
+	cd tmp/rockchip-rk35-atf/git && git fetch https://review.trustedfirmware.org/TF-A/trusted-firmware-a refs/changes/40/21840/5 && git checkout -b change-21840 FETCH_HEAD
 ifeq ($(GIT_RM),y)
-	rm -fr tmp/orangepi5-atf/git/.git
+	rm -fr tmp/rockchip-rk35-atf/git/.git
 endif
-	cd tmp/orangepi5-atf/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-atf.cpio.zst
-	mkdir -p pkg && mv -fv tmp/orangepi5-atf/orangepi5-atf.cpio.zst pkg/
-	rm -fr tmp/orangepi5-atf
+	cd tmp/rockchip-rk35-atf/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../rockchip-rk35-atf.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/rockchip-rk35-atf/rockchip-rk35-atf.src.cpio.zst pkg/
+	rm -fr tmp/rockchip-rk35-atf
 	rm -fr tmp/tmp
 # GIT : UBOOT=v2024.01
 # https://docs.u-boot.org/en/latest/build/source.html
@@ -668,7 +677,7 @@ endif
 # https://github.com/u-boot/u-boot
 # note1: github is a full-mirror of source.denx.de (gitlab based)
 # note2: Opi5 is supported at "2024" version, so release "2023.10" has no configs for orange-pi-5.
-pkg/uboot-$(UBOOT_VER).cpio.zst:
+pkg/uboot-$(UBOOT_VER).src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
 	rm -fr tmp/uboot && mkdir -p tmp/uboot/git
 	git clone https://github.com/u-boot/u-boot tmp/uboot/git
@@ -676,20 +685,20 @@ pkg/uboot-$(UBOOT_VER).cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/uboot/git/.git
 endif
-	cd tmp/uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../uboot-$(UBOOT_VER).cpio.zst
-	mkdir -p pkg && mv -fv tmp/uboot/uboot-$(UBOOT_VER).cpio.zst pkg/
+	cd tmp/uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../uboot-$(UBOOT_VER).src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/uboot/uboot-$(UBOOT_VER).src.cpio.zst pkg/
 	rm -fr tmp/uboot
 	rm -fr tmp/tmp
 # GIT: orangepi5=UBOOT = v2017.09-rk3588
-pkg/orangepi5-uboot.cpio.zst:
+pkg/orangepi5-uboot.src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
 	rm -fr tmp/orangepi5-uboot && mkdir -p tmp/orangepi5-uboot/git
 	git clone https://github.com/orangepi-xunlong/u-boot-orangepi.git -b v2017.09-rk3588 tmp/orangepi5-uboot/git
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/orangepi5-uboot/git/.git
 endif
-	cd tmp/orangepi5-uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-uboot.cpio.zst
-	mkdir -p pkg && mv -fv tmp/orangepi5-uboot/orangepi5-uboot.cpio.zst pkg/
+	cd tmp/orangepi5-uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-uboot.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/orangepi5-uboot/orangepi5-uboot.src.cpio.zst pkg/
 	rm -fr tmp/orangepi5-uboot
 	rm -fr tmp/tmp
 # GIT: busybox :: 1.36
@@ -705,7 +714,7 @@ endif
 	rm -fr tmp/busybox
 	rm -fr tmp/tmp
 # GIT: rkdeveloptool :: 46bb4c073624226c3f05b37b9ecc50bbcf543f5a
-pkg/rkdeveloptool.cpio.zst:
+pkg/rkdeveloptool.src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
 	rm -fr tmp/rkdeveloptool && mkdir -p tmp/rkdeveloptool/git
 	git clone https://github.com/rockchip-linux/rkdeveloptool tmp/rkdeveloptool/git
@@ -714,22 +723,21 @@ pkg/rkdeveloptool.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/rkdeveloptool/git/.git
 endif
-	cd tmp/rkdeveloptool/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../rkdeveloptool.cpio.zst
-	mkdir -p pkg && mv -fv tmp/rkdeveloptool/rkdeveloptool.cpio.zst pkg/
+	cd tmp/rkdeveloptool/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../rkdeveloptool.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/rkdeveloptool/rkdeveloptool.src.cpio.zst pkg/
 	rm -fr tmp/rkdeveloptool
 	rm -fr tmp/tmp
 # GIT: Linux-xunlong :: 5.10.110
-pkg/orangepi5-linux510-xunlong.cpio.zst:
+pkg/orangepi5-linux510.src.cpio.zst:
 	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
-	rm -fr tmp/orangepi5-linux510-xunlong && mkdir -p tmp/orangepi5-linux510-xunlong/git
-	git clone https://github.com/orangepi-xunlong/linux-orangepi.git -b orange-pi-5.10-rk3588 tmp/orangepi5-linux510-xunlong/git
+	rm -fr tmp/orangepi5-linux && mkdir -p tmp/orangepi5-linux/git
+	git clone https://github.com/orangepi-xunlong/linux-orangepi.git -b orange-pi-5.10-rk3588 tmp/orangepi5-linux/git
 ifeq ($(GIT_RM),y)
-	rm -fr tmp/orangepi5-linux510-xunlong/git/.git
+	rm -fr tmp/orangepi5-linux/git/.git
 endif
-	cd tmp/orangepi5-linux510-xunlong/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-linux510-xunlong.cpio.zst
-
-	mkdir -p pkg && mv -fv tmp/orangepi5-linux510-xunlong/orangepi5-linux510-xunlong.cpio.zst pkg/
-	rm -fr tmp/orangepi5-linux510-xunlong
+	cd tmp/orangepi5-linux/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-linux510.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/orangepi5-linux/orangepi5-linux510.src.cpio.zst pkg/
+	rm -fr tmp/orangepi5-linux
 	rm -fr tmp/tmp
 # --- END OF DOWNLOAD SECTION -------------------------------------------------
 
@@ -747,7 +755,7 @@ build-host.txt: pkg/config.guess
 # === LFS-10.0-systemd :: 5.4. Linux API Headers :: "make hst-headers"
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/linux-headers.html
 # BUILD_TIME :: 1 m 32s
-pkg1/lfs-kernel-headers.cpio.zst: pkg/orangepi5-linux510-xunlong.cpio.zst build-host.txt
+pkg1/lfs-kernel-headers.cpio.zst: pkg/orangepi5-linux510.src.cpio.zst build-host.txt
 	rm -f tmp
 	rm -fr lfs-chroot
 	mkdir -p lfs-chroot/opt/mysdk/tmp
@@ -5385,9 +5393,67 @@ endif
 	rm -fr tmp/rsync
 tgt-rsync: pkg3/rsync-$(RSYNC_VER).cpio.zst
 
+# extra BLFS-10.0-systemd :: parted-3.3
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/parted.html
+# BUILD_TIME :: 1m 13s
+# BUILD_TIME_WITH_TEST ::
+PARTED_OPT3+= --prefix=/usr
+PARTED_OPT3+= --disable-static
+PARTED_OPT3+= --disable-nls
+PARTED_OPT3+= --disable-device-mapper
+PARTED_OPT3+= $(OPT_FLAGS)
+pkg3/parted-$(PARTED_VER).cpio.zst: pkg3/rsync-$(RSYNC_VER).cpio.zst
+	rm -fr tmp/parted
+	mkdir -p tmp/parted/bld
+	tar -xJf pkg/parted-$(PARTED_VER).tar.xz -C tmp/parted
+	cd tmp/parted/bld && ../parted-$(PARTED_VER)/configure $(PARTED_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/parted/ins/usr/share
+	rm -f  tmp/parted/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/parted/ins/usr/sbin/*
+	strip --strip-unneeded tmp/parted/ins/usr/lib/*.so*
+endif
+	cd tmp/parted/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/parted
+tgt-parted: pkg3/parted-$(PARTED_VER).cpio.zst
+
+# extra:: DTC (for uboot-xunlong)
+# https://www.linuxfromscratch.org/blfs/view/svn/general/dtc.html
+# BUILD_TIME :: 14s
+DTC_MOPT3+= --prefix=/usr
+DTC_MOPT3+= -Dpython=disabled
+#DTC_MOPT3+= --buildtype=release
+DTC_MOPT3+= -Ddebug=false
+DTC_MOPT3+= -Doptimization=$(BASE_OPT_VAL)
+DTC_MOPT3+= -Dc_args="$(RK3588_FLAGS)"
+DTC_MOPT3+= -Dcpp_args="$(RK3588_FLAGS)"
+DTC_BUILD_VERB=
+ifeq ($(VERB),1)
+DTC_BUILD_VERB=-v
+endif
+pkg3/dtc-$(DTC_VER).cpio.zst: pkg3/parted-$(PARTED_VER).cpio.zst
+	rm -fr tmp/dtc
+	mkdir -p tmp/dtc/bld
+	tar -xzf pkg/dtc-$(DTC_VER).tar.gz -C tmp/dtc
+	cd tmp/dtc/bld && LANG=en_US.UTF-8 meson setup $(DTC_MOPT3) ../dtc-$(DTC_VER)
+	cd tmp/dtc/bld && LANG=en_US.UTF-8 ninja $(DTC_BUILD_VERB)
+	cd tmp/dtc/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/dtc/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/dtc/ins/usr/lib/*.so*
+	strip --strip-debug tmp/dtc/ins/usr/lib/*.a
+endif
+	cd tmp/dtc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	pv $@ | zstd -d | cpio -iduH newc -D /
+	cp -far tmp/dtc/ins/usr/lib/*.so* /usr/lib/
+	cp -far tmp/dtc/ins/usr/bin/dtc /usr/bin/
+	rm -fr tmp/dtc
+tgt-dtc: pkg3/dtc-$(DTC_VER).cpio.zst
+
 # RK3588-BOOTSTRAP
 # BUILD_TIME :: 5s
-pkg3/rk3588-bootstrap.cpio.zst: pkg3/rsync-$(RSYNC_VER).cpio.zst
+pkg3/rk3588-bootstrap.cpio.zst: pkg3/dtc-$(DTC_VER).cpio.zst
 	rm -fr tmp/rk3588-bootstrap
 	mkdir -p tmp/rk3588-bootstrap/bins
 	pv pkg/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
@@ -5396,7 +5462,7 @@ pkg3/rk3588-bootstrap.cpio.zst: pkg3/rsync-$(RSYNC_VER).cpio.zst
 	cp -f tmp/rk3588-bootstrap/bins/rk3588_bl31_v1.28.elf tmp/rk3588-bootstrap/ins/
 	cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin tmp/rk3588-bootstrap/ins/
 	mkdir -p tmp/rk3588-bootstrap/atf-src
-	pv pkg/orangepi5-atf.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
+	pv pkg/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
 	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
 	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
 	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
@@ -5405,13 +5471,36 @@ pkg3/rk3588-bootstrap.cpio.zst: pkg3/rsync-$(RSYNC_VER).cpio.zst
 	rm -fr tmp/rk3588-bootstrap
 tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
 
+# ============== U-BOOT ===============
+# +-----------------+-----------------+
+# | OLD             | NEW             |
+# +-----------------+-----------------+
+# | bmp2gray16      |                 |
+# | boot_merger     |                 |
+# | dumpimage       | dumpimage       |
+# |                 | fdt_add_pubkey  |
+# | fdtgrep         | fdtgrep         |
+# |                 | fit_check_sign  |
+# |                 | fit_info        |
+# | gen_eth_addr    | gen_eth_addr    |
+# | gen_ethaddr_crc | gen_ethaddr_crc |
+# |                 | img2srec        |
+# | loaderimage     |                 |
+# | mkenvimage      | mkenvimage      |
+# | mkimage         | mkimage         |
+# | proftool        | proftool        |
+# | relocate-rela   | relocate-rela   |
+# | resource_tool   |                 |
+# | trust_merger    |                 |
+# +-----------------+-----------------+
+
 # UBOOT -- OFFICIAL
 # BUILD_TIME :: 56s
-pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
+pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	pv pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/uboot
 	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
-	pv pkg/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
+	pv pkg/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
 	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/Makefile
 	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/arch/arm/Makefile
 	mkdir -p tmp/uboot/bld
@@ -5420,31 +5509,84 @@ pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
 	mkdir -p tmp/uboot/ins/usr/bin
-#	cp -f tmp/uboot/bld/tools/dumpimage tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/fdt_add_pubkey tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/fdtgrep tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/fit_check_sign tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/fit_info tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/gen_eth_addr tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/gen_ethaddr_crc tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/img2srec tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/mkenvimage tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/dumpimage tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/fdt_add_pubkey tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/fdtgrep tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/fit_check_sign tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/fit_info tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/gen_eth_addr tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/gen_ethaddr_crc tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/img2srec tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/mkenvimage tmp/uboot/ins/usr/bin/
 	cp -f tmp/uboot/bld/tools/mkimage tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/proftool tmp/uboot/ins/usr/bin/
-#	cp -f tmp/uboot/bld/tools/relocate-rela tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/proftool tmp/uboot/ins/usr/bin/
+	cp -f tmp/uboot/bld/tools/relocate-rela tmp/uboot/ins/usr/bin/
 ##	cp -f tmp/uboot/bld/tools/spl_size_limit tmp/uboot/ins/usr/bin/
-	mkdir -p tmp/uboot/ins/usr/share/myboot
-	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/uboot/ins/usr/bin/*
 endif
+	mkdir -p tmp/uboot/ins/usr/share/myboot
+	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
 	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
+#	pv $@ | zstd -d | cpio -iduH newc -D /
+	mkdir -p /usr/bin && cp -f tmp/uboot/ins/usr/bin/mkimage /usr/bin/mkimage_new
+	cd /usr/bin && ln -sf mkimage_new mkimage
+	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
 	rm -fr tmp/uboot
-tgt-uboot: pkg3/uboot-$(UBOOT_VER).cpio.zst
+tgt-uboot-new: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
 
-# Boot Script
-pkg3/boot-scr.cpio.zst: pkg3/uboot-$(UBOOT_VER).cpio.zst
+# UBOOT -- XUNLONG
+# BUILD_TIME :: 48s
+pkg3/uboot-xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
+	rm -fr tmp/uboot-xunlong
+	mkdir -p tmp/uboot-xunlong/src
+	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
+	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
+	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
+	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
+	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
+	mkdir -p tmp/uboot-xunlong/bins
+	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
+	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
+	mkdir -p tmp/uboot-xunlong/ins/usr/bin
+	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
+	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
+endif
+	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
+# final: 64=head 16384=tail, prep: 0=head 16320=tail
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/uboot-head.bin seek=0 conv=notrunc
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/bld/u-boot.itb seek=16320 conv=notrunc
+	mkdir -p tmp/uboot-xunlong/ins/usr/share/myboot
+	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
+	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	pv $@ | zstd -d | cpio -iduH newc -D /
+	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
+	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
+	rm -fr tmp/uboot-xunlong
+tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
+
+pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	rm -fr tmp/boot-scr
 	mkdir -p tmp/boot-scr/src
 	echo 'setenv load_addr "0x9000000"' > tmp/boot-scr/src/boot.cmd
@@ -5506,7 +5648,14 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-$(UBOOT_VER).cpio.zst
 	echo 'fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'booti $${kernel_addr_r} $${ramdisk_addr_r} $${fdt_addr_r}' >> tmp/boot-scr/src/boot.cmd
 	mkdir -p tmp/boot-scr/ins/usr/share/myboot/boot-fat
-	mkimage -C none -A arm -T script -d tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/boot.scr
+	cp -f tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/
+	mkimage_new -C none -A arm -T script -d tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/boot.scr
+	echo 'verbosity=1' > tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'bootlogo=false' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'extraargs=cma=128M' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'overlay_prefix=rk3588' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'rootdev=UUID=0b9501f8-db3c-4b33-940a-7fce0931dc2c' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'fdtfile=rockchip/rk3588-orangepi-5-plus.dtb' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
 	cd tmp/boot-scr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/boot-scr
@@ -5518,7 +5667,7 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/opi5-linux
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
-	pv pkg/orangepi5-linux510-xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
+	pv pkg/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
 	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
 	sed -i "s/-I\$$(BCMDHD_ROOT)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rkwifi\/bcmdhd\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/Makefile
 	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
@@ -5581,22 +5730,22 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/boot-scr.cpio.zst
 	cp -far tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/
 	cd tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/rtl8852be && find . -name "*.c" -type f -delete
 	cd tmp/opi5-linux/src && make V=$(VERB) O=../bld rockchip_linux_defconfig
-	cd tmp/opi5-linux/bld && make kernelversion > ../kerver.txt
+	sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" tmp/opi5-linux/bld/.config
+	cd tmp/opi5-linux/bld && make LOCALVERSION= kernelversion > ../kerver.txt
 	sed -i '/make/d' tmp/opi5-linux/kerver.txt
-	cd tmp/opi5-linux/bld && make V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" dtbs
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" dtbs
 	mkdir -p tmp/opi5-linux/ins/usr/share/myboot/boot-fat/dtb
-	cd tmp/opi5-linux/bld && make V=$(VERB) INSTALL_DTBS_PATH=../ins/usr/share/myboot/boot-fat/dtb dtbs_install
-	cd tmp/opi5-linux/bld && make V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" Image
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) INSTALL_DTBS_PATH=../ins/usr/share/myboot/boot-fat/dtb dtbs_install
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" Image
 	cp -f tmp/opi5-linux/bld/arch/arm64/boot/Image tmp/opi5-linux/ins/usr/share/myboot/boot-fat/
-	cd tmp/opi5-linux/bld && make V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" modules
-	cd tmp/opi5-linux/bld && make V=$(VERB) INSTALL_MOD_PATH=../ins/usr modules_install
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" modules
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) INSTALL_MOD_PATH=../ins/usr modules_install
 	rm -fv tmp/opi5-linux/ins/usr/lib/modules/`cat tmp/opi5-linux/kerver.txt`/build
 	rm -fv tmp/opi5-linux/ins/usr/lib/modules/`cat tmp/opi5-linux/kerver.txt`/source
-	cd tmp/opi5-linux/bld && make V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
 	cd tmp/opi5-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/opi5-linux
-	sync
 tgt-linux-kernel: pkg3/kernel.5.10.110.xunlong.cpio.zst
 
 # BUILD_TIME :: 54s
@@ -5629,10 +5778,236 @@ pkg3/busybox.static.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
 	cd tmp/busybox/ins/abin && ./gen.sh
 	rm -f tmp/busybox/ins/abin/gen.sh
 	rm -fv tmp/busybox/ins/abin/linuxrc
-	cd tmp/busybox/ins && ln -sfv abin/busybox linuxrc
+#	cd tmp/busybox/ins && ln -sfv abin/busybox linuxrc
+	cd tmp/busybox/ins && ln -sfv abin/busybox init
 	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/busybox
 tgt-busybox-static: pkg3/busybox.static.cpio.zst
+
+pkg3/boot-initrd.cpio.zst: pkg3/busybox.static.cpio.zst
+	rm -fr tmp/initrd
+	mkdir -p tmp/initrd
+# system
+	pv $< | zstd -d | cpio -iduH newc -D tmp/initrd
+	mkdir -p tmp/initrd/dev/pts
+	mknod -m 600 tmp/initrd/dev/console c 5 1 || true
+	mknod -m 666 tmp/initrd/dev/null c 1 3 || true
+	mkdir -p tmp/initrd/proc
+	mkdir -p tmp/initrd/sys
+	mkdir -p tmp/initrd/run
+	mkdir -p      tmp/initrd/var/cache
+#	mkdir -p      tmp/initrd/var/lib/arpd
+	mkdir -p      tmp/initrd/var/lib/color
+#	mkdir -p      tmp/initrd/var/lib/dbus
+#	mkdir -p      tmp/initrd/var/lib/hwclock
+	mkdir -p      tmp/initrd/var/lib/locate
+	mkdir -p      tmp/initrd/var/lib/misc
+#	mkdir -p      tmp/initrd/var/lib/nss_db
+#	mkdir -p      tmp/initrd/var/lib/systemd
+	mkdir -p      tmp/initrd/var/local
+	mkdir -p      tmp/initrd/var/log
+	touch         tmp/initrd/var/log/btmp
+	touch         tmp/initrd/var/log/lastlog
+	touch         tmp/initrd/var/log/faillog
+	touch         tmp/initrd/var/log/wtmp
+	chgrp -v utmp tmp/initrd/var/log/lastlog
+	chmod -v 664  tmp/initrd/var/log/lastlog
+	chmod -v 600  tmp/initrd/var/log/btmp
+	mkdir -p      tmp/initrd/var/mail
+	mkdir -p      tmp/initrd/var/opt
+	mkdir -p      tmp/initrd/var/spool
+	cd tmp/initrd/var && ln -sf ../run run
+	install -d -m 1777 tmp/initrd/run/lock
+	cd tmp/initrd/var && ln -sf ../run/lock lock
+	install -d -m 1777 tmp/initrd/tmp
+	install -d -m 1777 tmp/initrd/var/tmp
+#	chown -R root:root tmp/initrd/*
+# rcS
+	mkdir -p tmp/initrd/aetc/init.d
+	echo '#!/abin/sh' > tmp/initrd/aetc/init.d/rcS
+	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/init.d/rcS
+	echo '  case $$x in' >> tmp/initrd/aetc/init.d/rcS
+	echo '  myboot=*)' >> tmp/initrd/aetc/init.d/rcS
+	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/init.d/rcS
+	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/init.d/rcS
+	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/init.d/rcS
+	echo '    ;;' >> tmp/initrd/aetc/init.d/rcS
+	echo '  esac' >> tmp/initrd/aetc/init.d/rcS
+	echo 'done' >> tmp/initrd/aetc/init.d/rcS
+	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/init.d/rcS
+	echo 'then' >> tmp/initrd/aetc/init.d/rcS
+	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/init.d/rcS
+	echo 'else' >> tmp/initrd/aetc/init.d/rcS
+	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/init.d/rcS
+	echo 'fi' >> tmp/initrd/aetc/init.d/rcS
+	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/init.d/rcS
+	chmod ugo+x tmp/initrd/aetc/init.d/rcS
+# inittab
+#	echo "::sysinit:/abin/busybox mkdir /sys" > tmp/initrd/aetc/inittab
+	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/aetc/inittab
+#	echo "::sysinit:/abin/busybox mkdir /proc" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/aetc/init.d/rcS" >> tmp/initrd/aetc/inittab
+	echo "::respawn:-/abin/sh" >> tmp/initrd/aetc/inittab
+	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/aetc/inittab
+	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/aetc/inittab
+# issue
+	echo 'Opi5+' >> tmp/initrd/aetc/issue
+# profile
+	echo 'export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/abin"' > tmp/initrd/aetc/profile
+	echo '/abin/busybox cat /aetc/issue' >> tmp/initrd/aetc/profile
+# shells
+	echo "/abin/ash" > tmp/initrd/aetc/shells
+	echo "/abin/sh" >> tmp/initrd/aetc/shells
+# group
+	echo "root:x:0:" > tmp/initrd/aetc/group
+	echo "daemon:x:1:" >> tmp/initrd/aetc/group
+	echo "bin:x:2:" >> tmp/initrd/aetc/group
+	echo "sys:x:3:" >> tmp/initrd/aetc/group
+	echo "adm:x:4:" >> tmp/initrd/aetc/group
+	echo "tty:x:5:" >> tmp/initrd/aetc/group
+	echo "disk:x:6:" >> tmp/initrd/aetc/group
+	echo "lp:x:7:" >> tmp/initrd/aetc/group
+	echo "mail:x:8:" >> tmp/initrd/aetc/group
+	echo "kmem:x:9:" >> tmp/initrd/aetc/group
+	echo "wheel:x:10:root" >> tmp/initrd/aetc/group
+	echo "cdrom:x:11:" >> tmp/initrd/aetc/group
+	echo "dialout:x:18:" >> tmp/initrd/aetc/group
+	echo "floppy:x:19:" >> tmp/initrd/aetc/group
+	echo "video:x:28:" >> tmp/initrd/aetc/group
+	echo "audio:x:29:" >> tmp/initrd/aetc/group
+	echo "tape:x:32:" >> tmp/initrd/aetc/group
+	echo "www-data:x:33:" >> tmp/initrd/aetc/group
+	echo "operator:x:37:" >> tmp/initrd/aetc/group
+	echo "utmp:x:43:" >> tmp/initrd/aetc/group
+	echo "plugdev:x:46:" >> tmp/initrd/aetc/group
+	echo "staff:x:50:" >> tmp/initrd/aetc/group
+	echo "lock:x:54:" >> tmp/initrd/aetc/group
+	echo "netdev:x:82:" >> tmp/initrd/aetc/group
+	echo "users:x:100:" >> tmp/initrd/aetc/group
+	echo "nobody:x:65534:" >> tmp/initrd/aetc/group
+# passwd
+	echo "root::0:0:root:/root:/abin/sh" > tmp/initrd/aetc/passwd
+	echo "daemon:x:1:1:daemon:/usr/sbin:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "bin:x:2:2:bin:/abin:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "sys:x:3:3:sys:/dev:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "sync:x:4:100:sync:/abin:/abin/sync" >> tmp/initrd/aetc/passwd
+	echo "mail:x:8:8:mail:/var/spool/mail:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "www-data:x:33:33:www-data:/var/www:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "operator:x:37:37:Operator:/var:/abin/false" >> tmp/initrd/aetc/passwd
+	echo "nobody:x:65534:65534:nobody:/home:/abin/false" >> tmp/initrd/aetc/passwd
+# shadow
+	echo "root::19701::::::" > tmp/initrd/aetc/shadow
+	echo "daemon:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "bin:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "sys:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "sync:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "mail:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "www-data:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "operator:*:::::::" >> tmp/initrd/aetc/shadow
+	echo "nobody:*:::::::" >> tmp/initrd/aetc/shadow
+# hosts
+	echo "127.0.0.1 localhost `hostname`" > tmp/initrd/aetc/hosts
+#Initrd
+#	cd tmp/init/ins && find . -print | cpio -oH newc | gzip > ../Initrd
+#	cd tmp/init && mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d Initrd fat/uInitrd
+	cd tmp/initrd && find . -print | cpio -oH newc | gzip > ../Initrd
+	mkimage_old -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d tmp/Initrd tmp/uInitrd
+	rm -f  tmp/Initrd
+	rm -fr tmp/initrd
+	mkdir -p tmp/initrd_ins/usr/share/myboot/boot-fat
+	mv -f tmp/uInitrd tmp/initrd_ins/usr/share/myboot/boot-fat/
+	cd tmp/initrd_ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/initrd_ins
+tgt-rd: pkg3/boot-initrd.cpio.zst
+
+pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
+	mkdir -p tmp/fat/ins/usr/share/myboot
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=190
+	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
+	mkdir -p tmp/fat/mnt
+	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
+	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
+	umount tmp/fat/mnt
+	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
+	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/fat
+tgt-fat: pkg3/boot-fat.cpio.zst
+
+TGT_UBOOT=u-boot-rockchip.bin
+
+mmc:
+	mkdir -p tmp/init
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=201
+	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
+	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
+	parted -s tmp/init/mmc.img mklabel gpt
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 409599
+	cp -f tmp/init/mmc.img .
+
+
+#	mkdir -p tmp/init/tmp
+#	pv pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
+#	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
+#	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
+
+
+#	mv tmp/init/tmp/usr/share/myboot/issue tmp/init/ins/aetc/
+#	mv tmp/init/tmp/usr/share/myboot/boot-fat tmp/init/fat
+
+#	cp -far tmp/init/tmp/usr/share/myboot/* tmp/init/
+#	rm -fr tmp/init/tmp/usr/share
+#	rm -fr tmp/init/tmp/usr/include
+#	rm -fr tmp/init/tmp/usr/bin
+#	cd tmp/init/tmp/usr/lib && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../fat/modules.cpio.zst
+#	rm -fr tmp/init/tmp/usr
+
+
+#	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=201
+#	dd of=tmp/init/mmc.img if=tmp/init/u-boot-rockchip.bin seek=64 conv=notrunc
+#	dd of=tmp/init/mmc.img if=tmp/init/mmc-fat.bin seek=20480 conv=notrunc
+#	parted -s tmp/init/mmc.img mklabel gpt
+#	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 409599
+#	cp -f tmp/init/mmc.img $@
+#	rm -fr tmp/init
+#tgt-mmc: mmc.img
+
+
+#	mkdir -pv /boot
+#	mkdir -pv /home
+#	mkdir -pv /media
+#	mkdir -pv /mnt
+#	mkdir -pv /srv
+#	mkdir -pv /etc/opt
+#	mkdir -pv /etc/sysconfig
+#	mkdir -pv /lib/firmware
+## mkdir -pv /media/{floppy,cdrom}
+#	mkdir -pv /usr/local/bin
+#	mkdir -pv /usr/local/include
+#	mkdir -pv /usr/local/lib
+#	mkdir -pv /usr/local/sbin
+#	mkdir -pv /usr/local/src
+## mkdir -pv /usr/{,local/}share/{color,dict,doc,info,locale,man}
+#	mkdir -pv /usr/share/misc
+#	mkdir -pv /usr/share/terminfo
+#	mkdir -pv /usr/share/zoneinfo
+#	mkdir -pv /usr/local/share/misc
+#	mkdir -pv /usr/local/share/terminfo
+#	mkdir -pv /usr/local/share/zoneinfo
+## mkdir -pv /usr/{,local/}share/man/man{1..8}
+#	install -dv -m 0750 /root
+#	ln -sfv /proc/self/mounts /etc/mtab
+
+
+## bin
+#mkdir -p out/rd/abin
+#cp -f src/busybox/busybox out/rd/abin/
+#cd out/rd && ln -sf /abin/busybox init && cd -
 
 #pkg3/busybox.ready
 #mkdir -p src/busybox
@@ -5640,17 +6015,17 @@ tgt-busybox-static: pkg3/busybox.static.cpio.zst
 #cd src/busybox && make defconfig && cd -
 
 
-tgt-mmc:
-	rm -fr tmp/mmc
-	mkdir -p tmp/mmc/rd
-	mkdir -p tmp/mmc/fat
-	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-	pv pkg3/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-	mv -f  tmp/mmc/rd/usr/share/myboot/boot-fat/* tmp/mmc/fat/
-	rm -fr tmp/mmc/rd/usr/share/myboot/boot-fat
-	mv -f  tmp/mmc/rd/usr/share/myboot/* tmp/mmc/
-	rm -fr tmp/mmc/rd/usr/share/myboot
+#tgt-mmc:
+#	rm -fr tmp/mmc
+#	mkdir -p tmp/mmc/rd
+#	mkdir -p tmp/mmc/fat
+#	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+#	pv pkg3/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+#	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
+#	mv -f  tmp/mmc/rd/usr/share/myboot/boot-fat/* tmp/mmc/fat/
+#	rm -fr tmp/mmc/rd/usr/share/myboot/boot-fat
+#	mv -f  tmp/mmc/rd/usr/share/myboot/* tmp/mmc/
+#	rm -fr tmp/mmc/rd/usr/share/myboot
 #	cd tmp/mmc/rd/usr && ln -sf lib lib64
 #	cd tmp/mmc/rd && ln -sf usr/lib lib && ln -sf usr/lib64 lib64
 #	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
