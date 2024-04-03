@@ -167,6 +167,8 @@ endif
 BASE_OPT_FLAGS = $(RK3588_FLAGS) $(BASE_OPT_VALUE)
 OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS)"
 
+#TODAY_CODE=$(shell date +"%Y%m%d")
+
 LFS=$(shell pwd)/lfs
 LFS_TGT=aarch64-lfs-linux-gnu
 LFS_VER=10.0
@@ -234,6 +236,7 @@ LIBFFI_VER=3.3
 LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
 LIBTOOL_VER=2.4.6
+LIBUSB_VER=1.0.23
 M4_VER=1.4.18
 MAKE_VER=4.3
 MAN_DB_VER=2.9.3
@@ -280,8 +283,10 @@ TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
 UNZIP_VER0=60
 UNZIP_VER=6.0
+USB_UTILS_VER=012
 UTIL_LINUX_VER=2.36
 VIM_VER=8.2.1361
+WGET_VER=1.20.3
 WHICH_VER=2.21
 XML_PARSER_VER=2.46
 XZ_VER=5.2.5
@@ -354,6 +359,7 @@ PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
 PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
 PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
 PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
+PKG+=pkg/libusb-$(LIBUSB_VER).tar.bz2
 PKG+=pkg/m4-$(M4_VER).tar.xz
 PKG+=pkg/make-$(MAKE_VER).tar.gz
 PKG+=pkg/man-db-$(MAN_DB_VER).tar.xz
@@ -393,8 +399,10 @@ PKG+=pkg/tcl$(TCL_DOC_VER)-html.tar.gz
 PKG+=pkg/texinfo-$(TEXINFO_VER).tar.xz
 PKG+=pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz
 PKG+=pkg/unzip$(UNZIP_VER0).tar.gz
+PKG+=pkg/usbutils-$(USB_UTILS_VER).tar.xz
 PKG+=pkg/util-linux-$(UTIL_LINUX_VER).tar.xz
 PKG+=pkg/vim-$(VIM_VER).tar.gz
+PKG+=pkg/wget-$(WGET_VER).tar.gz
 PKG+=pkg/which-$(WHICH_VER).tar.gz
 PKG+=pkg/XML-Parser-$(XML_PARSER_VER).tar.gz
 PKG+=pkg/xz-$(XZ_VER).tar.xz
@@ -413,6 +421,7 @@ PKG+=pkg/orangepi5-uboot.src.cpio.zst
 PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
 PKG+=pkg/rkdeveloptool.src.cpio.zst
 PKG+=pkg/orangepi5-linux510.src.cpio.zst
+PKG+=pkg/usb.ids.cpio.zst
 
 pkg: $(PKG)
 # 20min at usual internet connection
@@ -541,6 +550,8 @@ pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/libpipeline/libpipeline-$(LIBPIPILINE_VER).tar.gz && touch $@
 pkg/libtool-$(LIBTOOL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/libtool/libtool-$(LIBTOOL_VER).tar.xz && touch $@
+pkg/libusb-$(LIBUSB_VER).tar.bz2: pkg/.gitignore
+	wget -P pkg https://github.com//libusb/libusb/releases/download/v$(LIBUSB_VER)/libusb-$(LIBUSB_VER).tar.bz2 && touch $@
 pkg/m4-$(M4_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/m4/m4-$(M4_VER).tar.xz && touch $@
 pkg/make-$(MAKE_VER).tar.gz: pkg/.gitignore
@@ -621,10 +632,14 @@ pkg/tzdata$(TIME_ZONE_DATA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.iana.org/time-zones/repository/releases/tzdata$(TIME_ZONE_DATA_VER).tar.gz && touch $@
 pkg/unzip$(UNZIP_VER0).tar.gz: pkg/.gitignore
 	wget -P pkg https://downloads.sourceforge.net/infozip/unzip$(UNZIP_VER0).tar.gz && touch $@
+pkg/usbutils-$(USB_UTILS_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://www.kernel.org/pub/linux/utils/usb/usbutils/usbutils-$(USB_UTILS_VER).tar.xz && touch $@
 pkg/util-linux-$(UTIL_LINUX_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/utils/util-linux/v$(UTIL_LINUX_VER)/util-linux-$(UTIL_LINUX_VER).tar.xz && touch $@
 pkg/vim-$(VIM_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://anduin.linuxfromscratch.org/LFS/vim-$(VIM_VER).tar.gz && touch $@
+pkg/wget-$(WGET_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/wget/wget-$(WGET_VER).tar.gz && touch $@
 pkg/which-$(WHICH_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/which/which-$(WHICH_VER).tar.gz && touch $@
 pkg/XML-Parser-$(XML_PARSER_VER).tar.gz: pkg/.gitignore
@@ -739,6 +754,14 @@ endif
 	mkdir -p pkg && mv -fv tmp/orangepi5-linux/orangepi5-linux510.src.cpio.zst pkg/
 	rm -fr tmp/orangepi5-linux
 	rm -fr tmp/tmp
+#USB.IDS
+pkg/usb.ids.cpio.zst:
+	rm -fr tmp/usb-ids
+	mkdir -p tmp/usb-ids/dl
+	mkdir -p tmp/usb-ids/pkg
+	cd tmp/usb-ids/dl && wget http://www.linux-usb.org/usb.ids && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cp -f tmp/usb-ids/$@ pkg/
+	rm -fr tmp/usb-ids
 # --- END OF DOWNLOAD SECTION -------------------------------------------------
 
 # MOST IMPORTANT(!) ENVIROMENT SETTINGS FOR HOST BUILD(!)
@@ -5451,9 +5474,89 @@ endif
 	rm -fr tmp/dtc
 tgt-dtc: pkg3/dtc-$(DTC_VER).cpio.zst
 
+# extra blfs :: Wget-1.20.3
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/wget.html
+# BUILD_TIME :: 1m 20s
+WGET_OPT3+= --prefix=/usr
+WGET_OPT3+= --sysconfdir=/etc
+WGET_OPT3+= --with-ssl=openssl
+WGET_OPT3+= --disable-nls
+WGET_OPT3+= $(OPT_FLAGS)
+pkg3/wget-$(WGET_VER).cpio.zst: pkg3/dtc-$(DTC_VER).cpio.zst
+	rm -fr tmp/wget
+	mkdir -p tmp/wget/bld
+	tar -xzf pkg/wget-$(WGET_VER).tar.gz -C tmp/wget
+	cd tmp/wget/bld && ../wget-$(WGET_VER)/configure $(WGET_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/wget/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/wget/ins/usr/bin/wget
+endif
+	cd tmp/wget/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/wget
+tgt-wget: pkg3/wget-$(WGET_VER).cpio.zst
+
+# extra blfs :: libusb-1.0.23
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libusb.html
+# BUILD_TIME :: 17s
+LIBUSB_OPT3+= --prefix=/usr
+LIBUSB_OPT3+= --disable-static
+LIBUSB_OPT3+= $(OPT_FLAGS)
+pkg3/libusb-$(LIBUSB_VER).cpio.zst: pkg3/wget-$(WGET_VER).cpio.zst
+	rm -fr tmp/libusb
+	mkdir -p tmp/libusb/bld
+	tar -xjf pkg/libusb-$(LIBUSB_VER).tar.bz2 -C tmp/libusb
+	sed -i "s/^PROJECT_LOGO/#&/" tmp/libusb/libusb-$(LIBUSB_VER)/doc/doxygen.cfg.in
+	cd tmp/libusb/bld && ../libusb-$(LIBUSB_VER)/configure $(LIBUSB_OPT3) && make -j1 V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/libusb/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libusb/ins/usr/lib/*.so*
+endif
+	cd tmp/libusb/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libusb
+tgt-libusb: pkg3/libusb-$(LIBUSB_VER).cpio.zst
+
+# extra blfs :: usbutils-012
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/usbutils.html
+# BUILD_TIME :: 37s
+pkg3/usbutils-$(USB_UTILS_VER).cpio.zst: pkg3/libusb-$(LIBUSB_VER).cpio.zst
+	rm -fr tmp/usbutils
+	mkdir -p tmp/usbutils
+	tar -xJf pkg/usbutils-$(USB_UTILS_VER).tar.xz -C tmp/usbutils
+	sed -i 's|-O2|$(BASE_OPT_FLAGS)|' tmp/usbutils/usbutils-$(USB_UTILS_VER)/autogen.sh
+	cd tmp/usbutils/usbutils-$(USB_UTILS_VER) && ./autogen.sh --prefix=/usr --datadir=/usr/share/hwdata && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/usbutils/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/usbutils/ins/usr/bin/* || true
+endif
+	install -dm755 tmp/usbutils/ins/usr/share/hwdata/
+	pv pkg/usb.ids.cpio.zst | zstd -d | cpio -iduH newc -D tmp/usbutils/ins/usr/share/hwdata/
+	cd tmp/usbutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/usbutils
+tgt-usb-utils: pkg3/usbutils-$(USB_UTILS_VER).cpio.zst
+
+# RKDEVELOPTOOL
+# BUILD_TIME :: 10s
+pkg3/rkdeveloptool.cpio.zst: pkg3/usbutils-$(USB_UTILS_VER).cpio.zst
+	rm -fr tmp/rkdeveloptool
+	mkdir -p tmp/rkdeveloptool/src
+	mkdir -p tmp/rkdeveloptool/bld
+	pv pkg/rkdeveloptool.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rkdeveloptool/src
+	cd tmp/rkdeveloptool/src && autoreconf -i
+	cd tmp/rkdeveloptool/bld && ../src/configure --prefix=/usr CXXFLAGS="$(BASE_OPT_FLAGS)" && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/rkdeveloptool/ins/usr/bin/*
+endif
+	cd tmp/rkdeveloptool/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/rkdeveloptool
+tgt-rkdeveloptool: pkg3/rkdeveloptool.cpio.zst
+
 # RK3588-BOOTSTRAP
 # BUILD_TIME :: 5s
-pkg3/rk3588-bootstrap.cpio.zst: pkg3/dtc-$(DTC_VER).cpio.zst
+pkg3/rk3588-bootstrap.cpio.zst: pkg3/rkdeveloptool.cpio.zst
 	rm -fr tmp/rk3588-bootstrap
 	mkdir -p tmp/rk3588-bootstrap/bins
 	pv pkg/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
@@ -5468,6 +5571,7 @@ pkg3/rk3588-bootstrap.cpio.zst: pkg3/dtc-$(DTC_VER).cpio.zst
 	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
 	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
 	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	mkdir -p /usr/share/myboot && cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin /usr/share/myboot/usb-loader.bin
 	rm -fr tmp/rk3588-bootstrap
 tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
 
@@ -5507,6 +5611,7 @@ pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	mkdir -p tmp/uboot/bins
 	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
 	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=0/" tmp/uboot/bld/.config
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
 	mkdir -p tmp/uboot/ins/usr/bin
 	cp -f tmp/uboot/bld/tools/dumpimage tmp/uboot/ins/usr/bin/
@@ -5529,141 +5634,67 @@ endif
 	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
 	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 #	pv $@ | zstd -d | cpio -iduH newc -D /
-	mkdir -p /usr/bin && cp -f tmp/uboot/ins/usr/bin/mkimage /usr/bin/mkimage_new
-	cd /usr/bin && ln -sf mkimage_new mkimage
+	mkdir -p /usr/bin && cp -f tmp/uboot/ins/usr/bin/mkimage /usr/bin/
 	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
 	rm -fr tmp/uboot
 tgt-uboot-new: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
 
 # UBOOT -- XUNLONG
 # BUILD_TIME :: 48s
-pkg3/uboot-xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
-	rm -fr tmp/uboot-xunlong
-	mkdir -p tmp/uboot-xunlong/src
-	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
-	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
-	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
-	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
-	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
-	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
-	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
-	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
-	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
-	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
-	mkdir -p tmp/uboot-xunlong/bins
-	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
-	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
-	mkdir -p tmp/uboot-xunlong/ins/usr/bin
-	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
-	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
-endif
-	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
-	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
-# final: 64=head 16384=tail, prep: 0=head 16320=tail
-	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/uboot-head.bin seek=0 conv=notrunc
-	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/bld/u-boot.itb seek=16320 conv=notrunc
-	mkdir -p tmp/uboot-xunlong/ins/usr/share/myboot
-	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
-	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	pv $@ | zstd -d | cpio -iduH newc -D /
-	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
-	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
-	rm -fr tmp/uboot-xunlong
-tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
-
-pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
-	rm -fr tmp/boot-scr
-	mkdir -p tmp/boot-scr/src
-	echo 'setenv load_addr "0x9000000"' > tmp/boot-scr/src/boot.cmd
-	echo 'setenv overlay_error "false"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv rootdev "/dev/mmcblk0p1"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv verbosity "1"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv console "both"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv bootlogo "false"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv rootfstype "ext4"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv docker_optimizations "on"' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv earlycon "off"' >> tmp/boot-scr/src/boot.cmd
-	echo 'echo "Boot script loaded from $${devtype} $${devnum}"' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test -e $${devtype} $${devnum} $${prefix}orangepiEnv.txt; then' >> tmp/boot-scr/src/boot.cmd
-	echo '	load $${devtype} $${devnum} $${load_addr} $${prefix}orangepiEnv.txt' >> tmp/boot-scr/src/boot.cmd
-	echo '	env import -t $${load_addr} $${filesize}' >> tmp/boot-scr/src/boot.cmd
-	echo 'fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${logo}" = "disabled"; then setenv logo "logo.nologo"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${console}" = "display" || test "$${console}" = "both"; then setenv consoleargs "console=tty1"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${console}" = "serial" || test "$${console}" = "both"; then setenv consoleargs "console=ttyFIQ0,1500000 $${consoleargs} myboot=$${devnum}"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${earlycon}" = "on"; then setenv consoleargs "earlycon $${consoleargs}"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${bootlogo}" = "true"; then' >> tmp/boot-scr/src/boot.cmd
-	echo '        setenv consoleargs "splash plymouth.ignore-serial-consoles $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
-	echo 'else' >> tmp/boot-scr/src/boot.cmd
-	echo '        setenv consoleargs "splash=verbose $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
-	echo 'fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${devtype}" = "mmc"; then part uuid mmc $${devnum}:1 partuuid; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv bootargs "root=$${rootdev} rootfstype=$${rootfstype} $${consoleargs} consoleblank=0 loglevel=$${verbosity} ubootpart=$${partuuid} $${extraargs} $${extraboardargs}"' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${docker_optimizations}" = "on"; then setenv bootargs "$${bootargs} cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'load $${devtype} $${devnum} $${ramdisk_addr_r} $${prefix}uInitrd' >> tmp/boot-scr/src/boot.cmd
-	echo 'load $${devtype} $${devnum} $${kernel_addr_r} $${prefix}Image' >> tmp/boot-scr/src/boot.cmd
-	echo 'load $${devtype} $${devnum} $${fdt_addr_r} $${prefix}dtb/$${fdtfile}' >> tmp/boot-scr/src/boot.cmd
-	echo 'fdt addr $${fdt_addr_r}' >> tmp/boot-scr/src/boot.cmd
-	echo 'fdt resize 65536' >> tmp/boot-scr/src/boot.cmd
-	echo 'for overlay_file in $${overlays}; do' >> tmp/boot-scr/src/boot.cmd
-	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}dtb/rockchip/overlay/$${overlay_prefix}-$${overlay_file}.dtbo; then' >> tmp/boot-scr/src/boot.cmd
-	echo '		echo "Applying kernel provided DT overlay $${overlay_prefix}-$${overlay_file}.dtbo"' >> tmp/boot-scr/src/boot.cmd
-	echo '		fdt apply $${load_addr} || setenv overlay_error "true"' >> tmp/boot-scr/src/boot.cmd
-	echo '	fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'done' >> tmp/boot-scr/src/boot.cmd
-	echo 'for overlay_file in $${user_overlays}; do' >> tmp/boot-scr/src/boot.cmd
-	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}overlay-user/$${overlay_file}.dtbo; then' >> tmp/boot-scr/src/boot.cmd
-	echo '		echo "Applying user provided DT overlay $${overlay_file}.dtbo"' >> tmp/boot-scr/src/boot.cmd
-	echo '		fdt apply $${load_addr} || setenv overlay_error "true"' >> tmp/boot-scr/src/boot.cmd
-	echo '	fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'done' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${overlay_error}" = "true"; then' >> tmp/boot-scr/src/boot.cmd
-	echo '	echo "Error applying DT overlays, restoring original DT"' >> tmp/boot-scr/src/boot.cmd
-	echo '	load $${devtype} $${devnum} $${fdt_addr_r} $${prefix}dtb/$${fdtfile}' >> tmp/boot-scr/src/boot.cmd
-	echo 'else' >> tmp/boot-scr/src/boot.cmd
-	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}dtb/rockchip/overlay/$${overlay_prefix}-fixup.scr; then' >> tmp/boot-scr/src/boot.cmd
-	echo '		echo "Applying kernel provided DT fixup script ($${overlay_prefix}-fixup.scr)"' >> tmp/boot-scr/src/boot.cmd
-	echo '		source $${load_addr}' >> tmp/boot-scr/src/boot.cmd
-	echo '	fi' >> tmp/boot-scr/src/boot.cmd
-	echo '	if test -e $${devtype} $${devnum} $${prefix}fixup.scr; then' >> tmp/boot-scr/src/boot.cmd
-	echo '		load $${devtype} $${devnum} $${load_addr} $${prefix}fixup.scr' >> tmp/boot-scr/src/boot.cmd
-	echo '		echo "Applying user provided fixup script (fixup.scr)"' >> tmp/boot-scr/src/boot.cmd
-	echo '		source $${load_addr}' >> tmp/boot-scr/src/boot.cmd
-	echo '	fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'booti $${kernel_addr_r} $${ramdisk_addr_r} $${fdt_addr_r}' >> tmp/boot-scr/src/boot.cmd
-	mkdir -p tmp/boot-scr/ins/usr/share/myboot/boot-fat
-	cp -f tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/
-	mkimage_new -C none -A arm -T script -d tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/boot.scr
-	echo 'verbosity=1' > tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	echo 'bootlogo=false' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	echo 'extraargs=cma=128M' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	echo 'overlay_prefix=rk3588' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	echo 'rootdev=UUID=0b9501f8-db3c-4b33-940a-7fce0931dc2c' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	echo 'fdtfile=rockchip/rk3588-orangepi-5-plus.dtb' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	cd tmp/boot-scr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/boot-scr
-tgt-boot-scr: pkg3/boot-scr.cpio.zst
+#pkg3/uboot-xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
+#	rm -fr tmp/uboot-xunlong
+#	mkdir -p tmp/uboot-xunlong/src
+#	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+#	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
+#	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
+#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
+#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
+#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
+#	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
+#	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
+#	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
+#	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+#	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+#	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
+#	mkdir -p tmp/uboot-xunlong/bins
+#	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
+#	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
+#	mkdir -p tmp/uboot-xunlong/ins/usr/bin
+#	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
+#endif
+#	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
+#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
+## final: 64=head 16384=tail, prep: 0=head 16320=tail
+#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/uboot-head.bin seek=0 conv=notrunc
+#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/bld/u-boot.itb seek=16320 conv=notrunc
+#	mkdir -p tmp/uboot-xunlong/ins/usr/share/myboot
+#	cp -f tmp/uboot-xunlong/uboot-head.bin tmp/uboot-xunlong/ins/usr/share/myboot/
+#	cp -f tmp/uboot-xunlong/bld/u-boot.itb tmp/uboot-xunlong/ins/usr/share/myboot/
+#	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
+#	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+##	pv $@ | zstd -d | cpio -iduH newc -D /
+#	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
+#	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
+#	rm -fr tmp/uboot-xunlong
+#tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
 
 # Linux Out-Of-Src-Tree-BUILD :: Original from Orangepi :: Linux 5.10.110
 # BUILD_TIME :: 48m
-pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/boot-scr.cpio.zst
+pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
 	rm -fr tmp/opi5-linux
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
@@ -5748,8 +5779,94 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/opi5-linux
 tgt-linux-kernel: pkg3/kernel.5.10.110.xunlong.cpio.zst
 
+pkg3/kernel-modules.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+	rm -fr tmp/kernel
+	mkdir -p tmp/kernel
+	pv $< | zstd -d | cpio -iduH newc -D tmp/kernel
+	rm -fr tmp/kernel/usr/include
+	rm -fr tmp/kernel/usr/share
+	cd tmp/kernel && find . -print0 | cpio -o0H newc | zstd -z4T9 > ../../$@
+tgt-modules: pkg3/kernel-modules.cpio.zst
+
+pkg3/boot-scr.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+	rm -fr tmp/boot-scr
+	mkdir -p tmp/boot-scr/src
+	echo 'setenv load_addr "0x9000000"' > tmp/boot-scr/src/boot.cmd
+	echo 'setenv overlay_error "false"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv rootdev "/dev/mmcblk0p1"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv verbosity "1"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv console "both"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv bootlogo "false"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv rootfstype "ext4"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv docker_optimizations "on"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv earlycon "off"' >> tmp/boot-scr/src/boot.cmd
+	echo 'echo "Boot script loaded from $${devtype} $${devnum}"' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test -e $${devtype} $${devnum} $${prefix}orangepiEnv.txt; then' >> tmp/boot-scr/src/boot.cmd
+	echo '	load $${devtype} $${devnum} $${load_addr} $${prefix}orangepiEnv.txt' >> tmp/boot-scr/src/boot.cmd
+	echo '	env import -t $${load_addr} $${filesize}' >> tmp/boot-scr/src/boot.cmd
+	echo 'fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${logo}" = "disabled"; then setenv logo "logo.nologo"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${console}" = "display" || test "$${console}" = "both"; then setenv consoleargs "console=tty1"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${console}" = "serial" || test "$${console}" = "both"; then setenv consoleargs "console=ttyFIQ0,1500000 $${consoleargs} myboot=$${devnum}"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${earlycon}" = "on"; then setenv consoleargs "earlycon $${consoleargs}"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${bootlogo}" = "true"; then' >> tmp/boot-scr/src/boot.cmd
+	echo '        setenv consoleargs "splash plymouth.ignore-serial-consoles $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
+	echo 'else' >> tmp/boot-scr/src/boot.cmd
+	echo '        setenv consoleargs "splash=verbose $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
+	echo 'fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${devtype}" = "mmc"; then part uuid mmc $${devnum}:1 partuuid; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv bootargs "root=$${rootdev} rootfstype=$${rootfstype} $${consoleargs} consoleblank=0 loglevel=$${verbosity} ubootpart=$${partuuid} $${extraargs} $${extraboardargs}"' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${docker_optimizations}" = "on"; then setenv bootargs "$${bootargs} cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'load $${devtype} $${devnum} $${ramdisk_addr_r} $${prefix}uInitrd' >> tmp/boot-scr/src/boot.cmd
+	echo 'load $${devtype} $${devnum} $${kernel_addr_r} $${prefix}Image' >> tmp/boot-scr/src/boot.cmd
+	echo 'load $${devtype} $${devnum} $${fdt_addr_r} $${prefix}dtb/$${fdtfile}' >> tmp/boot-scr/src/boot.cmd
+	echo 'fdt addr $${fdt_addr_r}' >> tmp/boot-scr/src/boot.cmd
+	echo 'fdt resize 65536' >> tmp/boot-scr/src/boot.cmd
+	echo 'for overlay_file in $${overlays}; do' >> tmp/boot-scr/src/boot.cmd
+	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}dtb/rockchip/overlay/$${overlay_prefix}-$${overlay_file}.dtbo; then' >> tmp/boot-scr/src/boot.cmd
+	echo '		echo "Applying kernel provided DT overlay $${overlay_prefix}-$${overlay_file}.dtbo"' >> tmp/boot-scr/src/boot.cmd
+	echo '		fdt apply $${load_addr} || setenv overlay_error "true"' >> tmp/boot-scr/src/boot.cmd
+	echo '	fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'done' >> tmp/boot-scr/src/boot.cmd
+	echo 'for overlay_file in $${user_overlays}; do' >> tmp/boot-scr/src/boot.cmd
+	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}overlay-user/$${overlay_file}.dtbo; then' >> tmp/boot-scr/src/boot.cmd
+	echo '		echo "Applying user provided DT overlay $${overlay_file}.dtbo"' >> tmp/boot-scr/src/boot.cmd
+	echo '		fdt apply $${load_addr} || setenv overlay_error "true"' >> tmp/boot-scr/src/boot.cmd
+	echo '	fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'done' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${overlay_error}" = "true"; then' >> tmp/boot-scr/src/boot.cmd
+	echo '	echo "Error applying DT overlays, restoring original DT"' >> tmp/boot-scr/src/boot.cmd
+	echo '	load $${devtype} $${devnum} $${fdt_addr_r} $${prefix}dtb/$${fdtfile}' >> tmp/boot-scr/src/boot.cmd
+	echo 'else' >> tmp/boot-scr/src/boot.cmd
+	echo '	if load $${devtype} $${devnum} $${load_addr} $${prefix}dtb/rockchip/overlay/$${overlay_prefix}-fixup.scr; then' >> tmp/boot-scr/src/boot.cmd
+	echo '		echo "Applying kernel provided DT fixup script ($${overlay_prefix}-fixup.scr)"' >> tmp/boot-scr/src/boot.cmd
+	echo '		source $${load_addr}' >> tmp/boot-scr/src/boot.cmd
+	echo '	fi' >> tmp/boot-scr/src/boot.cmd
+	echo '	if test -e $${devtype} $${devnum} $${prefix}fixup.scr; then' >> tmp/boot-scr/src/boot.cmd
+	echo '		load $${devtype} $${devnum} $${load_addr} $${prefix}fixup.scr' >> tmp/boot-scr/src/boot.cmd
+	echo '		echo "Applying user provided fixup script (fixup.scr)"' >> tmp/boot-scr/src/boot.cmd
+	echo '		source $${load_addr}' >> tmp/boot-scr/src/boot.cmd
+	echo '	fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'booti $${kernel_addr_r} $${ramdisk_addr_r} $${fdt_addr_r}' >> tmp/boot-scr/src/boot.cmd
+	mkdir -p tmp/boot-scr/ins/usr/share/myboot/boot-fat
+	cp -f tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/
+	mkimage -C none -A arm -T script -d tmp/boot-scr/src/boot.cmd tmp/boot-scr/ins/usr/share/myboot/boot-fat/boot.scr
+	echo 'verbosity=1' > tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'bootlogo=false' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'extraargs=cma=128M' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'overlay_prefix=rk3588' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'rootdev=UUID=0b9501f8-db3c-4b33-940a-7fce0931dc2c' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'fdtfile=rockchip/rk3588-orangepi-5-plus.dtb' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	echo 'overlays=can0-m0 can1-m0' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
+	cd tmp/boot-scr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/boot-scr
+tgt-boot-scr: pkg3/boot-scr.cpio.zst
+
+
 # BUILD_TIME :: 54s
-pkg3/busybox.static.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/busybox
 	mkdir -p tmp/busybox/src
 	mkdir -p tmp/busybox/bld
@@ -5763,7 +5880,7 @@ pkg3/busybox.static.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
 	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
 	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
 	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
-	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
+#	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
 	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
 #	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS) CONFIG_PREFIX=../ins install
 	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
@@ -5782,19 +5899,412 @@ pkg3/busybox.static.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
 	cd tmp/busybox/ins && ln -sfv abin/busybox init
 	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/busybox
-tgt-busybox-static: pkg3/busybox.static.cpio.zst
+tgt-busybox: pkg3/busybox.cpio.zst
 
-pkg3/boot-initrd.cpio.zst: pkg3/busybox.static.cpio.zst
+pkg3/ldd.cpio.zst: pkg3/busybox.cpio.zst
+	rm -fr tmp/ldd
+	mkdir -p tmp/ldd
+	echo '#!/bin/sh' > tmp/ldd/ldd
+	echo 'for file in "$$@"; do' >> tmp/ldd/ldd
+	echo '  case $$file in' >> tmp/ldd/ldd
+	echo '  --version) echo $$(/lib/libc.so.6|awk "NF>1{print $$NF; exit }")' >> tmp/ldd/ldd
+	echo '	break' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  */*) true' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  *) file=./$$file' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  esac' >> tmp/ldd/ldd
+	echo 'echo EXAMINE ::: $$file' >> tmp/ldd/ldd
+	echo 'LD_TRACE_LOADED_OBJECTS=1 /lib/ld-linux* "$$file"' >> tmp/ldd/ldd
+	echo 'done' >> tmp/ldd/ldd
+	chmod ugo+x tmp/ldd/ldd
+	cd tmp/ldd && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	rm -fr tmp/ldd
+tgt-ldd: pkg3/ldd.cpio.zst
+
+# libacl.so
+# libacl.so.1
+# libacl.so.1.1.2253
+# libanl-2.32.so
+# libanl.so
+# libanl.so.1
+# libarchive.so
+# libarchive.so.13
+# libarchive.so.13.4.3
+# libasan.so
+# libasan.so.6
+# libasan.so.6.0.0
+# libasm-0.180.so
+# libasm.so
+# libasm.so.1
+# libasprintf.so
+# libasprintf.so.0
+# libasprintf.so.0.0.0
+# libatomic.so
+# libatomic.so.1
+# libatomic.so.1.2.0
+# libattr.so
+# libattr.so.1
+# libattr.so.1.1.2448
+# libbfd-2.35.so
+# libbfd.so
+# libblkid.so
+# libblkid.so.1
+# libblkid.so.1.1.0
+# libBrokenLocale-2.32.so
+# libBrokenLocale.so
+# libBrokenLocale.so.1
+# libbz2.so
+# libbz2.so.1.0
+# libbz2.so.1.0.8
+# libcap.so
+# libcap.so.2
+# libcap.so.2.42
+# libcc1.so
+# libcc1.so.0
+# libcc1.so.0.0.0
+# libcheck.so
+# libcheck.so.0
+# libcheck.so.0.0.0
+# libcom_err.so
+# libcom_err.so.2
+# libcom_err.so.2.1
+# libcrack.so
+# libcrack.so.2
+# libcrack.so.2.9.0
+# libcrypt-2.32.so
+# libcrypto.so
+# libcrypto.so.1.1
+# libcrypt.so
+# libcrypt.so.1
+# libctf-nobfd.so
+# libctf-nobfd.so.0
+# libctf-nobfd.so.0.0.0
+# libctf.so
+# libctf.so.0
+# libctf.so.0.0.0
+# libdb-5.3.so
+# libdb-5.so
+# libdb_cxx-5.3.so
+# libdb_cxx-5.so
+# libdb_cxx.so
+# libdb.so
+# libdb_tcl-5.3.so
+# libdb_tcl-5.so
+# libdb_tcl.so
+# libdbus-1.so
+# libdbus-1.so.3
+# libdbus-1.so.3.19.13
+# libdw-0.180.so
+# libdw.so
+# libdw.so.1
+# libe2p.so
+# libe2p.so.2
+# libe2p.so.2.3
+# libelf-0.180.so
+# libelf.so
+# libelf.so.1
+# libexpat.so
+# libexpat.so.1
+# libexpat.so.1.9.2
+# libexpect5.45.4.so
+# libext2fs.so
+# libext2fs.so.2
+# libext2fs.so.2.4
+# libfdisk.so
+# libfdisk.so.1
+# libfdisk.so.1.1.0
+# libfdt.so
+# libfdt.so.1
+# libfdt.so.1.6.0
+# libffi.so
+# libffi.so.7
+# libffi.so.7.1.0
+# libfl.so
+# libfl.so.2
+# libfl.so.2.0.0
+# libform.so
+# libformw.so
+# libformw.so.6
+# libformw.so.6.2
+# libgcc_s.so
+# libgcc_s.so.1
+# libgdbm_compat.so
+# libgdbm_compat.so.4
+# libgdbm_compat.so.4.0.0
+# libgdbm.so
+# libgdbm.so.6
+# libgdbm.so.6.0.0
+# libgettextlib-0.21.so
+# libgettextlib.so
+# libgettextpo.so
+# libgettextpo.so.0
+# libgettextpo.so.0.5.7
+# libgettextsrc-0.21.so
+# libgettextsrc.so
+# libgmp.so
+# libgmp.so.10
+# libgmp.so.10.4.0
+# libgmpxx.so
+# libgmpxx.so.4
+# libgmpxx.so.4.6.0
+# libgomp.so
+# libgomp.so.1
+# libgomp.so.1.0.0
+# libisl.so
+# libisl.so.23
+# libisl.so.23.0.0
+# libisl.so.23.0.0-gdb.py
+# libitm.so
+# libitm.so.1
+# libitm.so.1.0.0
+# libkmod.so
+# libkmod.so.2
+# libkmod.so.2.3.5
+# liblsan.so
+# liblsan.so.0
+# liblsan.so.0.0.0
+# libltdl.so
+# libltdl.so.7
+# libltdl.so.7.3.1
+# libmagic.so
+# libmagic.so.1
+# libmagic.so.1.0.0
+# libmemusage.so
+# libmenu.so
+# libmenuw.so
+# libmenuw.so.6
+# libmenuw.so.6.2
+# libmnl.so
+# libmnl.so.0
+# libmnl.so.0.2.0
+# libmount.so
+# libmount.so.1
+# libmount.so.1.1.0
+# libmpc.so
+# libmpc.so.3
+# libmpc.so.3.1.0
+# libmpfr.so
+# libmpfr.so.6
+# libmpfr.so.6.1.0
+# libnsl-2.32.so
+# libnsl.so.1
+# libnss_compat-2.32.so
+# libnss_compat.so
+# libnss_compat.so.2
+# libnss_db-2.32.so
+# libnss_db.so
+# libnss_db.so.2
+# libnss_dns-2.32.so
+# libnss_dns.so
+# libnss_dns.so.2
+# libnss_files-2.32.so
+# libnss_files.so
+# libnss_files.so.2
+# libnss_hesiod-2.32.so
+# libnss_hesiod.so
+# libnss_hesiod.so.2
+# libnss_myhostname.so.2
+# libnss_mymachines.so.2
+# libnss_resolve.so.2
+# libnss_systemd.so.2
+# libopcodes-2.35.so
+# libopcodes.so
+# libpanel.so
+# libpanelw.so
+# libpanelw.so.6
+# libpanelw.so.6.2
+# libparted-fs-resize.so
+# libparted-fs-resize.so.0
+# libparted-fs-resize.so.0.0.2
+# libparted.so
+# libparted.so.2
+# libparted.so.2.0.2
+# libpcprofile.so
+# libpcre16.so
+# libpcre16.so.0
+# libpcre16.so.0.2.12
+# libpcre32.so
+# libpcre32.so.0
+# libpcre32.so.0.0.12
+# libpcrecpp.so
+# libpcrecpp.so.0
+# libpcrecpp.so.0.0.2
+# libpcreposix.so
+# libpcreposix.so.0
+# libpcreposix.so.0.0.7
+# libpcre.so
+# libpcre.so.1
+# libpcre.so.1.2.12
+# libpipeline.so
+# libpipeline.so.1
+# libpipeline.so.1.5.3
+# libpopt.so
+# libpopt.so.0
+# libpopt.so.0.0.1
+# libprocps.so
+# libprocps.so.8
+# libprocps.so.8.0.2
+# libpython3.8.so
+# libpython3.8.so.1.0
+# libpython3.so
+# librt-2.32.so
+# librt.so
+# librt.so.1
+# libSegFault.so
+# libsmartcols.so
+# libsmartcols.so.1
+# libsmartcols.so.1.1.0
+# libssl.so
+# libssl.so.1.1
+# libssp.so
+# libssp.so.0
+# libssp.so.0.0.0
+# libss.so
+# libss.so.2
+# libss.so.2.0
+# libstdc++.so
+# libstdc++.so.6
+# libstdc++.so.6.0.28
+# libstdc++.so.6.0.28-gdb.py
+# libsystemd.so
+# libsystemd.so.0
+# libsystemd.so.0.29.0
+# libtcl8.6.so
+# libtextstyle.so
+# libtextstyle.so.0
+# libtextstyle.so.0.1.1
+# libthread_db-1.0.so
+# libthread_db.so
+# libthread_db.so.1
+# * [LNK] libtinfow.so
+# * [LNK] libtinfow.so.6
+# * [LNK] libtinfow.so.6.2
+# libticw.so
+# libticw.so.6
+# libticw.so.6.2
+# libtsan.so
+# libtsan.so.0
+# libtsan.so.0.0.0
+# libubsan.so
+# libubsan.so.1
+# libubsan.so.1.0.0
+# libudev.so
+# libudev.so.1
+# libudev.so.1.6.18
+# libuuid.so
+# libuuid.so.1
+# libuuid.so.1.3.0
+# libzstd.so
+# libzstd.so.1
+# libzstd.so.1.4.5
+# preloadable_libintl.so
+
+# === GLIBC
+# *** [LIB] ld-2.32.so ::: The helper program for shared library executables
+# *** [LNK] ld-linux-aarch64.so.1
+# *** [LIB] libc-2.32.so ::: The main C library
+# *** [SCR] libc.so
+# *** [LNK] libc.so.6
+# *** [LIB] libdl-2.32.so ::: The dynamic linking interface library
+# *** [LNK] libdl.so
+# *** [LNK] libdl.so.2
+# *** [LIB] libm-2.32.so ::: The mathematical library
+# *** [LNK] libm.so
+# *** [LNK] libm.so.6
+# *** [LIB] libresolv-2.32.so ::: Contains functions for creating, sending, and interpreting packets to the Internet domain name servers
+# *** [LNK] libresolv.so
+# *** [LNK] libresolv.so.2
+# *** [LIB] libpthread-2.32.so ::: The POSIX threads library
+# *** [LIB] libpthread.so
+# *** [LIB] libpthread.so.0
+
+# libBrokenLocale ::: Used internally by Glibc as a gross hack to get broken programs (e.g., some Motif applications) running. See comments in glibc-2.32/locale/broken_cur_max.c for more information
+# libSegFault ::: The segmentation fault signal handler, used by catchsegv
+# libanl ::: An asynchronous name lookup library
+# libcrypt ::: The cryptography library
+# libg ::: Dummy library containing no functions. Previously was a runtime library for g++
+# libmcheck ::: Turns on memory allocation checking when linked to
+# libmemusage ::: Used by memusage to help collect information about the memory usage of a program
+# libnsl ::: The network services library
+# libnss ::: The Name Service Switch libraries, containing functions for resolving host names, user names, group names, aliases, services, protocols, etc.
+# libpcprofile ::: Can be preloaded to PC profile an executable
+# librt ::: Contains functions providing most of the interfaces specified by the POSIX.1b Realtime Extension
+# libthread_db ::: Contains functions useful for building debuggers for multi-threaded programs
+# [LIB] libutil-2.32.so ::: Contains code for “standard” functions used in many different Unix utilities
+# [LNK] libutil.so
+# [LNK] libutil.so.1
+
+# === NCURSES
+# *** [LNK] libcurses.so
+# *** [SCR] libcursesw.so
+# *** [SCR] libncurses.so
+# *** [LNK] libncursesw.so
+# *** [LNK] libncursesw.so.6
+# *** [LIB] libncursesw.so.6.2 ::: Contains functions to display text in many complex ways on a terminal screen; a good example of the use of these functions is the menu displayed during the kernel's make menuconfig
+# libformw ::: Contains functions to implement forms
+# libmenuw ::: Contains functions to implement menus
+# libpanelw ::: Contains functions to implement panels
+
+# *** [LNK] libhistory.so
+# *** [LNK] libhistory.so.8
+# *** [LIB] libhistory.so.8.0
+
+# *** [LNK] libreadline.so
+# *** [LNK] libreadline.so.8
+# *** [LIB] libreadline.so.8.0
+
+# *** [LNK] libz.so
+# *** [LNK] libz.so.1
+# *** [LIB] libz.so.1.3.1
+# *** [LNK] liblzma.so
+# *** [LNK] liblzma.so.5
+# *** [LNK] liblzma.so.5.2.5
+
+
+pkg3/boot-initrd.cpio.zst: pkg3/ldd.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
-	pv $< | zstd -d | cpio -iduH newc -D tmp/initrd
+	pv pkg3/busybox.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 	mkdir -p tmp/initrd/dev/pts
-	mknod -m 600 tmp/initrd/dev/console c 5 1 || true
-	mknod -m 666 tmp/initrd/dev/null c 1 3 || true
-	mkdir -p tmp/initrd/proc
-	mkdir -p tmp/initrd/sys
-	mkdir -p tmp/initrd/run
+	mknod -m 600  tmp/initrd/dev/console c 5 1 || true
+	mknod -m 666  tmp/initrd/dev/null c 1 3 || true
+	mkdir -p      tmp/initrd/proc
+	mkdir -p      tmp/initrd/sys
+	mkdir -p      tmp/initrd/usr/lib/modules
+# ---
+	mkdir -p      tmp/initrd/lib
+	cd tmp/initrd/lib && ln -sf ../usr/lib/modules modules
+	cp -far /usr/lib/ld-*     tmp/initrd/lib/
+	cp -far /usr/lib/libc-*   tmp/initrd/lib/
+	cp -far /usr/lib/libc.so* tmp/initrd/lib/
+	cp -far /usr/lib/libdl*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libm-*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libm.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libresolv-*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libresolv.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libreadlin*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libhistor*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libcurs*.so*  tmp/initrd/lib/
+	cp -far /usr/lib/libncurs*.so* tmp/initrd/lib/
+	cp -far /usr/lib/libz.so* tmp/initrd/lib/
+	cp -far /usr/lib/liblzma.so* tmp/initrd/lib/
+	cp -far /usr/lib/libpthread-*   tmp/initrd/lib/
+	cp -far /usr/lib/libpthread.so* tmp/initrd/lib/
+	mkdir -p      tmp/initrd/boot
+	mkdir -p      tmp/initrd/bin
+# ---
+	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/bin
+	cp -f /usr/bin/bash tmp/initrd/bin/
+	cd tmp/initrd/bin && ln -sf bash sh
+	cp -f /usr/bin/make tmp/initrd/bin/
+	cp -f /usr/bin/cpio tmp/initrd/bin/
+	cp -f /usr/bin/zstd tmp/initrd/bin/
+	cp -f /usr/bin/pv tmp/initrd/bin/
+# ===
+	mkdir -p      tmp/initrd/run
 	mkdir -p      tmp/initrd/var/cache
 #	mkdir -p      tmp/initrd/var/lib/arpd
 	mkdir -p      tmp/initrd/var/lib/color
@@ -5822,26 +6332,33 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.static.cpio.zst
 	install -d -m 1777 tmp/initrd/tmp
 	install -d -m 1777 tmp/initrd/var/tmp
 #	chown -R root:root tmp/initrd/*
+	mkdir -p tmp/initrd/aetc/rc.d
 # rcS
-	mkdir -p tmp/initrd/aetc/init.d
-	echo '#!/abin/sh' > tmp/initrd/aetc/init.d/rcS
-	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/init.d/rcS
-	echo '  case $$x in' >> tmp/initrd/aetc/init.d/rcS
-	echo '  myboot=*)' >> tmp/initrd/aetc/init.d/rcS
-	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/init.d/rcS
-	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/init.d/rcS
-	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/init.d/rcS
-	echo '    ;;' >> tmp/initrd/aetc/init.d/rcS
-	echo '  esac' >> tmp/initrd/aetc/init.d/rcS
-	echo 'done' >> tmp/initrd/aetc/init.d/rcS
-	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/init.d/rcS
-	echo 'then' >> tmp/initrd/aetc/init.d/rcS
-	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/init.d/rcS
-	echo 'else' >> tmp/initrd/aetc/init.d/rcS
-	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/init.d/rcS
-	echo 'fi' >> tmp/initrd/aetc/init.d/rcS
-	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/init.d/rcS
-	chmod ugo+x tmp/initrd/aetc/init.d/rcS
+	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rcS
+	echo '/abin/busybox mount /dev/mmcblk1p1 /boot && /bin/pv /boot/zst/kernel-modules.cpio.zst | /bin/zstd -d | /bin/cpio -idumH newc -D /' >> tmp/initrd/aetc/rc.d/rcS
+#	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/rc.d/rcS
+#	echo '  case $$x in' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '  myboot=*)' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '    ;;' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '  esac' >> tmp/initrd/aetc/rc.d/rcS
+#	echo 'done' >> tmp/initrd/aetc/init.d/rcS
+#	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/rc.d/rcS
+#	echo 'then' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/rc.d/rcS
+#	echo 'else' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/rc.d/rcS
+#	echo 'fi' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/rc.d/rcS
+	chmod ugo+x tmp/initrd/aetc/rc.d/rcS
+# rc0
+	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rc0
+	echo '/abin/busybox echo ""' >> tmp/initrd/aetc/rc.d/rc0
+	echo '/abin/busybox echo "Closing System!"' >> tmp/initrd/aetc/rc.d/rc0
+	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/aetc/rc.d/rc0
+	chmod ugo+x tmp/initrd/aetc/rc.d/rc0
 # inittab
 #	echo "::sysinit:/abin/busybox mkdir /sys" > tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/aetc/inittab
@@ -5850,18 +6367,20 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.static.cpio.zst
 	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/aetc/init.d/rcS" >> tmp/initrd/aetc/inittab
-	echo "::respawn:-/abin/sh" >> tmp/initrd/aetc/inittab
+	echo "::sysinit:/aetc/rc.d/rcS" >> tmp/initrd/aetc/inittab
+	echo "::respawn:-/abin/busybox sh -l" >> tmp/initrd/aetc/inittab
 	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/aetc/inittab
 	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/aetc/inittab
+	echo "::shutdown:/aetc/rc.d/rc0" >> tmp/initrd/aetc/inittab
 # issue
 	echo 'Opi5+' >> tmp/initrd/aetc/issue
 # profile
 	echo 'export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/abin"' > tmp/initrd/aetc/profile
 	echo '/abin/busybox cat /aetc/issue' >> tmp/initrd/aetc/profile
 # shells
-	echo "/abin/ash" > tmp/initrd/aetc/shells
+	echo "/bin/bash" > tmp/initrd/aetc/shells
 	echo "/abin/sh" >> tmp/initrd/aetc/shells
+	echo "/abin/ash" >> tmp/initrd/aetc/shells
 # group
 	echo "root:x:0:" > tmp/initrd/aetc/group
 	echo "daemon:x:1:" >> tmp/initrd/aetc/group
@@ -5915,9 +6434,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.static.cpio.zst
 #	cd tmp/init/ins && find . -print | cpio -oH newc | gzip > ../Initrd
 #	cd tmp/init && mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d Initrd fat/uInitrd
 	cd tmp/initrd && find . -print | cpio -oH newc | gzip > ../Initrd
-	mkimage_old -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d tmp/Initrd tmp/uInitrd
+	mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d tmp/Initrd tmp/uInitrd
 	rm -f  tmp/Initrd
-	rm -fr tmp/initrd
+#	rm -fr tmp/initrd
 	mkdir -p tmp/initrd_ins/usr/share/myboot/boot-fat
 	mv -f tmp/uInitrd tmp/initrd_ins/usr/share/myboot/boot-fat/
 	cd tmp/initrd_ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
@@ -5932,6 +6451,8 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
+	mkdir -p tmp/fat/mnt/zst
+	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
 	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
@@ -5940,8 +6461,9 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 tgt-fat: pkg3/boot-fat.cpio.zst
 
 TGT_UBOOT=u-boot-rockchip.bin
+#TGT_UBOOT=u-boot-xunlong.bin
 
-mmc:
+mmc.img: pkg3/boot-fat.cpio.zst
 	mkdir -p tmp/init
 	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=201
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
@@ -5949,7 +6471,13 @@ mmc:
 	parted -s tmp/init/mmc.img mklabel gpt
 	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 409599
 	cp -f tmp/init/mmc.img .
+	rm -fr tmp/init
+mmc: mmc.img
 
+flash:
+	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
+	@read line
+	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 0 mmc.img && rkdeveloptool rd 0
 
 #	mkdir -p tmp/init/tmp
 #	pv pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
