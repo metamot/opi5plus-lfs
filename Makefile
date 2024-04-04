@@ -267,6 +267,7 @@ PYTHON_VER=3.8.5
 PYTHON_DOC_VER=$(PYTHON_VER)
 PYTHON_VER0=3.8
 PYTHON_VER00=3
+PYTHON2_VER=2.7.18
 RE2C_VER=3.1
 READLINE_VER=8.0
 RSYNC_VER=3.2.3
@@ -385,6 +386,7 @@ PKG+=pkg/pv-$(PV_VER).tar.gz
 PKG+=pkg/pyelftools-$(PYELFTOOLS_VER).zip
 PKG+=pkg/Python-$(PYTHON_VER).tar.xz
 PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
+PKG+=pkg/Python-$(PYTHON2_VER).tar.xz
 PKG+=pkg/re2c-$(RE2C_VER).tar.gz
 PKG+=pkg/readline-$(READLINE_VER).tar.gz
 PKG+=pkg/rsync-$(RSYNC_VER).tar.gz
@@ -604,6 +606,8 @@ pkg/Python-$(PYTHON_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.python.org/ftp/python/$(PYTHON_VER)/Python-$(PYTHON_VER).tar.xz && touch $@
 pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2: pkg/.gitignore
 	wget -P pkg https://www.python.org/ftp/python/doc/$(PYTHON_DOC_VER)/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2 && touch $@
+pkg/Python-$(PYTHON2_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://www.python.org/ftp/python/$(PYTHON2_VER)/Python-$(PYTHON2_VER).tar.xz && touch $@
 pkg/re2c-$(RE2C_VER).tar.gz: pkg/.gitignore
 	wget -O pkg/re2c-$(RE2C_VER).tar.gz https://github.com/skvadrik/re2c/archive/refs/tags/$(RE2C_VER).tar.gz && touch $@
 pkg/readline-$(READLINE_VER).tar.gz: pkg/.gitignore
@@ -1517,7 +1521,7 @@ lfs-chroot/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt-busybox' >> $@
+	echo 'make -C /opt/mysdk mmc.img' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
@@ -5754,8 +5758,7 @@ tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
 
 # UBOOT -- OFFICIAL
 # BUILD_TIME :: 56s
-#pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
-flash-uboot: pkg3/rk3588-bootstrap.cpio.zst
+pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	pv pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/uboot
 	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
@@ -5771,21 +5774,111 @@ flash-uboot: pkg3/rk3588-bootstrap.cpio.zst
 #	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=5/" tmp/uboot/bld/.config
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
-#
-	@echo "FLASH U-BOOT to EMMC"
-	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
-	@read line
-	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 64 tmp/uboot/bld/u-boot-rockchip.bin && rkdeveloptool rd
-#
 	mkdir -p tmp/uboot/ins/usr/share/myboot
 	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
 	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
 	rm -fr tmp/uboot
-tgt-uboot: pkg3/uboot-$(UBOOT_VER).cpio.zst
+tgt-uboot-new: pkg3/uboot-$(UBOOT_VER).cpio.zst
 
-pkg3/boot-scr.cpio.zst: pkg3/uboot-$(UBOOT_VER).cpio.zst
+flash-uboot-new: pkg3/rk3588-bootstrap.cpio.zst
+	@echo "FLASH Denx U-BOOT to EMMC"
+	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
+	@read line
+	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 64 /usr/share/myboot/u-boot-rockchip.bin && rkdeveloptool rd
+
+# blfs :: Python-2.7.18 (for xunlong u-boot)
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/python2.html
+# BUILD_TIME :: 2m 46s
+PYTHON2_OPT3+= --prefix=/usr
+PYTHON2_OPT3+= --enable-shared
+PYTHON2_OPT3+= --with-system-expat
+PYTHON2_OPT3+= --with-system-ffi
+PYTHON2_OPT3+= --with-ensurepip=yes
+PYTHON2_OPT3+= --enable-unicode=ucs4
+PYTHON2_OPT3+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
+#$(RK3588_FLAGS)
+#$(OPT_FLAGS)
+pkg3/python2-$(PYTHON2_VER).cpio.zst: pkg3/uboot-$(UBOOT_VER).cpio.zst
+	rm -fr tmp/python2
+	mkdir -p tmp/python2/bld
+	tar -xJf pkg/Python-$(PYTHON2_VER).tar.xz -C tmp/python2
+	sed -i 's|-O3|$(BASE_OPT_VALUE)|' tmp/python2/Python-$(PYTHON2_VER)/configure
+	cd tmp/python2/bld && ../Python-$(PYTHON2_VER)/configure $(PYTHON2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/python2/ins/usr/share
+	chmod -v 755 tmp/python2/ins/usr/lib/libpython2.7.so.1.0
+ifeq ($(BUILD_STRIP),y)
+	find tmp/python2/ins -type f -name "*.a" -exec strip --strip-debug {} +
+	cd tmp/python2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
+endif
+	cd tmp/python2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/python2
+tgt-python2: pkg3/python2-$(PYTHON2_VER).cpio.zst
+
+# UBOOT -- XUNLONG
+# BUILD_TIME :: 48s
+pkg3/uboot-xunlong.cpio.zst: pkg3/python2-$(PYTHON2_VER).cpio.zst
+	rm -fr tmp/uboot-xunlong
+	mkdir -p tmp/uboot-xunlong/src
+	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
+	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
+	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
+	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
+	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
+	mkdir -p tmp/uboot-xunlong/bins
+	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
+	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
+#	mkdir -p tmp/uboot-xunlong/ins/usr/bin
+#	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
+#	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
+#endif
+	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
+# final: 64=head 16384=tail, prepared: 0=head 16320=tail
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/uboot-head.bin seek=0 conv=notrunc
+	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/bld/u-boot.itb seek=16320 conv=notrunc
+	mkdir -p tmp/uboot-xunlong/ins/usr/share/myboot
+	cp -f tmp/uboot-xunlong/uboot-head.bin tmp/uboot-xunlong/ins/usr/share/myboot/
+	cp -f tmp/uboot-xunlong/bld/u-boot.itb tmp/uboot-xunlong/ins/usr/share/myboot/
+	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
+	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+#	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
+#	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
+	rm -fr tmp/uboot-xunlong
+tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
+
+flash-uboot-old: pkg3/uboot-xunlong.cpio.zst
+	@echo "FLASH Xunlong U-BOOT to EMMC"
+	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
+	@read line
+	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 64 /usr/share/myboot/u-boot-xunlong.bin && rkdeveloptool rd
+
+flash-uboot: flash-uboot-old
+
+pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	rm -fr tmp/boot-scr
 	mkdir -p tmp/boot-scr/src
 	echo 'setenv load_addr "0x9000000"' > tmp/boot-scr/src/boot.cmd
@@ -5879,7 +5972,6 @@ pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
 	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
 #	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
 	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
-#	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS) CONFIG_PREFIX=../ins install
 	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
 	mkdir -p tmp/busybox/ins/abin
 	cp tmp/busybox/bld/busybox tmp/busybox/ins/abin
@@ -5892,7 +5984,6 @@ pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
 	cd tmp/busybox/ins/abin && ./gen.sh
 	rm -f tmp/busybox/ins/abin/gen.sh
 	rm -fv tmp/busybox/ins/abin/linuxrc
-#	cd tmp/busybox/ins && ln -sfv abin/busybox linuxrc
 	cd tmp/busybox/ins && ln -sfv abin/busybox init
 	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	rm -fr tmp/busybox
@@ -6313,23 +6404,24 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.cpio.zst
 # rcS
 	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rcS
 #	echo '/abin/busybox mount /dev/mmcblk1p1 /boot && /bin/pv /boot/zst/kernel-modules.cpio.zst | /bin/zstd -d | /bin/cpio -idumH newc -D /' >> tmp/initrd/aetc/rc.d/rcS
-	echo '/abin/busybox mount /dev/mmcblk1p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
-#	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/rc.d/rcS
-#	echo '  case $$x in' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '  myboot=*)' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '    ;;' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '  esac' >> tmp/initrd/aetc/rc.d/rcS
-#	echo 'done' >> tmp/initrd/aetc/init.d/rcS
-#	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/rc.d/rcS
-#	echo 'then' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/rc.d/rcS
-#	echo 'else' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/rc.d/rcS
-#	echo 'fi' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '/abin/busybox mount /dev/mmcblk1p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/rc.d/rcS
+	echo '  case $$x in' >> tmp/initrd/aetc/rc.d/rcS
+	echo '  myboot=*)' >> tmp/initrd/aetc/rc.d/rcS
+	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/rc.d/rcS
+	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/rc.d/rcS
+	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/rc.d/rcS
+	echo '    ;;' >> tmp/initrd/aetc/rc.d/rcS
+	echo '  esac' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'done' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'then' >> tmp/initrd/aetc/rc.d/rcS
+	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'else' >> tmp/initrd/aetc/rc.d/rcS
+	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/rc.d/rcS
+	echo '   /abin/busybox mount /dev/mmcblk$${BOOT_DEV}p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
+	echo 'fi' >> tmp/initrd/aetc/rc.d/rcS
+	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/rc.d/rcS
 	chmod ugo+x tmp/initrd/aetc/rc.d/rcS
 # rc0
 	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rc0
@@ -6440,8 +6532,8 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	rm -fr tmp/fat
 tgt-fat: pkg3/boot-fat.cpio.zst
 
-TGT_UBOOT=u-boot-rockchip.bin
-#TGT_UBOOT=u-boot-xunlong.bin
+#TGT_UBOOT=u-boot-rockchip.bin
+TGT_UBOOT=u-boot-xunlong.bin
 
 mmc.img: pkg3/boot-fat.cpio.zst
 	mkdir -p tmp/init
@@ -6454,37 +6546,11 @@ mmc.img: pkg3/boot-fat.cpio.zst
 	rm -fr tmp/init
 mmc: mmc.img
 
-flash:
+flash: mmc.img
 	@echo "FLASH ALL - whole mmc.img to EMMC"
 	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
 	@read line
 	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 0 mmc.img && rkdeveloptool rd 0
-
-#	mkdir -p tmp/init/tmp
-#	pv pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
-#	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
-#	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/init/tmp
-
-
-#	mv tmp/init/tmp/usr/share/myboot/issue tmp/init/ins/aetc/
-#	mv tmp/init/tmp/usr/share/myboot/boot-fat tmp/init/fat
-
-#	cp -far tmp/init/tmp/usr/share/myboot/* tmp/init/
-#	rm -fr tmp/init/tmp/usr/share
-#	rm -fr tmp/init/tmp/usr/include
-#	rm -fr tmp/init/tmp/usr/bin
-#	cd tmp/init/tmp/usr/lib && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../fat/modules.cpio.zst
-#	rm -fr tmp/init/tmp/usr
-
-
-#	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=201
-#	dd of=tmp/init/mmc.img if=tmp/init/u-boot-rockchip.bin seek=64 conv=notrunc
-#	dd of=tmp/init/mmc.img if=tmp/init/mmc-fat.bin seek=20480 conv=notrunc
-#	parted -s tmp/init/mmc.img mklabel gpt
-#	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 409599
-#	cp -f tmp/init/mmc.img $@
-#	rm -fr tmp/init
-#tgt-mmc: mmc.img
 
 
 #	mkdir -pv /boot
@@ -6523,26 +6589,6 @@ flash:
 #pv src/busybox.cpio.zst | zstd -d | cpio -iduH newc -D src/busybox
 #cd src/busybox && make defconfig && cd -
 
-
-#tgt-mmc:
-#	rm -fr tmp/mmc
-#	mkdir -p tmp/mmc/rd
-#	mkdir -p tmp/mmc/fat
-#	pv pkg3/kernel.5.10.110.xunlong.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-#	pv pkg3/uboot-$(UBOOT_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-#	pv pkg3/boot-scr.cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-#	mv -f  tmp/mmc/rd/usr/share/myboot/boot-fat/* tmp/mmc/fat/
-#	rm -fr tmp/mmc/rd/usr/share/myboot/boot-fat
-#	mv -f  tmp/mmc/rd/usr/share/myboot/* tmp/mmc/
-#	rm -fr tmp/mmc/rd/usr/share/myboot
-#	cd tmp/mmc/rd/usr && ln -sf lib lib64
-#	cd tmp/mmc/rd && ln -sf usr/lib lib && ln -sf usr/lib64 lib64
-#	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -iduH newc -D tmp/mmc/rd
-#	cd tmp/mmc/rd && ln -sf usr/bin bin && ln -sf usr/sbin sbin
-#	rm -fr tmp/mmc/rd/usr/share
-#	rm -fr tmp/mmc/rd/usr/include
-#	rm -fr tmp/mmc/tmp/*
-#	rm -fr tmp/mmc/rd/usr/include
 
 # Extra :: python 'pyelftools' (for uboot)
 # https://github.com/eliben/pyelftools/wiki/User's-guide
