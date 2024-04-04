@@ -1517,7 +1517,7 @@ lfs-chroot/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk tgt-linux-kernel' >> $@
+	echo 'make -C /opt/mysdk tgt-busybox' >> $@
 	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
