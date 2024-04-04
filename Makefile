@@ -174,7 +174,7 @@ LFS_TGT=aarch64-lfs-linux-gnu
 LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
-UBOOT_VER=v2024.01
+UBOOT_VER=v2024.04
 BUSYBOX_VER=1_36
 
 # LFS-packages versions:
@@ -5441,6 +5441,28 @@ endif
 	rm -fr tmp/parted
 tgt-parted: pkg3/parted-$(PARTED_VER).cpio.zst
 
+pkg3/ldd.cpio.zst: pkg3/parted-$(PARTED_VER).cpio.zst
+	rm -fr tmp/ldd
+	mkdir -p tmp/ldd
+	echo '#!/bin/sh' > tmp/ldd/ldd
+	echo 'for file in "$$@"; do' >> tmp/ldd/ldd
+	echo '  case $$file in' >> tmp/ldd/ldd
+	echo '  --version) echo $$(/lib/libc.so.6|awk "NF>1{print $$NF; exit }")' >> tmp/ldd/ldd
+	echo '	break' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  */*) true' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  *) file=./$$file' >> tmp/ldd/ldd
+	echo '	;;' >> tmp/ldd/ldd
+	echo '  esac' >> tmp/ldd/ldd
+	echo 'echo EXAMINE ::: $$file' >> tmp/ldd/ldd
+	echo 'LD_TRACE_LOADED_OBJECTS=1 /lib/ld-linux* "$$file"' >> tmp/ldd/ldd
+	echo 'done' >> tmp/ldd/ldd
+	chmod ugo+x tmp/ldd/ldd
+	cd tmp/ldd && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	rm -fr tmp/ldd
+tgt-ldd: pkg3/ldd.cpio.zst
+
 # extra:: DTC (for uboot-xunlong)
 # https://www.linuxfromscratch.org/blfs/view/svn/general/dtc.html
 # BUILD_TIME :: 14s
@@ -5455,7 +5477,7 @@ DTC_BUILD_VERB=
 ifeq ($(VERB),1)
 DTC_BUILD_VERB=-v
 endif
-pkg3/dtc-$(DTC_VER).cpio.zst: pkg3/parted-$(PARTED_VER).cpio.zst
+pkg3/dtc-$(DTC_VER).cpio.zst: pkg3/ldd.cpio.zst
 	rm -fr tmp/dtc
 	mkdir -p tmp/dtc/bld
 	tar -xzf pkg/dtc-$(DTC_VER).tar.gz -C tmp/dtc
@@ -5554,147 +5576,44 @@ endif
 	rm -fr tmp/rkdeveloptool
 tgt-rkdeveloptool: pkg3/rkdeveloptool.cpio.zst
 
-# RK3588-BOOTSTRAP
-# BUILD_TIME :: 5s
-pkg3/rk3588-bootstrap.cpio.zst: pkg3/rkdeveloptool.cpio.zst
-	rm -fr tmp/rk3588-bootstrap
-	mkdir -p tmp/rk3588-bootstrap/bins
-	pv pkg/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
-	mkdir -p tmp/rk3588-bootstrap/ins
-	cp -f tmp/rk3588-bootstrap/bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin tmp/rk3588-bootstrap/ins/
-	cp -f tmp/rk3588-bootstrap/bins/rk3588_bl31_v1.28.elf tmp/rk3588-bootstrap/ins/
-	cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin tmp/rk3588-bootstrap/ins/
-	mkdir -p tmp/rk3588-bootstrap/atf-src
-	pv pkg/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
-	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
-	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
-	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
-	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
-	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	mkdir -p /usr/share/myboot && cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin /usr/share/myboot/usb-loader.bin
-	rm -fr tmp/rk3588-bootstrap
-tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
-
-# ============== U-BOOT ===============
-# +-----------------+-----------------+
-# | OLD             | NEW             |
-# +-----------------+-----------------+
-# | bmp2gray16      |                 |
-# | boot_merger     |                 |
-# | dumpimage       | dumpimage       |
-# |                 | fdt_add_pubkey  |
-# | fdtgrep         | fdtgrep         |
-# |                 | fit_check_sign  |
-# |                 | fit_info        |
-# | gen_eth_addr    | gen_eth_addr    |
-# | gen_ethaddr_crc | gen_ethaddr_crc |
-# |                 | img2srec        |
-# | loaderimage     |                 |
-# | mkenvimage      | mkenvimage      |
-# | mkimage         | mkimage         |
-# | proftool        | proftool        |
-# | relocate-rela   | relocate-rela   |
-# | resource_tool   |                 |
-# | trust_merger    |                 |
-# +-----------------+-----------------+
-
-# UBOOT -- OFFICIAL
-# BUILD_TIME :: 56s
-pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
+# UBOOT-TOOLS(mkimage)
+# BUILD_TIME :: 25s
+pkg3/uboot-tools.cpio.zst: pkg3/rkdeveloptool.cpio.zst
 	pv pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/uboot
-	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
-	pv pkg/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
-	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/Makefile
-	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/arch/arm/Makefile
-	mkdir -p tmp/uboot/bld
-	mkdir -p tmp/uboot/bins
-	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
-	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
-	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=0/" tmp/uboot/bld/.config
-	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
-	mkdir -p tmp/uboot/ins/usr/bin
-	cp -f tmp/uboot/bld/tools/dumpimage tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/fdt_add_pubkey tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/fdtgrep tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/fit_check_sign tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/fit_info tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/gen_eth_addr tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/gen_ethaddr_crc tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/img2srec tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/mkenvimage tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/mkimage tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/proftool tmp/uboot/ins/usr/bin/
-	cp -f tmp/uboot/bld/tools/relocate-rela tmp/uboot/ins/usr/bin/
-##	cp -f tmp/uboot/bld/tools/spl_size_limit tmp/uboot/ins/usr/bin/
+	rm -fr tmp/uboot-tools
+	mkdir -p tmp/uboot-tools/uboot-$(UBOOT_VER)
+	pv pkg/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-tools/uboot-$(UBOOT_VER)
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-tools/uboot-$(UBOOT_VER)/Makefile
+	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot-tools/uboot-$(UBOOT_VER)/arch/arm/Makefile
+	mkdir -p tmp/uboot-tools/bld
+	cd tmp/uboot-tools/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
+	cd tmp/uboot-tools/bld && make V=$(VERB) $(JOBS) tools
+	mkdir -p tmp/uboot-tools/ins/usr/bin
+	cp -f tmp/uboot-tools/bld/tools/dumpimage       tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/fdt_add_pubkey  tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/fdtgrep         tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/fit_check_sign  tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/fit_info        tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/gen_eth_addr    tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/gen_ethaddr_crc tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/img2srec        tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/mkenvimage      tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/mkimage         tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/proftool        tmp/uboot-tools/ins/usr/bin/
+	cp -f tmp/uboot-tools/bld/tools/relocate-rela   tmp/uboot-tools/ins/usr/bin/
+#	cp -f tmp/uboot-tools/bld/tools/spl_size_limit  tmp/uboot-tools/ins/usr/bin/
 ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/uboot/ins/usr/bin/*
+	strip --strip-unneeded tmp/uboot-tools/ins/usr/bin/*
 endif
-	mkdir -p tmp/uboot/ins/usr/share/myboot
-	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
-	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/uboot-tools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 #	pv $@ | zstd -d | cpio -iduH newc -D /
-	mkdir -p /usr/bin && cp -f tmp/uboot/ins/usr/bin/mkimage /usr/bin/
-	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
-	rm -fr tmp/uboot
-tgt-uboot-new: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
-
-# UBOOT -- XUNLONG
-# BUILD_TIME :: 48s
-#pkg3/uboot-xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
-#	rm -fr tmp/uboot-xunlong
-#	mkdir -p tmp/uboot-xunlong/src
-#	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
-#	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
-#	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
-#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
-#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
-#	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
-#	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
-#	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
-#	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
-#	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-#	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-#	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
-#	mkdir -p tmp/uboot-xunlong/bins
-#	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
-#	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
-#	mkdir -p tmp/uboot-xunlong/ins/usr/bin
-#	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
-#ifeq ($(BUILD_STRIP),y)
-#	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
-#endif
-#	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
-#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
-## final: 64=head 16384=tail, prep: 0=head 16320=tail
-#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/uboot-head.bin seek=0 conv=notrunc
-#	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=tmp/uboot-xunlong/bld/u-boot.itb seek=16320 conv=notrunc
-#	mkdir -p tmp/uboot-xunlong/ins/usr/share/myboot
-#	cp -f tmp/uboot-xunlong/uboot-head.bin tmp/uboot-xunlong/ins/usr/share/myboot/
-#	cp -f tmp/uboot-xunlong/bld/u-boot.itb tmp/uboot-xunlong/ins/usr/share/myboot/
-#	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
-#	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-##	pv $@ | zstd -d | cpio -iduH newc -D /
-#	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
-#	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
-#	rm -fr tmp/uboot-xunlong
-#tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
+	mkdir -p /usr/bin && cp -f tmp/uboot-tools/ins/usr/bin/mkimage /usr/bin/
+	rm -fr tmp/uboot-tools
+tgt-uboot-tools: pkg3/uboot-tools.cpio.zst
 
 # Linux Out-Of-Src-Tree-BUILD :: Original from Orangepi :: Linux 5.10.110
 # BUILD_TIME :: 48m
-pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-$(UBOOT_VER).opi5plus.cpio.zst
+pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-tools.cpio.zst
 	rm -fr tmp/opi5-linux
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
@@ -5786,9 +5705,87 @@ pkg3/kernel-modules.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
 	rm -fr tmp/kernel/usr/include
 	rm -fr tmp/kernel/usr/share
 	cd tmp/kernel && find . -print0 | cpio -o0H newc | zstd -z4T9 > ../../$@
+	rm -fr tmp/kernel
 tgt-modules: pkg3/kernel-modules.cpio.zst
 
-pkg3/boot-scr.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+# RK3588-BOOTSTRAP
+# BUILD_TIME :: 5s
+pkg3/rk3588-bootstrap.cpio.zst: pkg3/kernel-modules.cpio.zst
+	rm -fr tmp/rk3588-bootstrap
+	mkdir -p tmp/rk3588-bootstrap/bins
+	pv pkg/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
+	mkdir -p tmp/rk3588-bootstrap/ins
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin tmp/rk3588-bootstrap/ins/
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_bl31_v1.28.elf tmp/rk3588-bootstrap/ins/
+	cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin tmp/rk3588-bootstrap/ins/
+	mkdir -p tmp/rk3588-bootstrap/atf-src
+	pv pkg/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
+	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
+	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
+	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
+	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
+	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	mkdir -p /usr/share/myboot && cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin /usr/share/myboot/usb-loader.bin
+	rm -fr tmp/rk3588-bootstrap
+tgt-rk3588-bootstrap: pkg3/rk3588-bootstrap.cpio.zst
+
+# ============== U-BOOT ===============
+# +-----------------+-----------------+
+# | OLD             | NEW             |
+# +-----------------+-----------------+
+# | bmp2gray16      |                 |
+# | boot_merger     |                 |
+# | dumpimage       | dumpimage       |
+# |                 | fdt_add_pubkey  |
+# | fdtgrep         | fdtgrep         |
+# |                 | fit_check_sign  |
+# |                 | fit_info        |
+# | gen_eth_addr    | gen_eth_addr    |
+# | gen_ethaddr_crc | gen_ethaddr_crc |
+# |                 | img2srec        |
+# | loaderimage     |                 |
+# | mkenvimage      | mkenvimage      |
+# | mkimage         | mkimage         |
+# | proftool        | proftool        |
+# | relocate-rela   | relocate-rela   |
+# | resource_tool   |                 |
+# | trust_merger    |                 |
+# +-----------------+-----------------+
+
+# UBOOT -- OFFICIAL
+# BUILD_TIME :: 56s
+#pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
+flash-uboot: pkg3/rk3588-bootstrap.cpio.zst
+	pv pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/uboot
+	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
+	pv pkg/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/Makefile
+	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/arch/arm/Makefile
+	sed -i 's|#define BOOT_TARGETS	"mmc1 mmc0 nvme scsi usb pxe dhcp spi"|#define BOOT_TARGETS "mmc1 mmc0"|' tmp/uboot/uboot-$(UBOOT_VER)/include/configs/rockchip-common.h
+	mkdir -p tmp/uboot/bld
+	mkdir -p tmp/uboot/bins
+	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
+	cp -far cfg/defconfig tmp/uboot/uboot-$(UBOOT_VER)/configs/orangepi-5-plus-rk3588_my_defconfig
+	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_my_defconfig
+#	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=5/" tmp/uboot/bld/.config
+	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
+#
+	@echo "FLASH U-BOOT to EMMC"
+	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
+	@read line
+	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 64 tmp/uboot/bld/u-boot-rockchip.bin && rkdeveloptool rd
+#
+	mkdir -p tmp/uboot/ins/usr/share/myboot
+	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
+	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
+	rm -fr tmp/uboot
+tgt-uboot: pkg3/uboot-$(UBOOT_VER).cpio.zst
+
+pkg3/boot-scr.cpio.zst: pkg3/uboot-$(UBOOT_VER).cpio.zst
 	rm -fr tmp/boot-scr
 	mkdir -p tmp/boot-scr/src
 	echo 'setenv load_addr "0x9000000"' > tmp/boot-scr/src/boot.cmd
@@ -5901,27 +5898,7 @@ pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/busybox
 tgt-busybox: pkg3/busybox.cpio.zst
 
-pkg3/ldd.cpio.zst: pkg3/busybox.cpio.zst
-	rm -fr tmp/ldd
-	mkdir -p tmp/ldd
-	echo '#!/bin/sh' > tmp/ldd/ldd
-	echo 'for file in "$$@"; do' >> tmp/ldd/ldd
-	echo '  case $$file in' >> tmp/ldd/ldd
-	echo '  --version) echo $$(/lib/libc.so.6|awk "NF>1{print $$NF; exit }")' >> tmp/ldd/ldd
-	echo '	break' >> tmp/ldd/ldd
-	echo '	;;' >> tmp/ldd/ldd
-	echo '  */*) true' >> tmp/ldd/ldd
-	echo '	;;' >> tmp/ldd/ldd
-	echo '  *) file=./$$file' >> tmp/ldd/ldd
-	echo '	;;' >> tmp/ldd/ldd
-	echo '  esac' >> tmp/ldd/ldd
-	echo 'echo EXAMINE ::: $$file' >> tmp/ldd/ldd
-	echo 'LD_TRACE_LOADED_OBJECTS=1 /lib/ld-linux* "$$file"' >> tmp/ldd/ldd
-	echo 'done' >> tmp/ldd/ldd
-	chmod ugo+x tmp/ldd/ldd
-	cd tmp/ldd && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
-	rm -fr tmp/ldd
-tgt-ldd: pkg3/ldd.cpio.zst
+
 
 # libacl.so
 # libacl.so.1
@@ -6263,7 +6240,7 @@ tgt-ldd: pkg3/ldd.cpio.zst
 # *** [LNK] liblzma.so.5.2.5
 
 
-pkg3/boot-initrd.cpio.zst: pkg3/ldd.cpio.zst
+pkg3/boot-initrd.cpio.zst: pkg3/busybox.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
@@ -6335,7 +6312,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/ldd.cpio.zst
 	mkdir -p tmp/initrd/aetc/rc.d
 # rcS
 	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rcS
-	echo '/abin/busybox mount /dev/mmcblk1p1 /boot && /bin/pv /boot/zst/kernel-modules.cpio.zst | /bin/zstd -d | /bin/cpio -idumH newc -D /' >> tmp/initrd/aetc/rc.d/rcS
+#	echo '/abin/busybox mount /dev/mmcblk1p1 /boot && /bin/pv /boot/zst/kernel-modules.cpio.zst | /bin/zstd -d | /bin/cpio -idumH newc -D /' >> tmp/initrd/aetc/rc.d/rcS
+	echo '/abin/busybox mount /dev/mmcblk1p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
 #	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/rc.d/rcS
 #	echo '  case $$x in' >> tmp/initrd/aetc/rc.d/rcS
 #	echo '  myboot=*)' >> tmp/initrd/aetc/rc.d/rcS
@@ -6357,7 +6335,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/ldd.cpio.zst
 	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rc0
 	echo '/abin/busybox echo ""' >> tmp/initrd/aetc/rc.d/rc0
 	echo '/abin/busybox echo "Closing System!"' >> tmp/initrd/aetc/rc.d/rc0
+	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
 	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/aetc/rc.d/rc0
+	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
 	chmod ugo+x tmp/initrd/aetc/rc.d/rc0
 # inittab
 #	echo "::sysinit:/abin/busybox mkdir /sys" > tmp/initrd/aetc/inittab
@@ -6475,6 +6455,7 @@ mmc.img: pkg3/boot-fat.cpio.zst
 mmc: mmc.img
 
 flash:
+	@echo "FLASH ALL - whole mmc.img to EMMC"
 	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
 	@read line
 	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 0 mmc.img && rkdeveloptool rd 0
