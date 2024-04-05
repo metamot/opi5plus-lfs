@@ -5769,9 +5769,9 @@ pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	mkdir -p tmp/uboot/bld
 	mkdir -p tmp/uboot/bins
 	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
-	cp -far cfg/defconfig tmp/uboot/uboot-$(UBOOT_VER)/configs/orangepi-5-plus-rk3588_my_defconfig
-	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_my_defconfig
-#	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
+#	cp -far cfg/defconfig tmp/uboot/uboot-$(UBOOT_VER)/configs/orangepi-5-plus-rk3588_my_defconfig
+#	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_my_defconfig
+	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=5/" tmp/uboot/bld/.config
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
 	mkdir -p tmp/uboot/ins/usr/share/myboot
