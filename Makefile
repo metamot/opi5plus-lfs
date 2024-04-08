@@ -167,7 +167,7 @@ endif
 BASE_OPT_FLAGS = $(RK3588_FLAGS) $(BASE_OPT_VALUE)
 OPT_FLAGS = CFLAGS="$(BASE_OPT_FLAGS)" CPPFLAGS="$(BASE_OPT_FLAGS)" CXXFLAGS="$(BASE_OPT_FLAGS)"
 
-#TODAY_CODE=$(shell date +"%Y%m%d")
+TODAY_CODE=$(shell date +"%Y%m%d")
 
 LFS=$(shell pwd)/lfs
 LFS_TGT=aarch64-lfs-linux-gnu
@@ -1495,7 +1495,7 @@ pkg1/lfs-hst-full.cpio.zst: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	mkdir tmp/lfs/run
 	sudo chown -R root:root tmp/lfs/*
 	mkdir -p tmp/lfs/opt/mysdk
-#	cp -far cfg tmp/lfs/opt/mysdk
+	cp -far cfg tmp/lfs/opt/mysdk
 	cp -far .git tmp/lfs/opt/mysdk
 	cp -f .gitignore tmp/lfs/opt/mysdk
 	cp -f README.md tmp/lfs/opt/mysdk
@@ -5769,8 +5769,6 @@ pkg3/uboot-$(UBOOT_VER).cpio.zst: pkg3/rk3588-bootstrap.cpio.zst
 	mkdir -p tmp/uboot/bld
 	mkdir -p tmp/uboot/bins
 	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
-#	cp -far cfg/defconfig tmp/uboot/uboot-$(UBOOT_VER)/configs/orangepi-5-plus-rk3588_my_defconfig
-#	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_my_defconfig
 	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=5/" tmp/uboot/bld/.config
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
@@ -5828,32 +5826,19 @@ pkg3/uboot-xunlong.cpio.zst: pkg3/python2-$(PYTHON2_VER).cpio.zst
 	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
-	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
+# If USB removed -- begin
+	sed -i "s/obj-\$$(CONFIG_USB_OHCI_NEW)/# obj-\$$(CONFIG_USB_OHCI_NEW)/" tmp/uboot-xunlong/src/drivers/usb/host/Makefile
+# If USB removed -- end
+#	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
 	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
 	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
 	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
 	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
+	cp -f cfg/defconfig tmp/uboot-xunlong/src/configs/orangepi_5_plus_my_defconfig
+	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_my_defconfig
 	mkdir -p tmp/uboot-xunlong/bins
 	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
 	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
-#	mkdir -p tmp/uboot-xunlong/ins/usr/bin
-#	cp -f tmp/uboot-xunlong/bld/tools/bmp2gray16 tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/boot_merger tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/dumpimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/fdtgrep tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/gen_eth_addr tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/gen_ethaddr_crc tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/loaderimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/mkenvimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/mkimage tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/proftool tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/relocate-rela tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/resource_tool tmp/uboot-xunlong/ins/usr/bin/
-#	cp -f tmp/uboot-xunlong/bld/tools/trust_merger tmp/uboot-xunlong/ins/usr/bin/
-#ifeq ($(BUILD_STRIP),y)
-#	strip --strip-unneeded tmp/uboot-xunlong/ins/usr/bin/* || true
-#endif
 	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
 	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
 # final: 64=head 16384=tail, prepared: 0=head 16320=tail
@@ -5865,10 +5850,25 @@ pkg3/uboot-xunlong.cpio.zst: pkg3/python2-$(PYTHON2_VER).cpio.zst
 	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
 	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-#	mkdir -p /usr/bin && cp -f tmp/uboot-xunlong/ins/usr/bin/mkimage /usr/bin/mkimage_old
-#	mkdir -p /usr/share/myboot && cp -f tmp/uboot-xunlong/ins/usr/share/myboot/* /usr/share/myboot/
 	rm -fr tmp/uboot-xunlong
 tgt-uboot-old: pkg3/uboot-xunlong.cpio.zst
+
+uboot-cfg:
+	rm -fr tmp/uboot-xunlong
+	mkdir -p tmp/uboot-xunlong/src
+	pv pkg/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
+	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5b_defconfig
+	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_plus_defconfig
+	sed -i "s/U-Boot SPL board init/U-Boot SPL my board init/" tmp/uboot-xunlong/src/arch/arm/mach-rockchip/spl.c
+	sed -i '8s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/make_fit_atf.sh
+	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
+	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
+	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_defconfig
+
 
 flash-uboot-old: pkg3/uboot-xunlong.cpio.zst
 	@echo "FLASH Xunlong U-BOOT to EMMC"
@@ -6330,8 +6330,20 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # *** [LNK] liblzma.so.5
 # *** [LNK] liblzma.so.5.2.5
 
+pkg3/issue.cpio.zst: pkg3/busybox.cpio.zst
+	rm -fr tmp/issue
+	mkdir -p tmp/issue
+	echo '#!/bin/sh' > tmp/issue/issue.sh
+#	echo 'echo -ne "$(TODAY_CODE)\033[9;0]" > issue' >> tmp/issue/issue.sh
+	echo 'echo -ne "\033[9;0]" > issue' >> tmp/issue/issue.sh
+	chmod ugo+x tmp/issue/issue.sh
+	cd tmp/issue && ./issue.sh
+	rm -f tmp/issue/issue.sh
+	cd tmp/issue && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	rm -fr tmp/issue
+tgt-issue: pkg3/issue.cpio.zst
 
-pkg3/boot-initrd.cpio.zst: pkg3/busybox.cpio.zst
+pkg3/boot-initrd.cpio.zst: pkg3/issue.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
@@ -6425,16 +6437,14 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.cpio.zst
 	chmod ugo+x tmp/initrd/aetc/rc.d/rcS
 # rc0
 	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rc0
-	echo '/abin/busybox echo ""' >> tmp/initrd/aetc/rc.d/rc0
-	echo '/abin/busybox echo "Closing System!"' >> tmp/initrd/aetc/rc.d/rc0
-	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
+#	echo '/abin/busybox echo ""' >> tmp/initrd/aetc/rc.d/rc0
+#	echo '/abin/busybox echo "Closing System!"' >> tmp/initrd/aetc/rc.d/rc0
+#	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
 	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/aetc/rc.d/rc0
-	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
+#	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
 	chmod ugo+x tmp/initrd/aetc/rc.d/rc0
 # inittab
-#	echo "::sysinit:/abin/busybox mkdir /sys" > tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/aetc/inittab
-#	echo "::sysinit:/abin/busybox mkdir /proc" >> tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" >> tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/aetc/inittab
 	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/aetc/inittab
@@ -6445,7 +6455,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/busybox.cpio.zst
 	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/aetc/inittab
 	echo "::shutdown:/aetc/rc.d/rc0" >> tmp/initrd/aetc/inittab
 # issue
-	echo 'Opi5+' >> tmp/initrd/aetc/issue
+	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/aetc
 # profile
 	echo 'export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/abin"' > tmp/initrd/aetc/profile
 	echo '/abin/busybox cat /aetc/issue' >> tmp/initrd/aetc/profile
