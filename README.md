@@ -22,4 +22,8 @@ Make main ptocess:
 
     time make stage1 
 
+pls, watch tmp dir
+
+     watch tmp/
+
 ***TBD***
