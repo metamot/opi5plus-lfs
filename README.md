@@ -24,6 +24,6 @@ Make main ptocess:
 
 pls, watch tmp dir
 
-     watch tmp/
+     watch tmp/*
 
 ***TBD***
