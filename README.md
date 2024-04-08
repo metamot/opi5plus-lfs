@@ -22,4 +22,9 @@ Make main ptocess:
 
     time make stage1 
 
+To see the process, see "/tmp" dir.
+
+    watch tmp/*
+
+
 ***TBD***
