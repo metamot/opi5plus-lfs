@@ -1523,6 +1523,11 @@ lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	echo '#!/bin/bash' > $@
 	echo 'make -C /opt/mysdk mmc.img' >> $@
 	chmod ugo+x $@
+lfs-chroot/opt/mysdk/chroot2.sh: lfs-chroot/opt/mysdk/mmc.img
+	mkdir -p lfs-chroot/opt/mysdk
+	echo '#!/bin/bash' > $@
+	echo 'make -C /opt/mysdk flash || true' >> $@
+	chmod ugo+x $@
 
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # === LFS-10.0-systemd :: 7.4. Entering the Chroot Environment 
@@ -1547,13 +1552,26 @@ stage1: lfs-chroot/opt/mysdk/chroot1.sh
 #	sudo touch $@
 #stage2: lfs-chroot/etc/resolv.conf
 
-chroot-ns: # No Script = Manual Login
+chroot: # No Script = Manual Login
 	sudo mount -v --bind /dev lfs-chroot/dev
 	sudo mount -v --bind /dev/pts lfs-chroot/dev/pts
 	sudo mount -vt proc proc lfs-chroot/proc
 	sudo mount -vt sysfs sysfs lfs-chroot/sys
 	sudo mount -vt tmpfs tmpfs lfs-chroot/run
 	sudo chroot lfs-chroot /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /bin/sh --login +h
+	sudo umount lfs-chroot/run
+	sudo umount lfs-chroot/sys
+	sudo umount lfs-chroot/proc
+	sudo umount lfs-chroot/dev/pts
+	sudo umount lfs-chroot/dev
+	
+chroot-flash: lfs-chroot/opt/mysdk/chroot2.sh
+	sudo mount -v --bind /dev lfs-chroot/dev
+	sudo mount -v --bind /dev/pts lfs-chroot/dev/pts
+	sudo mount -vt proc proc lfs-chroot/proc
+	sudo mount -vt sysfs sysfs lfs-chroot/sys
+	sudo mount -vt tmpfs tmpfs lfs-chroot/run
+	sudo chroot lfs-chroot /usr/bin/env -i HOME=/root TERM=$$TERM PATH=/bin:/usr/bin:/sbin:/usr/sbin:/usr/local/bin /opt/mysdk/chroot2.sh --login +h
 	sudo umount lfs-chroot/run
 	sudo umount lfs-chroot/sys
 	sudo umount lfs-chroot/proc
@@ -5683,7 +5701,8 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-tools.cpio.zst
 	mkdir -p tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan
 	cp -far tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/
 	cd tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/rtl8852be && find . -name "*.c" -type f -delete
-	cd tmp/opi5-linux/src && make V=$(VERB) O=../bld rockchip_linux_defconfig
+	cp -f cfg/kernel_opi5plus_my_defconfig tmp/opi5-linux/src/arch/arm64/configs/
+	cd tmp/opi5-linux/src && make V=$(VERB) O=../bld kernel_opi5plus_my_defconfig
 	sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" tmp/opi5-linux/bld/.config
 	cd tmp/opi5-linux/bld && make LOCALVERSION= kernelversion > ../kerver.txt
 	sed -i '/make/d' tmp/opi5-linux/kerver.txt
@@ -5834,8 +5853,8 @@ pkg3/uboot-xunlong.cpio.zst: pkg3/python2-$(PYTHON2_VER).cpio.zst
 	sed -i '9s/source .\//source /' tmp/uboot-xunlong/src/arch/arm/mach-rockchip/fit_nodes.sh
 	mkdir -p tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
 	cp -far --no-preserve=timestamps tmp/uboot-xunlong/src/arch/arm/mach-rockchip/*.py tmp/uboot-xunlong/bld/arch/arm/mach-rockchip
-	cp -f cfg/defconfig tmp/uboot-xunlong/src/configs/orangepi_5_plus_my_defconfig
-	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld orangepi_5_plus_my_defconfig
+	cp -f cfg/uboot_opi5plus_my_defconfig tmp/uboot-xunlong/src/configs/
+	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld uboot_opi5plus_my_defconfig
 	mkdir -p tmp/uboot-xunlong/bins
 	pv pkg3/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
 	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
@@ -6663,36 +6682,3 @@ flash: mmc.img
 
 # extra blfs :: libpcap-1.9.1
 # https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libpcap.html
-
-# LFS-10.0-systemd :: 8.66. Man-DB-2.9.3
-# https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/man-db.html
-# BUILD_TIME :: 2m 10s
-# BUILD_TIME_WITH_TEST ::
-#MANDB_OPT3+= --prefix=/usr
-#MANDB_OPT3+= --docdir=/usr/share/doc/man-db-$(MAN_DB_VER)
-#MANDB_OPT3+= --sysconfdir=/etc
-#MANDB_OPT3+= --disable-setuid
-#MANDB_OPT3+= --enable-cache-owner=bin
-#MANDB_OPT3+= --with-browser=/usr/bin/lynx
-#MANDB_OPT3+= --with-vgrind=/usr/bin/vgrind
-#MANDB_OPT3+= --with-grap=/usr/bin/grap
-#MANDB_OPT3+= --disable-nls
-#MANDB_OPT3+= $(OPT_FLAGS)
-#pkg3/man-db-$(MAN_DB_VER).cpio.zst: pkg3/patch-$(PATCH_VER).cpio.zst
-#	rm -fr tmp/man-db
-#	mkdir -p tmp/man-db/bld
-#	tar -xJf pkg/man-db-$(MAN_DB_VER).tar.xz -C tmp/man-db
-#	sed -i '/find/s@/usr@@' tmp/man-db/man-db-$(MAN_DB_VER)/init/systemd/man-db.service.in
-#	cd tmp/man-db/bld && ../man-db-$(MAN_DB_VER)/configure $(MANDB_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-#	rm -fr tmp/man-db/ins/usr/share
-#	find tmp/man-db/ins -name \*.la -delete
-#ifeq ($(BUILD_STRIP),y)
-#	cd tmp/man-db/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
-#endif
-#	cd tmp/man-db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	pv $@ | zstd -d | cpio -iduH newc -D /
-#ifeq ($(RUN_TESTS),y)
-#	mkdir -p tst && cd tmp/man-db/bld && make check 2>&1 | tee ../../../tst/man-db-check.log || true
-#endif
-#	rm -fr tmp/man-db
-#tgt-man-db: pkg3/man-db-$(MAN_DB_VER).cpio.zst
