@@ -36,7 +36,7 @@ Configure-host (again say "no" for dash):
 
     make pkg
 
-***IMPORTANT!*** After this operation, Please double check that all packages are done at this point ("Repeat-command result"):
+***IMPORTANT!*** After this operation, Please check again that all packages are done at this point ("Repeat-command result"):
 
     make pkg
     make: Nothing to be done for 'pkg'.
