@@ -1,31 +1,47 @@
 # OrangePi5+ LFS
 
-Clone:
+## Initial Requirements:
+
+Target is : **OrangePi5+ with installed eMMC-module**
+
+**WARNING**: Opi5+ without eMMC is not supported!
+
+Initial host is : OrangePi5/5b/5+ with Debian11 or Ubuntu22.04.
+
+Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
+
+## Clone:
 
     sudo chmod 777 /opt
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs
 
-**NOTE:** Home-catalog is not suitable for builds. You need to clone directly inside "/opt". Sub-dirs (i.e. /opt/some-dirs/opi5plus-lfs) are not supported.
+**NOTE:** Home-catalog is not suitable for builds. You need do clone directly inside to "/opt". Sub-dirs (i.e. /opt/some-dirs/opi5plus-lfs) are not supported.
+
+## Setup host (need only once at first run):
+
+For Debian host, we need to choose **bash** instead of dash (say "no" for dash):
+
+    sudo dpkg-reconfigure dash
 
 Show help:
 
     make
 
-Change dash to bash:
+Configure-host (again say "no" for dash):
 
-    sudo dpkg-reconfigure dash
+    make host
 
-Configure-host:
-
-     make host
-
-Download all pkgs
+## Download packages
 
     make pkg
-(Do it twice to download all !!!)
 
-Make main ptocess:
+***IMPORTANT!*** After this operation, Please double check that all packages are done at this point ("Repeat-command result"):
+
+    make pkg
+    make: Nothing to be done for 'pkg'.
+
+## Build mmc.img:
 
     time make stage1 
 
