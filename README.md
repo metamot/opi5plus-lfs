@@ -6,7 +6,7 @@ Clone:
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs
 
-**NOTE:** Home-catalog is not suitable for cloning. You need to clone directly inside "/opt". Sub-dirs (i.e. /opt/<some-dirs>/opi5plus-lfs) are not supported.
+**NOTE:** Home-catalog is not suitable for builds. You need to clone directly inside "/opt". Sub-dirs (i.e. /opt/some-dirs/opi5plus-lfs) are not supported.
 
 Show help:
 
