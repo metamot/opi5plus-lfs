@@ -14,7 +14,7 @@ help:
 	@echo ''
 	@echo "make pkg"
 	@echo ''
-	@echo "time make stage1"
+	@echo "time make stage2"
 	@echo ''
 
 host: host-check.txt deps longsudo
@@ -31,7 +31,7 @@ host: host-check.txt deps longsudo
 	@echo ''
 	@echo "make pkg"
 	@echo ''
-	@echo "time make stage1"
+	@echo "time make stage2"
 	@echo ''
 
 host-check.sh: Makefile
@@ -1533,8 +1533,8 @@ lfs-chroot/opt/mysdk/chroot2.sh: lfs-chroot/opt/mysdk/mmc.img
 # === LFS-10.0-systemd :: 7.4. Entering the Chroot Environment 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/chroot.html
-stage1: lfs-chroot/opt/mysdk/chroot1.sh
-# CHROOT STAGE1
+stage2: lfs-chroot/opt/mysdk/chroot1.sh
+# CHROOT STAGE2
 	sudo mount -v --bind /dev lfs-chroot/dev
 	sudo mount -v --bind /dev/pts lfs-chroot/dev/pts
 	sudo mount -vt proc proc lfs-chroot/proc
@@ -1913,7 +1913,7 @@ chroot-util-linux: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 # This Initial Chroot-Stage (LFS chapter 7) build time :: about 19 minutes
 # ===
 
-# === TOTAL: STAGE0..STAGE1 = build HOST - INITIAL CHROOT
+# === TOTAL: STAGE0..STAGE2 = build HOST - INITIAL CHROOT
 # BUILD_TIME :: 1h 19m (79m)
 
 
