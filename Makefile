@@ -1508,9 +1508,9 @@ pkg1/lfs-hst-full.cpio.zst: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	rm -fr tmp/pkg1
 	sudo rm -fr tmp/lfs
 	rm -fr lfs
-stage0: pkg1/lfs-hst-full.cpio.zst
+stage1: pkg1/lfs-hst-full.cpio.zst
 
-# === TOTAL: STAGE0 = HOST BUILD
+# === TOTAL: STAGE1= HOST BUILD
 # BUILD_TIME :: 50m
 
 # === extra :: Unpack New LFS-ROOTFS (lfs-chroot)
@@ -1913,12 +1913,8 @@ chroot-util-linux: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 # This Initial Chroot-Stage (LFS chapter 7) build time :: about 19 minutes
 # ===
 
-# === TOTAL: STAGE0..STAGE2 = build HOST - INITIAL CHROOT
+# === TOTAL: STAGE1..STAGE2 = build HOST - INITIAL CHROOT
 # BUILD_TIME :: 1h 19m (79m)
-
-
-
-
 
 # =============================================================================
 # === BASE SYSTEM
