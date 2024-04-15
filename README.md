@@ -15,6 +15,7 @@ Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
     sudo chmod 777 /opt
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs
+    cd opi5plus-lfs
 
 **NOTE:** Home-catalog is not suitable for builds. You need do clone directly inside to "/opt". Sub-dirs (i.e. /opt/some-dirs/opi5plus-lfs) are not supported.
 
