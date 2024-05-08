@@ -176,6 +176,7 @@ LFS_VER=10.0
 
 UBOOT_VER=v2024.04
 BUSYBOX_VER=1_36
+CAN_UTILS_VER=v2020.12.0
 
 # LFS-packages versions:
 ACL_VER=2.2.53
@@ -189,6 +190,8 @@ BINUTILS_VER=2.35
 BISON_VER=3.7.1
 BZIP2_VER=1.0.8
 CHECK_VER=0.15.2
+CMAKE_VER0=3.18
+CMAKE_VER=3.18.1
 CONVMV_VER=2.05
 CORE_UTILS_VER=8.32
 CPIO_VER=2.13
@@ -237,6 +240,7 @@ LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
 LIBTOOL_VER=2.4.6
 LIBUSB_VER=1.0.23
+LIBUV_VER=v1.38.1
 M4_VER=1.4.18
 MAKE_VER=4.3
 MAN_DB_VER=2.9.3
@@ -317,11 +321,12 @@ PKG+=pkg/binutils-$(BINUTILS_VER).tar.xz
 PKG+=pkg/bison-$(BISON_VER).tar.xz	
 PKG+=pkg/bzip2-$(BZIP2_VER).tar.gz
 PKG+=pkg/check-$(CHECK_VER).tar.gz
+PKG+=pkg/cmake-$(CMAKE_VER).tar.gz
 PKG+=pkg/convmv-$(CONVMV_VER).tar.gz
 PKG+=pkg/coreutils-$(CORE_UTILS_VER).tar.xz
 PKG+=pkg/cpio-$(CPIO_VER).tar.bz2
-PKG+=pkg/cracklib-$(CRACKLIB_VER).tar.bz2
-PKG+=pkg/cracklib-words-$(CRACKLIB_VER).bz2
+#PKG+=pkg/cracklib-$(CRACKLIB_VER).tar.bz2
+#PKG+=pkg/cracklib-words-$(CRACKLIB_VER).bz2
 PKG+=pkg/db-$(DB_BERKELEY_VER).tar.gz
 PKG+=pkg/dbus-$(DBUS_VER).tar.gz
 PKG+=pkg/dejagnu-$(DEJAGNU_VER).tar.gz
@@ -361,6 +366,7 @@ PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
 PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
 PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
 PKG+=pkg/libusb-$(LIBUSB_VER).tar.bz2
+PKG+=pkg/libuv-$(LIBUV_VER).tar.gz
 PKG+=pkg/m4-$(M4_VER).tar.xz
 PKG+=pkg/make-$(MAKE_VER).tar.gz
 PKG+=pkg/man-db-$(MAN_DB_VER).tar.xz
@@ -423,6 +429,7 @@ PKG+=pkg/orangepi5-uboot.src.cpio.zst
 PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
 PKG+=pkg/rkdeveloptool.src.cpio.zst
 PKG+=pkg/orangepi5-linux510.src.cpio.zst
+PKG+=pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst
 PKG+=pkg/usb.ids.cpio.zst
 
 pkg: $(PKG)
@@ -466,6 +473,8 @@ pkg/bzip2-$(BZIP2_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.sourceware.org/pub/bzip2/bzip2-$(BZIP2_VER).tar.gz && touch $@
 pkg/check-$(CHECK_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/libcheck/check/releases/download/$(CHECK_VER)/check-$(CHECK_VER).tar.gz && touch $@
+pkg/cmake-$(CMAKE_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://cmake.org/files/v$(CMAKE_VER0)/cmake-$(CMAKE_VER).tar.gz && touch $@
 pkg/convmv-$(CONVMV_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://j3e.de/linux/convmv/convmv-$(CONVMV_VER).tar.gz && touch $@
 pkg/coreutils-$(CORE_UTILS_VER).tar.xz: pkg/.gitignore
@@ -553,7 +562,9 @@ pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz: pkg/.gitignore
 pkg/libtool-$(LIBTOOL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/libtool/libtool-$(LIBTOOL_VER).tar.xz && touch $@
 pkg/libusb-$(LIBUSB_VER).tar.bz2: pkg/.gitignore
-	wget -P pkg https://github.com//libusb/libusb/releases/download/v$(LIBUSB_VER)/libusb-$(LIBUSB_VER).tar.bz2 && touch $@
+	wget -P pkg https://github.com/libusb/libusb/releases/download/v$(LIBUSB_VER)/libusb-$(LIBUSB_VER).tar.bz2 && touch $@
+pkg/libuv-$(LIBUV_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://dist.libuv.org/dist/$(LIBUV_VER)/libuv-$(LIBUV_VER).tar.gz && touch $@
 pkg/m4-$(M4_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/m4/m4-$(M4_VER).tar.xz && touch $@
 pkg/make-$(MAKE_VER).tar.gz: pkg/.gitignore
@@ -719,6 +730,19 @@ endif
 	cd tmp/orangepi5-uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-uboot.src.cpio.zst
 	mkdir -p pkg && mv -fv tmp/orangepi5-uboot/orangepi5-uboot.src.cpio.zst pkg/
 	rm -fr tmp/orangepi5-uboot
+	rm -fr tmp/tmp
+# GIT: can-utils
+pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst:
+	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
+	rm -fr tmp/can-utils && mkdir -p tmp/can-utils/git
+	git clone https://github.com/linux-can/can-utils tmp/can-utils/git
+	cd tmp/can-utils/git && git checkout $(CAN_UTILS_VER)
+ifeq ($(GIT_RM),y)
+	rm -fr tmp/can-utils/git/.git
+endif
+	cd tmp/can-utils/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../can-utils-$(CAN_UTILS_VER).src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/can-utils/can-utils-$(CAN_UTILS_VER).src.cpio.zst pkg/
+	rm -fr tmp/can-utils
 	rm -fr tmp/tmp
 # GIT: busybox :: 1.36
 pkg/busybox-$(BUSYBOX_VER).src.cpio.zst:
@@ -2851,10 +2875,11 @@ tgt-cracklib: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
 # BUILD_TIME :: 40s
 SHADOW_OPT3+= --sysconfdir=/etc
 SHADOW_OPT3+= --with-group-name-max-length=32
-SHADOW_OPT3+= --with-libcrack
+#SHADOW_OPT3+= --with-libcrack
 SHADOW_OPT3+= --disable-nls
 SHADOW_OPT3+= $(OPT_FLAGS)
-pkg3/shadow-$(SHADOW_VER).cpio.zst: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
+#pkg3/shadow-$(SHADOW_VER).cpio.zst: pkg3/cracklib-$(CRACKLIB_VER).cpio.zst
+pkg3/shadow-$(SHADOW_VER).cpio.zst: pkg3/libcap-$(LIBCAP_VER).cpio.zst
 	rm -fr tmp/shadow
 	mkdir -p tmp/shadow/bld
 	tar -xJf pkg/shadow-$(SHADOW_VER).tar.xz -C tmp/shadow
@@ -5577,9 +5602,83 @@ endif
 	rm -fr tmp/usbutils
 tgt-usb-utils: pkg3/usbutils-$(USB_UTILS_VER).cpio.zst
 
+# extra blfs :: libuv-1.38.1
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libuv.html
+# BUILD_TIME :: 23s
+LIBUV_OPT3+= --prefix=/usr
+LIBUV_OPT3+= --disable-static
+LIBUV_OPT3+= $(OPT_FLAGS)
+pkg3/libuv-$(LIBUV_VER).cpio.zst: pkg3/usbutils-$(USB_UTILS_VER).cpio.zst
+	rm -fr tmp/libuv
+	mkdir -p tmp/libuv/bld
+	tar -xzf pkg/libuv-$(LIBUV_VER).tar.gz -C tmp/libuv
+	cd tmp/libuv/libuv-$(LIBUV_VER) && ./autogen.sh
+	cd tmp/libuv/bld && ../libuv-$(LIBUV_VER)/configure $(LIBUV_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/libuv/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libuv/ins/usr/lib/*.so*
+endif
+	cd tmp/libuv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libuv
+tgt-libuv: pkg3/libuv-$(LIBUV_VER).cpio.zst
+
+# extra blfs :: CMake-3.18.1
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cmake.html
+# BUILD_TIME :: 6m 13s
+CMAKE_BOPT3+= --prefix=/usr
+CMAKE_BOPT3+= --system-libs
+CMAKE_BOPT3+= --mandir=/share/man
+CMAKE_BOPT3+= --no-system-jsoncpp
+CMAKE_BOPT3+= --no-system-librhash
+CMAKE_BOPT3+= --docdir=/share/doc/cmake-$(CMAKE_VER)
+CMAKE_BOPT3+= --no-system-curl
+CMAKE_BOPT3+= --no-system-nghttp2
+CMAKE_BOPT3+= --parallel=$(JOB)
+CMAKE_BOPT3+= --verbose
+pkg3/cmake-$(CMAKE_VER).cpio.zst: pkg3/libuv-$(LIBUV_VER).cpio.zst
+	rm -fr tmp/cmake
+	mkdir -p tmp/cmake
+	tar -xzf pkg/cmake-$(CMAKE_VER).tar.gz -C tmp/cmake
+	sed -i '/"lib64"/s/64//' tmp/cmake/cmake-$(CMAKE_VER)/Modules/GNUInstallDirs.cmake
+	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/cmake/cmake-$(CMAKE_VER)/Modules/Compiler/GNU.cmake
+	cd tmp/cmake/cmake-$(CMAKE_VER) && ./bootstrap $(CMAKE_BOPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/cmake/ins/usr/share/doc
+	rm -fr tmp/cmake/ins/usr/share/emacs
+	rm -fr tmp/cmake/ins/usr/share/vim
+	rm -fr tmp/cmake/ins/usr/share/cmake-$(CMAKE_VER0)/Help
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/cmake/ins/usr/bin/*
+endif
+	cd tmp/cmake/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/cmake
+tgt-cmake: pkg/cmake-$(CMAKE_VER).cpio.zst
+
+# extra CAN-UTILS
+# BUILD_TIME :: 3s
+ifeq ($(VERB),1)
+CAN_UTILS_BUILD_VERB=-v
+endif
+pkg3/can-utils.cpio.zst: pkg3/cmake-$(CMAKE_VER).cpio.zst
+	rm -fr tmp/can-utils
+	mkdir -p tmp/can-utils/src
+	mkdir -p tmp/can-utils/bld
+	pv pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/can-utils/src
+	cd tmp/can-utils/bld && cmake -GNinja ../src
+	cd tmp/can-utils/bld && LANG=en_US.UTF-8 ninja $(CAN_UTILS_BUILD_VERB)
+	cd tmp/can-utils/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/can-utils/ins/usr/local/bin/*
+endif
+	cd tmp/can-utils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/can-utils
+tgt-can-utils: pkg3/can-utils.cpio.zst
+	
 # RKDEVELOPTOOL
 # BUILD_TIME :: 10s
-pkg3/rkdeveloptool.cpio.zst: pkg3/usbutils-$(USB_UTILS_VER).cpio.zst
+pkg3/rkdeveloptool.cpio.zst: pkg3/can-utils.cpio.zst
 	rm -fr tmp/rkdeveloptool
 	mkdir -p tmp/rkdeveloptool/src
 	mkdir -p tmp/rkdeveloptool/bld
@@ -5900,6 +5999,8 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	echo 'setenv overlay_error "false"' >> tmp/boot-scr/src/boot.cmd
 	echo 'setenv rootdev "/dev/mmcblk0p1"' >> tmp/boot-scr/src/boot.cmd
 	echo 'setenv verbosity "1"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv console "display"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv console "serial"' >> tmp/boot-scr/src/boot.cmd
 	echo 'setenv console "both"' >> tmp/boot-scr/src/boot.cmd
 	echo 'setenv bootlogo "false"' >> tmp/boot-scr/src/boot.cmd
 	echo 'setenv rootfstype "ext4"' >> tmp/boot-scr/src/boot.cmd
@@ -5912,7 +6013,8 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	echo 'fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${logo}" = "disabled"; then setenv logo "logo.nologo"; fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${console}" = "display" || test "$${console}" = "both"; then setenv consoleargs "console=tty1"; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'if test "$${console}" = "serial" || test "$${console}" = "both"; then setenv consoleargs "console=ttyFIQ0,1500000 $${consoleargs} myboot=$${devnum}"; fi' >> tmp/boot-scr/src/boot.cmd
+	echo 'if test "$${console}" = "serial" || test "$${console}" = "both"; then setenv consoleargs "console=ttyS2,1500000 $${consoleargs}"; fi' >> tmp/boot-scr/src/boot.cmd
+#	echo 'setenv consoleargs "console=/dev/tty1 $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${earlycon}" = "on"; then setenv consoleargs "earlycon $${consoleargs}"; fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${bootlogo}" = "true"; then' >> tmp/boot-scr/src/boot.cmd
 	echo '        setenv consoleargs "splash plymouth.ignore-serial-consoles $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
@@ -5920,7 +6022,7 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	echo '        setenv consoleargs "splash=verbose $${consoleargs}"' >> tmp/boot-scr/src/boot.cmd
 	echo 'fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${devtype}" = "mmc"; then part uuid mmc $${devnum}:1 partuuid; fi' >> tmp/boot-scr/src/boot.cmd
-	echo 'setenv bootargs "root=$${rootdev} rootfstype=$${rootfstype} $${consoleargs} consoleblank=0 loglevel=$${verbosity} ubootpart=$${partuuid} $${extraargs} $${extraboardargs}"' >> tmp/boot-scr/src/boot.cmd
+	echo 'setenv bootargs "root=$${rootdev} rootfstype=$${rootfstype} $${consoleargs} myboot=$${devnum} consoleblank=0 loglevel=$${verbosity} ubootpart=$${partuuid} $${extraargs} $${extraboardargs}"' >> tmp/boot-scr/src/boot.cmd
 	echo 'if test "$${docker_optimizations}" = "on"; then setenv bootargs "$${bootargs} cgroup_enable=cpuset cgroup_memory=1 cgroup_enable=memory swapaccount=1"; fi' >> tmp/boot-scr/src/boot.cmd
 	echo 'load $${devtype} $${devnum} $${ramdisk_addr_r} $${prefix}uInitrd' >> tmp/boot-scr/src/boot.cmd
 	echo 'load $${devtype} $${devnum} $${kernel_addr_r} $${prefix}Image' >> tmp/boot-scr/src/boot.cmd
@@ -5971,23 +6073,25 @@ tgt-boot-scr: pkg3/boot-scr.cpio.zst
 
 
 # BUILD_TIME :: 54s
-pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
+#	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
+pkg3/busybox.cpio.zst:
 	rm -fr tmp/busybox
 	mkdir -p tmp/busybox/src
 	mkdir -p tmp/busybox/bld
 	pv pkg/busybox-$(BUSYBOX_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/busybox/src	
-	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
-	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+#	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+#	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
 	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
 	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
 	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/bin\//\/abin\//g" {} +
 	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/bin\//\/abin\//g" {} +
 	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
 	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
-	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
-#	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
-	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
-	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
+#	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
+#	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
+#	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
+	cp -f cfg/busybox_my_config tmp/busybox/bld/.config
+	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
 	mkdir -p tmp/busybox/ins/abin
 	cp tmp/busybox/bld/busybox tmp/busybox/ins/abin
 	echo '#!/bin/bash' > tmp/busybox/ins/abin/gen.sh
@@ -6001,17 +6105,12 @@ pkg3/busybox.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fv tmp/busybox/ins/abin/linuxrc
 	cd tmp/busybox/ins && ln -sfv abin/busybox init
 	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	rm -fr tmp/busybox
+#	rm -fr tmp/busybox
 tgt-busybox: pkg3/busybox.cpio.zst
 
 
 
-# libacl.so
-# libacl.so.1
-# libacl.so.1.1.2253
-# libanl-2.32.so
-# libanl.so
-# libanl.so.1
+
 # libarchive.so
 # libarchive.so.13
 # libarchive.so.13.4.3
@@ -6027,23 +6126,8 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libatomic.so
 # libatomic.so.1
 # libatomic.so.1.2.0
-# libattr.so
-# libattr.so.1
-# libattr.so.1.1.2448
 # libbfd-2.35.so
 # libbfd.so
-# libblkid.so
-# libblkid.so.1
-# libblkid.so.1.1.0
-# libBrokenLocale-2.32.so
-# libBrokenLocale.so
-# libBrokenLocale.so.1
-# libbz2.so
-# libbz2.so.1.0
-# libbz2.so.1.0.8
-# libcap.so
-# libcap.so.2
-# libcap.so.2.42
 # libcc1.so
 # libcc1.so.0
 # libcc1.so.0.0.0
@@ -6053,14 +6137,6 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libcom_err.so
 # libcom_err.so.2
 # libcom_err.so.2.1
-# libcrack.so
-# libcrack.so.2
-# libcrack.so.2.9.0
-# libcrypt-2.32.so
-# libcrypto.so
-# libcrypto.so.1.1
-# libcrypt.so
-# libcrypt.so.1
 # libctf-nobfd.so
 # libctf-nobfd.so.0
 # libctf-nobfd.so.0.0.0
@@ -6076,9 +6152,6 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libdb_tcl-5.3.so
 # libdb_tcl-5.so
 # libdb_tcl.so
-# libdbus-1.so
-# libdbus-1.so.3
-# libdbus-1.so.3.19.13
 # libdw-0.180.so
 # libdw.so
 # libdw.so.1
@@ -6088,16 +6161,10 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libelf-0.180.so
 # libelf.so
 # libelf.so.1
-# libexpat.so
-# libexpat.so.1
-# libexpat.so.1.9.2
 # libexpect5.45.4.so
 # libext2fs.so
 # libext2fs.so.2
 # libext2fs.so.2.4
-# libfdisk.so
-# libfdisk.so.1
-# libfdisk.so.1.1.0
 # libfdt.so
 # libfdt.so.1
 # libfdt.so.1.6.0
@@ -6142,18 +6209,12 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libitm.so
 # libitm.so.1
 # libitm.so.1.0.0
-# libkmod.so
-# libkmod.so.2
-# libkmod.so.2.3.5
 # liblsan.so
 # liblsan.so.0
 # liblsan.so.0.0.0
 # libltdl.so
 # libltdl.so.7
 # libltdl.so.7.3.1
-# libmagic.so
-# libmagic.so.1
-# libmagic.so.1.0.0
 # libmemusage.so
 # libmenu.so
 # libmenuw.so
@@ -6162,36 +6223,12 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libmnl.so
 # libmnl.so.0
 # libmnl.so.0.2.0
-# libmount.so
-# libmount.so.1
-# libmount.so.1.1.0
 # libmpc.so
 # libmpc.so.3
 # libmpc.so.3.1.0
 # libmpfr.so
 # libmpfr.so.6
 # libmpfr.so.6.1.0
-# libnsl-2.32.so
-# libnsl.so.1
-# libnss_compat-2.32.so
-# libnss_compat.so
-# libnss_compat.so.2
-# libnss_db-2.32.so
-# libnss_db.so
-# libnss_db.so.2
-# libnss_dns-2.32.so
-# libnss_dns.so
-# libnss_dns.so.2
-# libnss_files-2.32.so
-# libnss_files.so
-# libnss_files.so.2
-# libnss_hesiod-2.32.so
-# libnss_hesiod.so
-# libnss_hesiod.so.2
-# libnss_myhostname.so.2
-# libnss_mymachines.so.2
-# libnss_resolve.so.2
-# libnss_systemd.so.2
 # libopcodes-2.35.so
 # libopcodes.so
 # libpanel.so
@@ -6201,10 +6238,6 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libparted-fs-resize.so
 # libparted-fs-resize.so.0
 # libparted-fs-resize.so.0.0.2
-# libparted.so
-# libparted.so.2
-# libparted.so.2.0.2
-# libpcprofile.so
 # libpcre16.so
 # libpcre16.so.0
 # libpcre16.so.0.2.12
@@ -6232,15 +6265,6 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libpython3.8.so
 # libpython3.8.so.1.0
 # libpython3.so
-# librt-2.32.so
-# librt.so
-# librt.so.1
-# libSegFault.so
-# libsmartcols.so
-# libsmartcols.so.1
-# libsmartcols.so.1.1.0
-# libssl.so
-# libssl.so.1.1
 # libssp.so
 # libssp.so.0
 # libssp.so.0.0.0
@@ -6251,19 +6275,10 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libstdc++.so.6
 # libstdc++.so.6.0.28
 # libstdc++.so.6.0.28-gdb.py
-# libsystemd.so
-# libsystemd.so.0
-# libsystemd.so.0.29.0
 # libtcl8.6.so
 # libtextstyle.so
 # libtextstyle.so.0
 # libtextstyle.so.0.1.1
-# libthread_db-1.0.so
-# libthread_db.so
-# libthread_db.so.1
-# * [LNK] libtinfow.so
-# * [LNK] libtinfow.so.6
-# * [LNK] libtinfow.so.6.2
 # libticw.so
 # libticw.so.6
 # libticw.so.6.2
@@ -6276,76 +6291,10 @@ tgt-busybox: pkg3/busybox.cpio.zst
 # libudev.so
 # libudev.so.1
 # libudev.so.1.6.18
-# libuuid.so
-# libuuid.so.1
-# libuuid.so.1.3.0
-# libzstd.so
-# libzstd.so.1
-# libzstd.so.1.4.5
 # preloadable_libintl.so
 
-# === GLIBC
-# *** [LIB] ld-2.32.so ::: The helper program for shared library executables
-# *** [LNK] ld-linux-aarch64.so.1
-# *** [LIB] libc-2.32.so ::: The main C library
-# *** [SCR] libc.so
-# *** [LNK] libc.so.6
-# *** [LIB] libdl-2.32.so ::: The dynamic linking interface library
-# *** [LNK] libdl.so
-# *** [LNK] libdl.so.2
-# *** [LIB] libm-2.32.so ::: The mathematical library
-# *** [LNK] libm.so
-# *** [LNK] libm.so.6
-# *** [LIB] libresolv-2.32.so ::: Contains functions for creating, sending, and interpreting packets to the Internet domain name servers
-# *** [LNK] libresolv.so
-# *** [LNK] libresolv.so.2
-# *** [LIB] libpthread-2.32.so ::: The POSIX threads library
-# *** [LIB] libpthread.so
-# *** [LIB] libpthread.so.0
 
-# libBrokenLocale ::: Used internally by Glibc as a gross hack to get broken programs (e.g., some Motif applications) running. See comments in glibc-2.32/locale/broken_cur_max.c for more information
-# libSegFault ::: The segmentation fault signal handler, used by catchsegv
-# libanl ::: An asynchronous name lookup library
-# libcrypt ::: The cryptography library
-# libg ::: Dummy library containing no functions. Previously was a runtime library for g++
-# libmcheck ::: Turns on memory allocation checking when linked to
-# libmemusage ::: Used by memusage to help collect information about the memory usage of a program
-# libnsl ::: The network services library
-# libnss ::: The Name Service Switch libraries, containing functions for resolving host names, user names, group names, aliases, services, protocols, etc.
-# libpcprofile ::: Can be preloaded to PC profile an executable
-# librt ::: Contains functions providing most of the interfaces specified by the POSIX.1b Realtime Extension
-# libthread_db ::: Contains functions useful for building debuggers for multi-threaded programs
-# [LIB] libutil-2.32.so ::: Contains code for “standard” functions used in many different Unix utilities
-# [LNK] libutil.so
-# [LNK] libutil.so.1
-
-# === NCURSES
-# *** [LNK] libcurses.so
-# *** [SCR] libcursesw.so
-# *** [SCR] libncurses.so
-# *** [LNK] libncursesw.so
-# *** [LNK] libncursesw.so.6
-# *** [LIB] libncursesw.so.6.2 ::: Contains functions to display text in many complex ways on a terminal screen; a good example of the use of these functions is the menu displayed during the kernel's make menuconfig
-# libformw ::: Contains functions to implement forms
-# libmenuw ::: Contains functions to implement menus
-# libpanelw ::: Contains functions to implement panels
-
-# *** [LNK] libhistory.so
-# *** [LNK] libhistory.so.8
-# *** [LIB] libhistory.so.8.0
-
-# *** [LNK] libreadline.so
-# *** [LNK] libreadline.so.8
-# *** [LIB] libreadline.so.8.0
-
-# *** [LNK] libz.so
-# *** [LNK] libz.so.1
-# *** [LIB] libz.so.1.3.1
-# *** [LNK] liblzma.so
-# *** [LNK] liblzma.so.5
-# *** [LNK] liblzma.so.5.2.5
-
-pkg3/issue.cpio.zst: pkg3/busybox.cpio.zst
+pkg3/issue.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/issue
 	mkdir -p tmp/issue
 	echo '#!/bin/sh' > tmp/issue/issue.sh
@@ -6358,57 +6307,178 @@ pkg3/issue.cpio.zst: pkg3/busybox.cpio.zst
 	rm -fr tmp/issue
 tgt-issue: pkg3/issue.cpio.zst
 
-pkg3/boot-initrd.cpio.zst: pkg3/issue.cpio.zst
+
+pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
+	rm -fr tmp/dbus
+	mkdir -p tmp/dbus
+	pv pkg3/dbus-1.12.20.cpio.zst | zstd -d | cpio -idumH newc -D tmp/dbus
+	rm -fr tmp/dbus/usr/include
+	cd tmp/dbus && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	rm -fr tmp/dbus
+
+# systemd ExecStart= , what is 'minus' means? I.e. ExecStart=-/bin/bash
+# https://unix.stackexchange.com/questions/404199/documentation-of-equals-minus-in-systemd-unit-files
+
+INITRD_GZIP=y
+
+pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
-	pv pkg3/busybox.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
+#	pv pkg3/busybox.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 	mkdir -p tmp/initrd/dev/pts
 	mknod -m 600  tmp/initrd/dev/console c 5 1 || true
 	mknod -m 666  tmp/initrd/dev/null c 1 3 || true
+	mkdir -p      tmp/initrd/root
 	mkdir -p      tmp/initrd/proc
 	mkdir -p      tmp/initrd/sys
 	mkdir -p      tmp/initrd/usr/lib/modules
-# ---
-	mkdir -p      tmp/initrd/lib
-	cd tmp/initrd/lib && ln -sf ../usr/lib/modules modules
-	cp -far /usr/lib/ld-*     tmp/initrd/lib/
-	cp -far /usr/lib/libc-*   tmp/initrd/lib/
-	cp -far /usr/lib/libc.so* tmp/initrd/lib/
-	cp -far /usr/lib/libdl*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libm-*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libm.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libresolv-*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libresolv.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libreadlin*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libhistor*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libcurs*.so*  tmp/initrd/lib/
-	cp -far /usr/lib/libncurs*.so* tmp/initrd/lib/
-	cp -far /usr/lib/libz.so* tmp/initrd/lib/
-	cp -far /usr/lib/liblzma.so* tmp/initrd/lib/
-	cp -far /usr/lib/libpthread-*   tmp/initrd/lib/
-	cp -far /usr/lib/libpthread.so* tmp/initrd/lib/
-	mkdir -p      tmp/initrd/boot
-	mkdir -p      tmp/initrd/bin
-# ---
-	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/bin
-	cp -f /usr/bin/bash tmp/initrd/bin/
+	mkdir -p      tmp/initrd/usr/local/bin
+	mkdir -p      tmp/initrd/usr/local/lib
+	mkdir -p      tmp/initrd/usr/local/sbin
+	cd tmp/initrd && ln -sf usr/lib lib
+	mkdir -p      tmp/initrd/usr/bin
+	cd tmp/initrd && ln -sf usr/bin bin
+	mkdir -p      tmp/initrd/usr/sbin
+	cd tmp/initrd && ln -sf usr/sbin sbin
+# --- glibc
+	cp -far /usr/lib/ld-*     tmp/initrd/usr/lib/
+	cp -far /usr/lib/libc-*   tmp/initrd/usr/lib/
+	cp -far /usr/lib/libc.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libdl-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libdl.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libm-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libm.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libpthread-*   tmp/initrd/usr/lib/
+	cp -far /usr/lib/libpthread.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libresolv-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libresolv.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/librt-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/librt.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcrypt-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcrypt.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_dns-*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_dns*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_files-*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_files*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_db-*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_db*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_compat-*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_compat*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_hesiod-*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_hesiod*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_myhostname.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_mymachines.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_resolve.so* tmp/initrd/usr/lib/
+# --- libs
+	cp -far /usr/lib/libreadlin*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libhistor*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcurs*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libncurs*.so* tmp/initrd/usr/lib/
+	cd tmp/initrd/usr/lib/ && ln -sf libncursesw.so.6.2 libtinfow.so.6.2
+	cd tmp/initrd/usr/lib/ && ln -sf libtinfow.so.6.2 libtinfow.so.6
+	cd tmp/initrd/usr/lib/ && ln -sf libtinfow.so.6 libtinfow.so
+	cp -far /usr/lib/libz.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/liblzma.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libkmod.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libblkid.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libmount.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libzstd.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcap.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libattr.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libacl.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libmagic.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libbz2.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libssl.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcrypto.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libnss_systemd.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libexpat.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libsystemd.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libparted.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libuuid.so*  tmp/initrd/usr/lib/
+# --- apps
+	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
+	cp -f /usr/bin/bash tmp/initrd/usr/bin/
 	cd tmp/initrd/bin && ln -sf bash sh
-	cp -f /usr/bin/make tmp/initrd/bin/
-	cp -f /usr/bin/cpio tmp/initrd/bin/
-	cp -f /usr/bin/zstd tmp/initrd/bin/
-	cp -f /usr/bin/pv tmp/initrd/bin/
+	cp -f /usr/bin/dmesg tmp/initrd/usr/bin/
+	cp -f /usr/bin/cat tmp/initrd/usr/bin/
+	cp -f /usr/bin/ls tmp/initrd/usr/bin/
+	cp -f /usr/bin/less tmp/initrd/usr/bin/
+#	cp -f /usr/bin/make tmp/initrd/usr/bin/
+	cp -f /usr/bin/cpio tmp/initrd/usr/bin/
+	cp -f /usr/bin/zstd tmp/initrd/usr/bin/
+	cp -f /usr/bin/which tmp/initrd/usr/bin/
+	cp -f /usr/bin/mount tmp/initrd/usr/bin/
+	cp -f /usr/bin/umount tmp/initrd/usr/bin/
+	cp -f /usr/bin/dtc tmp/initrd/usr/bin/
+	cp -f /usr/bin/mkimage tmp/initrd/usr/bin/
+	cp -f /usr/bin/ln tmp/initrd/usr/bin/
+	cp -f /usr/bin/df tmp/initrd/usr/bin/
+	cp -f /usr/bin/sync tmp/initrd/usr/bin/
+	cp -f /usr/bin/nano tmp/initrd/usr/bin/
+	cp -fa /usr/bin/rnano tmp/initrd/usr/bin/
+	cp -far /usr/share/nano tmp/initrd/usr/share/
+	cp -f /usr/bin/grep tmp/initrd/usr/bin/
+	cp -f /usr/bin/head tmp/initrd/usr/bin/
+	cp -f /usr/bin/printenv tmp/initrd/usr/bin/
+	cp -f /usr/bin/pstree tmp/initrd/usr/bin/
+	cp -f /usr/bin/echo tmp/initrd/usr/bin/
+	cp -f /usr/bin/mkdir tmp/initrd/usr/bin/
+	cp -f /usr/bin/dd tmp/initrd/usr/bin/
+	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
+	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
+	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
+#	cp -f cfg/boot-src.sh tmp/initrd/usr/local/sbin/
+#	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
+	cp -f cfg/my-*.sh tmp/initrd/usr/local/sbin/
+	chmod ugo+x tmp/initrd/usr/local/sbin/my-*.sh
+# --- share
+	mkdir -p tmp/initrd/usr/share/terminfo/l
+	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
+	mkdir -p tmp/initrd/usr/share/terminfo/v
+	cp -f /usr/share/terminfo/v/vt100 tmp/initrd/usr/share/terminfo/v/
+# --- systemd
+	mkdir -p tmp/initrd/usr/lib/systemd/system
+	cp -far /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
+	cp -far /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
+	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
+	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
+	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
+#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
+# Targets and Services
+# https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
+# StandardOutput=
+# inherit, null, tty, journal, kmsg, journal+console, kmsg+console, file:path, append:path, truncate:path, socket or fd:name.
+# https://opensource.com/article/20/5/systemd-startup
+#	cp -far /usr/lib/systemd/system tmp/initrd/usr/lib/systemd/
+	cp -far /usr/lib/systemd/system/emergency.target tmp/initrd/usr/lib/systemd/system/
+#	cp -far cfg/systemd/system/emergency.target  tmp/initrd/usr/lib/systemd/system/
+	cp -far cfg/systemd/system/emergency.service tmp/initrd/usr/lib/systemd/system/
+#	sed -i 's|StandardOutput=inherit|StandardOutput=kmsg+console|' tmp/initrd/usr/lib/systemd/system/emergency.service
+#	cp -f /usr/lib/systemd/system/systemd-update-utmp-runlevel.service tmp/initrd/usr/lib/systemd/system/
+#	cp -far /usr/lib/systemd/system/rescue.* tmp/initrd/usr/lib/systemd/system/
+#	cp -f /usr/lib/systemd/system/sysinit.target tmp/initrd/usr/lib/systemd/system/
+	cd tmp/initrd/usr/lib/systemd/system/ && ln -sf emergency.target default.target
+#	cp -f cfg/scripts/emergency.sh tmp/initrd/usr/bin/
+#	chmod ugo+x tmp/initrd/usr/bin/emergency.sh
+#	mkdir -p tmp/initrd/etc/systemd
+#	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
+	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
+# === dbus
+	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 # ===
+	mkdir -p      tmp/initrd/mnt/p1
+	cd tmp/initrd/ && ln -sf mnt/p1 boot
 	mkdir -p      tmp/initrd/run
 	mkdir -p      tmp/initrd/var/cache
-#	mkdir -p      tmp/initrd/var/lib/arpd
+	mkdir -p      tmp/initrd/var/lib/arpd
 	mkdir -p      tmp/initrd/var/lib/color
-#	mkdir -p      tmp/initrd/var/lib/dbus
-#	mkdir -p      tmp/initrd/var/lib/hwclock
+	mkdir -p      tmp/initrd/var/lib/dbus
+	mkdir -p      tmp/initrd/var/lib/hwclock
 	mkdir -p      tmp/initrd/var/lib/locate
 	mkdir -p      tmp/initrd/var/lib/misc
-#	mkdir -p      tmp/initrd/var/lib/nss_db
-#	mkdir -p      tmp/initrd/var/lib/systemd
+	mkdir -p      tmp/initrd/var/lib/nss_db
+	mkdir -p      tmp/initrd/var/lib/systemd
 	mkdir -p      tmp/initrd/var/local
 	mkdir -p      tmp/initrd/var/log
 	touch         tmp/initrd/var/log/btmp
@@ -6421,117 +6491,165 @@ pkg3/boot-initrd.cpio.zst: pkg3/issue.cpio.zst
 	mkdir -p      tmp/initrd/var/mail
 	mkdir -p      tmp/initrd/var/opt
 	mkdir -p      tmp/initrd/var/spool
+	mkdir -p      tmp/initrd/var/myboot
 	cd tmp/initrd/var && ln -sf ../run run
 	install -d -m 1777 tmp/initrd/run/lock
 	cd tmp/initrd/var && ln -sf ../run/lock lock
 	install -d -m 1777 tmp/initrd/tmp
 	install -d -m 1777 tmp/initrd/var/tmp
-#	chown -R root:root tmp/initrd/*
-	mkdir -p tmp/initrd/aetc/rc.d
-# rcS
-	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rcS
-#	echo '/abin/busybox mount /dev/mmcblk1p1 /boot && /bin/pv /boot/zst/kernel-modules.cpio.zst | /bin/zstd -d | /bin/cpio -idumH newc -D /' >> tmp/initrd/aetc/rc.d/rcS
-#	echo '/abin/busybox mount /dev/mmcblk1p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/aetc/rc.d/rcS
-	echo '  case $$x in' >> tmp/initrd/aetc/rc.d/rcS
-	echo '  myboot=*)' >> tmp/initrd/aetc/rc.d/rcS
-	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/aetc/rc.d/rcS
-	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/aetc/rc.d/rcS
-	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/aetc/rc.d/rcS
-	echo '    ;;' >> tmp/initrd/aetc/rc.d/rcS
-	echo '  esac' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'done' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'then' >> tmp/initrd/aetc/rc.d/rcS
-	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'else' >> tmp/initrd/aetc/rc.d/rcS
-	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/aetc/rc.d/rcS
-	echo '   /abin/busybox mount /dev/mmcblk$${BOOT_DEV}p1 /boot' >> tmp/initrd/aetc/rc.d/rcS
-	echo 'fi' >> tmp/initrd/aetc/rc.d/rcS
-	echo '/abin/busybox echo "BOOT_DEV_TYPE = $${BOOT_DEV_TYPE}"' >> tmp/initrd/aetc/rc.d/rcS
-	chmod ugo+x tmp/initrd/aetc/rc.d/rcS
-# rc0
-	echo '#!/abin/sh' > tmp/initrd/aetc/rc.d/rc0
-#	echo '/abin/busybox echo ""' >> tmp/initrd/aetc/rc.d/rc0
-#	echo '/abin/busybox echo "Closing System!"' >> tmp/initrd/aetc/rc.d/rc0
-#	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
-	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/aetc/rc.d/rc0
-#	echo '/abin/busybox cat /proc/mounts' >> tmp/initrd/aetc/rc.d/rc0
-	chmod ugo+x tmp/initrd/aetc/rc.d/rc0
-# inittab
-	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/aetc/inittab
-	echo "::sysinit:/aetc/rc.d/rcS" >> tmp/initrd/aetc/inittab
-	echo "::respawn:-/abin/busybox sh -l" >> tmp/initrd/aetc/inittab
-	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/aetc/inittab
-	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/aetc/inittab
-	echo "::shutdown:/aetc/rc.d/rc0" >> tmp/initrd/aetc/inittab
+	chown -R root:root tmp/initrd/*
+#	mkdir -p tmp/initrd/etc/rc.d
+	mkdir -p tmp/initrd/etc
+	cd tmp/initrd/etc && ln -sf ../proc/self/mounts mtab
+#fstab
+#	cp -f cfg/etc/fstab tmp/initrd/etc/
+#inputrc
+	cp -f cfg/etc/inputrc tmp/initrd/etc/
+#nanorc
+	cp -f cfg/etc/nanorc tmp/initrd/etc/
+## inittab
+#	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" > tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/etc/rc.d/rcS" >> tmp/initrd/etc/inittab
+#	echo "::respawn:-/abin/busybox sh -l" >> tmp/initrd/etc/inittab
+#	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/etc/inittab
+#	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/etc/inittab
+#	echo "::shutdown:/etc/rc.d/rc0" >> tmp/initrd/etc/inittab
+## rc0
+#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rc0
+#	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/etc/rc.d/rc0
+#	chmod ugo+x tmp/initrd/etc/rc.d/rc0
+## rcS
+#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rcS
+#	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/etc/rc.d/rcS
+#	echo '  case $$x in' >> tmp/initrd/etc/rc.d/rcS
+#	echo '  myboot=*)' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/etc/rc.d/rcS
+##	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    ;;' >> tmp/initrd/etc/rc.d/rcS
+#	echo '  esac' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'done' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'then' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'else' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   /abin/busybox mount /dev/mmcblk$${BOOT_DEV}p1 /mnt/p1' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'fi' >> tmp/initrd/etc/rc.d/rcS
+#	echo '/abin/busybox echo "BOOT_DEV = $${BOOT_DEV_TYPE} [ $${BOOT_DEV_NAME} ]"' >> tmp/initrd/etc/rc.d/rcS
+#	chmod ugo+x tmp/initrd/etc/rc.d/rcS
 # issue
-	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/aetc
+	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # profile
-	echo 'export PATH="/bin:/sbin:/usr/bin:/usr/sbin:/usr/local/bin:/usr/local/sbin:/abin"' > tmp/initrd/aetc/profile
-	echo '/abin/busybox cat /aetc/issue' >> tmp/initrd/aetc/profile
-# shells
-	echo "/bin/bash" > tmp/initrd/aetc/shells
-	echo "/abin/sh" >> tmp/initrd/aetc/shells
-	echo "/abin/ash" >> tmp/initrd/aetc/shells
+	echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"' > tmp/initrd/etc/profile
+	echo '/bin/cat /etc/issue' >> tmp/initrd/etc/profile
+	echo 'umask 022' >> tmp/initrd/etc/profile
+#.bashrc	
+	echo 'alias ls="ls --color"' >> tmp/initrd/root/.bashrc
+	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.bashrc
 # group
-	echo "root:x:0:" > tmp/initrd/aetc/group
-	echo "daemon:x:1:" >> tmp/initrd/aetc/group
-	echo "bin:x:2:" >> tmp/initrd/aetc/group
-	echo "sys:x:3:" >> tmp/initrd/aetc/group
-	echo "adm:x:4:" >> tmp/initrd/aetc/group
-	echo "tty:x:5:" >> tmp/initrd/aetc/group
-	echo "disk:x:6:" >> tmp/initrd/aetc/group
-	echo "lp:x:7:" >> tmp/initrd/aetc/group
-	echo "mail:x:8:" >> tmp/initrd/aetc/group
-	echo "kmem:x:9:" >> tmp/initrd/aetc/group
-	echo "wheel:x:10:root" >> tmp/initrd/aetc/group
-	echo "cdrom:x:11:" >> tmp/initrd/aetc/group
-	echo "dialout:x:18:" >> tmp/initrd/aetc/group
-	echo "floppy:x:19:" >> tmp/initrd/aetc/group
-	echo "video:x:28:" >> tmp/initrd/aetc/group
-	echo "audio:x:29:" >> tmp/initrd/aetc/group
-	echo "tape:x:32:" >> tmp/initrd/aetc/group
-	echo "www-data:x:33:" >> tmp/initrd/aetc/group
-	echo "operator:x:37:" >> tmp/initrd/aetc/group
-	echo "utmp:x:43:" >> tmp/initrd/aetc/group
-	echo "plugdev:x:46:" >> tmp/initrd/aetc/group
-	echo "staff:x:50:" >> tmp/initrd/aetc/group
-	echo "lock:x:54:" >> tmp/initrd/aetc/group
-	echo "netdev:x:82:" >> tmp/initrd/aetc/group
-	echo "users:x:100:" >> tmp/initrd/aetc/group
-	echo "nobody:x:65534:" >> tmp/initrd/aetc/group
+#	cp -f cfg/etc/group tmp/initrd/etc/
+	cp -f /etc/group tmp/initrd/etc/
+#	echo "root:x:0:" > tmp/initrd/etc/group
+#	echo "daemon:x:1:" >> tmp/initrd/etc/group
+#	echo "bin:x:2:" >> tmp/initrd/etc/group
+#	echo "sys:x:3:" >> tmp/initrd/etc/group
+#	echo "adm:x:4:" >> tmp/initrd/etc/group
+#	echo "tty:x:5:" >> tmp/initrd/etc/group
+#	echo "disk:x:6:" >> tmp/initrd/etc/group
+#	echo "lp:x:7:" >> tmp/initrd/etc/group
+#	echo "mail:x:8:" >> tmp/initrd/etc/group
+#	echo "kmem:x:9:" >> tmp/initrd/etc/group
+#	echo "wheel:x:10:root" >> tmp/initrd/etc/group
+#	echo "cdrom:x:11:" >> tmp/initrd/etc/group
+#	echo "dialout:x:18:" >> tmp/initrd/etc/group
+#	echo "floppy:x:19:" >> tmp/initrd/etc/group
+#	echo "video:x:28:" >> tmp/initrd/etc/group
+#	echo "audio:x:29:" >> tmp/initrd/etc/group
+#	echo "tape:x:32:" >> tmp/initrd/etc/group
+#	echo "www-data:x:33:" >> tmp/initrd/etc/group
+#	echo "operator:x:37:" >> tmp/initrd/etc/group
+#	echo "utmp:x:43:" >> tmp/initrd/etc/group
+#	echo "plugdev:x:46:" >> tmp/initrd/etc/group
+#	echo "staff:x:50:" >> tmp/initrd/etc/group
+#	echo "lock:x:54:" >> tmp/initrd/etc/group
+#	echo "netdev:x:82:" >> tmp/initrd/etc/group
+#	echo "users:x:100:" >> tmp/initrd/etc/group
+#	echo "nobody:x:65534:" >> tmp/initrd/etc/group
 # passwd
-	echo "root::0:0:root:/root:/abin/sh" > tmp/initrd/aetc/passwd
-	echo "daemon:x:1:1:daemon:/usr/sbin:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "bin:x:2:2:bin:/abin:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "sys:x:3:3:sys:/dev:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "sync:x:4:100:sync:/abin:/abin/sync" >> tmp/initrd/aetc/passwd
-	echo "mail:x:8:8:mail:/var/spool/mail:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "www-data:x:33:33:www-data:/var/www:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "operator:x:37:37:Operator:/var:/abin/false" >> tmp/initrd/aetc/passwd
-	echo "nobody:x:65534:65534:nobody:/home:/abin/false" >> tmp/initrd/aetc/passwd
+	cp -f /etc/passwd tmp/initrd/etc/
+#	sed -i 's|root:x:0:0:root:/root:/bin/bash|root::0:0:root:/root:/bin/bash|' tmp/initrd/etc/passwd
+##	echo "root::0:0:root:/root:/abin/sh" > tmp/initrd/etc/passwd
+#	echo "daemon:x:1:1:daemon:/usr/sbin:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "bin:x:2:2:bin:/abin:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "sys:x:3:3:sys:/dev:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "sync:x:4:100:sync:/abin:/abin/sync" >> tmp/initrd/etc/passwd
+#	echo "mail:x:8:8:mail:/var/spool/mail:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "www-data:x:33:33:www-data:/var/www:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "operator:x:37:37:Operator:/var:/abin/false" >> tmp/initrd/etc/passwd
+#	echo "nobody:x:65534:65534:nobody:/home:/abin/false" >> tmp/initrd/etc/passwd
+# protocols & services
+#	cp -f cfg/etc/protocols tmp/initrd/etc/
+	cp -f /etc/protocols tmp/initrd/etc/
+	cp -f /etc/services tmp/initrd/etc/
+# rpc
+	cp -f /etc/rpc tmp/initrd/etc/
+#
+	cp -f /etc/nsswitch.conf tmp/initrd/etc/
+#/etc/fstab: Creating the /etc/fstab File
+#/etc/hosts: Customizing the /etc/hosts File
+#/etc/inputrc: Creating the /etc/inputrc File
+#/etc/ld.so.conf: Configuring the Dynamic Loader
+#/etc/lfs-release: The End
+#/etc/localtime: Configuring Glibc
+#/etc/lsb-release: The End
+#/etc/modprobe.d/usb.conf: Configuring Linux Module Load Order
+#/etc/os-release: The End
+#/etc/resolv.conf: Creating the /etc/resolv.conf File
+#/etc/vimrc: Configuring Vim
+# shells
+#	echo "/bin/bash" > tmp/initrd/etc/shells
+#	echo "/abin/sh" >> tmp/initrd/etc/shells
+#	echo "/abin/ash" >> tmp/initrd/etc/shells
 # shadow
-	echo "root::19701::::::" > tmp/initrd/aetc/shadow
-	echo "daemon:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "bin:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "sys:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "sync:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "mail:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "www-data:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "operator:*:::::::" >> tmp/initrd/aetc/shadow
-	echo "nobody:*:::::::" >> tmp/initrd/aetc/shadow
+	cp -f /etc/shadow tmp/initrd/etc/
+#	echo "root::19701::::::" > tmp/initrd/etc/shadow
+#	echo "daemon:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "bin:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "sys:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "sync:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "mail:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "www-data:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "operator:*:::::::" >> tmp/initrd/etc/shadow
+#	echo "nobody:*:::::::" >> tmp/initrd/etc/shadow
+# hostname
+#	cp -f cfg/etc/HOSTNAME tmp/initrd/etc/
+#	echo 'myadas' > tmp/initrd/etc/hostname
 # hosts
-	echo "127.0.0.1 localhost `hostname`" > tmp/initrd/aetc/hosts
-#Initrd
-#	cd tmp/init/ins && find . -print | cpio -oH newc | gzip > ../Initrd
-#	cd tmp/init && mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d Initrd fat/uInitrd
+#	echo "127.0.0.1 localhost `hostname`" > tmp/initrd/etc/hosts
+#	echo -e "127.0.0.1\tlocalhost" > tmp/initrd/etc/hosts
+# host.conf
+#	cp -f cfg/etc/host.conf tmp/initrd/etc/
+# networks
+#	cp -f cfg/etc/networks tmp/initrd/etc/
+# udhcp.sh
+#	mkdir -p tmp/initrd/etc/scripts
+#	cp -far cfg/etc/scripts tmp/initrd/etc/
+#	chmod ugo+x tmp/initrd/etc/scripts/udhcp.sh
+# MAIN init
+	cd tmp/initrd && ln -sf /usr/lib/systemd/systemd init
+# Initrd
+ifeq ($(INITRD_GZIP),y)
 	cd tmp/initrd && find . -print | cpio -oH newc | gzip > ../Initrd
 	mkimage -A arm64 -O linux -T ramdisk -C gzip -n uInitrd -d tmp/Initrd tmp/uInitrd
+else
+	cd tmp/initrd && find . -print | cpio -oH newc > ../Initrd
+	mkimage -A arm64 -O linux -T ramdisk -C none -n uInitrd -d tmp/Initrd tmp/uInitrd
+endif
 	rm -f  tmp/Initrd
 #	rm -fr tmp/initrd
 	mkdir -p tmp/initrd_ins/usr/share/myboot/boot-fat
@@ -6541,15 +6659,27 @@ pkg3/boot-initrd.cpio.zst: pkg3/issue.cpio.zst
 	rm -fr tmp/initrd_ins
 tgt-rd: pkg3/boot-initrd.cpio.zst
 
-pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
+pkg3/etc.cpio.zst: pkg3/boot-initrd.cpio.zst
+	rm -fr tmp/etc
+	mkdir -p tmp/etc/ins
+	cp -far /etc tmp/etc/ins
+	cd tmp/etc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	rm -fr tmp/etc
+tgt-etc: pkg3/etc.cpio.zst
+
+pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
+	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
-	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=190
+# (!!!) seek=X, type here value-1 from ODS
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=117
 	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
 	mkdir -p tmp/fat/mnt/zst
 	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/shadow-4.8.1.cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/etc.cpio.zst tmp/fat/mnt/zst/
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
 	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
@@ -6561,21 +6691,46 @@ tgt-fat: pkg3/boot-fat.cpio.zst
 TGT_UBOOT=u-boot-xunlong.bin
 
 mmc.img: pkg3/boot-fat.cpio.zst
+	rm -fr tmp/init
 	mkdir -p tmp/init
-	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=201
+# (!!!) seek=X, type here value-10 from ODS
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=128
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 	parted -s tmp/init/mmc.img mklabel gpt
-	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 409599
-	cp -f tmp/init/mmc.img .
+# (!!!) last value, type here value-5 from ODS
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 260095
+#	cp -f tmp/init/mmc.img .
+	mkdir -p tmp/init/ins
+	cp -f tmp/init/mmc.img tmp/init/ins/
+	cat tmp/init/mmc.img | zstd -z9T9 > tmp/init/ins/mmc.zst
+# (!!!) count=X, type here value-3 from ODS
+	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=239616
+	mkdir -p tmp/init/ins/fat
+	mount tmp/init/ins/fat.bin tmp/init/ins/fat
+	cp --force --no-preserve=all tmp/init/ins/mmc.zst tmp/init/ins/fat
+	umount tmp/init/ins/fat.bin
+	dd of=tmp/init/ins/mmc.img if=tmp/init/ins/fat.bin seek=20480 conv=notrunc
+	cp -f tmp/init/ins/mmc.img .
 	rm -fr tmp/init
 mmc: mmc.img
+
+#mmc-sd: mmc.img
+#	rm -fr tmp/mmc-sd
+#	mkdir -p tmp/mmc-sd/fat
+#	cp -f $< tmp/mmc-sd/
+#	cat $< | zstd -z9T9 > tmp/mmc-sd/mmc.zst
+#	dd if=tmp/mmc-sd/mmc.img of=tmp/mmc-sd/fat.bin skip=20480 count=182272
+#	mount tmp/mmc-sd/fat.bin tmp/mmc-sd/fat
+#	cp --force --no-preserve=all tmp/mmc-sd/mmc.zst tmp/mmc-sd/fat
+#	umount tmp/mmc-sd/fat.bin
+#	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 
 flash: mmc.img
 	@echo "FLASH ALL - whole mmc.img to EMMC"
 	@echo "Connect usb-target, enter in maskrom, and press ENTER to continue"
 	@read line
-	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 0 mmc.img && rkdeveloptool rd 0
+	rkdeveloptool db /usr/share/myboot/usb-loader.bin && rkdeveloptool wl 0 mmc.img && rkdeveloptool rd
 
 
 #	mkdir -pv /boot
