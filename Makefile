@@ -6071,229 +6071,6 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	rm -fr tmp/boot-scr
 tgt-boot-scr: pkg3/boot-scr.cpio.zst
 
-
-# BUILD_TIME :: 54s
-#	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
-pkg3/busybox.cpio.zst:
-	rm -fr tmp/busybox
-	mkdir -p tmp/busybox/src
-	mkdir -p tmp/busybox/bld
-	pv pkg/busybox-$(BUSYBOX_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/busybox/src	
-#	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
-#	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
-	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
-	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
-	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/bin\//\/abin\//g" {} +
-	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/bin\//\/abin\//g" {} +
-	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
-	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
-#	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
-#	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
-#	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
-	cp -f cfg/busybox_my_config tmp/busybox/bld/.config
-	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
-	mkdir -p tmp/busybox/ins/abin
-	cp tmp/busybox/bld/busybox tmp/busybox/ins/abin
-	echo '#!/bin/bash' > tmp/busybox/ins/abin/gen.sh
-	echo 'for i in $$(./busybox --list)' >> tmp/busybox/ins/abin/gen.sh
-	echo 'do' >> tmp/busybox/ins/abin/gen.sh
-	echo '  ln -s busybox $$i' >> tmp/busybox/ins/abin/gen.sh
-	echo 'done' >> tmp/busybox/ins/abin/gen.sh
-	chmod ugo+x tmp/busybox/ins/abin/gen.sh
-	cd tmp/busybox/ins/abin && ./gen.sh
-	rm -f tmp/busybox/ins/abin/gen.sh
-	rm -fv tmp/busybox/ins/abin/linuxrc
-	cd tmp/busybox/ins && ln -sfv abin/busybox init
-	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	rm -fr tmp/busybox
-tgt-busybox: pkg3/busybox.cpio.zst
-
-
-
-
-# libarchive.so
-# libarchive.so.13
-# libarchive.so.13.4.3
-# libasan.so
-# libasan.so.6
-# libasan.so.6.0.0
-# libasm-0.180.so
-# libasm.so
-# libasm.so.1
-# libasprintf.so
-# libasprintf.so.0
-# libasprintf.so.0.0.0
-# libatomic.so
-# libatomic.so.1
-# libatomic.so.1.2.0
-# libbfd-2.35.so
-# libbfd.so
-# libcc1.so
-# libcc1.so.0
-# libcc1.so.0.0.0
-# libcheck.so
-# libcheck.so.0
-# libcheck.so.0.0.0
-# libcom_err.so
-# libcom_err.so.2
-# libcom_err.so.2.1
-# libctf-nobfd.so
-# libctf-nobfd.so.0
-# libctf-nobfd.so.0.0.0
-# libctf.so
-# libctf.so.0
-# libctf.so.0.0.0
-# libdb-5.3.so
-# libdb-5.so
-# libdb_cxx-5.3.so
-# libdb_cxx-5.so
-# libdb_cxx.so
-# libdb.so
-# libdb_tcl-5.3.so
-# libdb_tcl-5.so
-# libdb_tcl.so
-# libdw-0.180.so
-# libdw.so
-# libdw.so.1
-# libe2p.so
-# libe2p.so.2
-# libe2p.so.2.3
-# libelf-0.180.so
-# libelf.so
-# libelf.so.1
-# libexpect5.45.4.so
-# libext2fs.so
-# libext2fs.so.2
-# libext2fs.so.2.4
-# libfdt.so
-# libfdt.so.1
-# libfdt.so.1.6.0
-# libffi.so
-# libffi.so.7
-# libffi.so.7.1.0
-# libfl.so
-# libfl.so.2
-# libfl.so.2.0.0
-# libform.so
-# libformw.so
-# libformw.so.6
-# libformw.so.6.2
-# libgcc_s.so
-# libgcc_s.so.1
-# libgdbm_compat.so
-# libgdbm_compat.so.4
-# libgdbm_compat.so.4.0.0
-# libgdbm.so
-# libgdbm.so.6
-# libgdbm.so.6.0.0
-# libgettextlib-0.21.so
-# libgettextlib.so
-# libgettextpo.so
-# libgettextpo.so.0
-# libgettextpo.so.0.5.7
-# libgettextsrc-0.21.so
-# libgettextsrc.so
-# libgmp.so
-# libgmp.so.10
-# libgmp.so.10.4.0
-# libgmpxx.so
-# libgmpxx.so.4
-# libgmpxx.so.4.6.0
-# libgomp.so
-# libgomp.so.1
-# libgomp.so.1.0.0
-# libisl.so
-# libisl.so.23
-# libisl.so.23.0.0
-# libisl.so.23.0.0-gdb.py
-# libitm.so
-# libitm.so.1
-# libitm.so.1.0.0
-# liblsan.so
-# liblsan.so.0
-# liblsan.so.0.0.0
-# libltdl.so
-# libltdl.so.7
-# libltdl.so.7.3.1
-# libmemusage.so
-# libmenu.so
-# libmenuw.so
-# libmenuw.so.6
-# libmenuw.so.6.2
-# libmnl.so
-# libmnl.so.0
-# libmnl.so.0.2.0
-# libmpc.so
-# libmpc.so.3
-# libmpc.so.3.1.0
-# libmpfr.so
-# libmpfr.so.6
-# libmpfr.so.6.1.0
-# libopcodes-2.35.so
-# libopcodes.so
-# libpanel.so
-# libpanelw.so
-# libpanelw.so.6
-# libpanelw.so.6.2
-# libparted-fs-resize.so
-# libparted-fs-resize.so.0
-# libparted-fs-resize.so.0.0.2
-# libpcre16.so
-# libpcre16.so.0
-# libpcre16.so.0.2.12
-# libpcre32.so
-# libpcre32.so.0
-# libpcre32.so.0.0.12
-# libpcrecpp.so
-# libpcrecpp.so.0
-# libpcrecpp.so.0.0.2
-# libpcreposix.so
-# libpcreposix.so.0
-# libpcreposix.so.0.0.7
-# libpcre.so
-# libpcre.so.1
-# libpcre.so.1.2.12
-# libpipeline.so
-# libpipeline.so.1
-# libpipeline.so.1.5.3
-# libpopt.so
-# libpopt.so.0
-# libpopt.so.0.0.1
-# libprocps.so
-# libprocps.so.8
-# libprocps.so.8.0.2
-# libpython3.8.so
-# libpython3.8.so.1.0
-# libpython3.so
-# libssp.so
-# libssp.so.0
-# libssp.so.0.0.0
-# libss.so
-# libss.so.2
-# libss.so.2.0
-# libstdc++.so
-# libstdc++.so.6
-# libstdc++.so.6.0.28
-# libstdc++.so.6.0.28-gdb.py
-# libtcl8.6.so
-# libtextstyle.so
-# libtextstyle.so.0
-# libtextstyle.so.0.1.1
-# libticw.so
-# libticw.so.6
-# libticw.so.6.2
-# libtsan.so
-# libtsan.so.0
-# libtsan.so.0.0.0
-# libubsan.so
-# libubsan.so.1
-# libubsan.so.1.0.0
-# libudev.so
-# libudev.so.1
-# libudev.so.1.6.18
-# preloadable_libintl.so
-
-
 pkg3/issue.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/issue
 	mkdir -p tmp/issue
@@ -6306,7 +6083,6 @@ pkg3/issue.cpio.zst: pkg3/boot-scr.cpio.zst
 	cd tmp/issue && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
 	rm -fr tmp/issue
 tgt-issue: pkg3/issue.cpio.zst
-
 
 pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
 	rm -fr tmp/dbus
@@ -6396,6 +6172,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libsystemd.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libparted.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libuuid.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libelf.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libmnl.so*  tmp/initrd/usr/lib/
 # --- apps
 	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
 	cp -f /usr/bin/bash tmp/initrd/usr/bin/
@@ -6428,6 +6206,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
 	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
 	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
+	cp -f /usr/sbin/ip tmp/initrd/usr/sbin/
 #	cp -f cfg/boot-src.sh tmp/initrd/usr/local/sbin/
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
 	cp -f cfg/my-*.sh tmp/initrd/usr/local/sbin/
