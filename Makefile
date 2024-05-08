@@ -175,7 +175,6 @@ LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
 UBOOT_VER=v2024.04
-BUSYBOX_VER=1_36
 CAN_UTILS_VER=v2020.12.0
 
 # LFS-packages versions:
@@ -426,7 +425,6 @@ PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
 PKG+=pkg/rockchip-rk35-atf.src.cpio.zst
 PKG+=pkg/uboot-$(UBOOT_VER).src.cpio.zst
 PKG+=pkg/orangepi5-uboot.src.cpio.zst
-PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
 PKG+=pkg/rkdeveloptool.src.cpio.zst
 PKG+=pkg/orangepi5-linux510.src.cpio.zst
 PKG+=pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst
@@ -743,18 +741,6 @@ endif
 	cd tmp/can-utils/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../can-utils-$(CAN_UTILS_VER).src.cpio.zst
 	mkdir -p pkg && mv -fv tmp/can-utils/can-utils-$(CAN_UTILS_VER).src.cpio.zst pkg/
 	rm -fr tmp/can-utils
-	rm -fr tmp/tmp
-# GIT: busybox :: 1.36
-pkg/busybox-$(BUSYBOX_VER).src.cpio.zst:
-	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
-	rm -fr tmp/busybox && mkdir -p tmp/busybox/git
-	git clone https://git.busybox.net/busybox -b $(BUSYBOX_VER)_stable tmp/busybox/git
-ifeq ($(GIT_RM),y)
-	rm -fr tmp/busybox/git/.git
-endif
-	cd tmp/busybox/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../busybox.src.cpio.zst
-	mkdir -p pkg && mv -fv tmp/busybox/busybox.src.cpio.zst $@
-	rm -fr tmp/busybox
 	rm -fr tmp/tmp
 # GIT: rkdeveloptool :: 46bb4c073624226c3f05b37b9ecc50bbcf543f5a
 pkg/rkdeveloptool.src.cpio.zst:
@@ -6101,7 +6087,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
-#	pv pkg3/busybox.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 	mkdir -p tmp/initrd/dev/pts
 	mknod -m 600  tmp/initrd/dev/console c 5 1 || true
 	mknod -m 666  tmp/initrd/dev/null c 1 3 || true
@@ -6286,41 +6271,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f cfg/etc/inputrc tmp/initrd/etc/
 #nanorc
 	cp -f cfg/etc/nanorc tmp/initrd/etc/
-## inittab
-#	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" > tmp/initrd/etc/inittab
-#	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/etc/inittab
-#	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/etc/inittab
-#	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/etc/inittab
-#	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/etc/inittab
-#	echo "::sysinit:/etc/rc.d/rcS" >> tmp/initrd/etc/inittab
-#	echo "::respawn:-/abin/busybox sh -l" >> tmp/initrd/etc/inittab
-#	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/etc/inittab
-#	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/etc/inittab
-#	echo "::shutdown:/etc/rc.d/rc0" >> tmp/initrd/etc/inittab
-## rc0
-#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rc0
-#	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/etc/rc.d/rc0
-#	chmod ugo+x tmp/initrd/etc/rc.d/rc0
-## rcS
-#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rcS
-#	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/etc/rc.d/rcS
-#	echo '  case $$x in' >> tmp/initrd/etc/rc.d/rcS
-#	echo '  myboot=*)' >> tmp/initrd/etc/rc.d/rcS
-#	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/etc/rc.d/rcS
-#	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/etc/rc.d/rcS
-##	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/etc/rc.d/rcS
-#	echo '    ;;' >> tmp/initrd/etc/rc.d/rcS
-#	echo '  esac' >> tmp/initrd/etc/rc.d/rcS
-#	echo 'done' >> tmp/initrd/etc/rc.d/rcS
-#	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/etc/rc.d/rcS
-#	echo 'then' >> tmp/initrd/etc/rc.d/rcS
-#	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/etc/rc.d/rcS
-#	echo 'else' >> tmp/initrd/etc/rc.d/rcS
-#	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/etc/rc.d/rcS
-#	echo '   /abin/busybox mount /dev/mmcblk$${BOOT_DEV}p1 /mnt/p1' >> tmp/initrd/etc/rc.d/rcS
-#	echo 'fi' >> tmp/initrd/etc/rc.d/rcS
-#	echo '/abin/busybox echo "BOOT_DEV = $${BOOT_DEV_TYPE} [ $${BOOT_DEV_NAME} ]"' >> tmp/initrd/etc/rc.d/rcS
-#	chmod ugo+x tmp/initrd/etc/rc.d/rcS
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # profile
@@ -6536,17 +6486,6 @@ flash: mmc.img
 ## mkdir -pv /usr/{,local/}share/man/man{1..8}
 #	install -dv -m 0750 /root
 #	ln -sfv /proc/self/mounts /etc/mtab
-
-
-## bin
-#mkdir -p out/rd/abin
-#cp -f src/busybox/busybox out/rd/abin/
-#cd out/rd && ln -sf /abin/busybox init && cd -
-
-#pkg3/busybox.ready
-#mkdir -p src/busybox
-#pv src/busybox.cpio.zst | zstd -d | cpio -iduH newc -D src/busybox
-#cd src/busybox && make defconfig && cd -
 
 
 # Extra :: python 'pyelftools' (for uboot)
