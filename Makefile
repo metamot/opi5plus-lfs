@@ -175,6 +175,7 @@ LFS_VER=10.0
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd
 
 UBOOT_VER=v2024.04
+BUSYBOX_VER=1_36
 CAN_UTILS_VER=v2020.12.0
 
 # LFS-packages versions:
@@ -425,6 +426,7 @@ PKG+=pkg/orangepi5-rkbin-only_rk3588.cpio.zst
 PKG+=pkg/rockchip-rk35-atf.src.cpio.zst
 PKG+=pkg/uboot-$(UBOOT_VER).src.cpio.zst
 PKG+=pkg/orangepi5-uboot.src.cpio.zst
+PKG+=pkg/busybox-$(BUSYBOX_VER).src.cpio.zst
 PKG+=pkg/rkdeveloptool.src.cpio.zst
 PKG+=pkg/orangepi5-linux510.src.cpio.zst
 PKG+=pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst
@@ -741,6 +743,18 @@ endif
 	cd tmp/can-utils/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../can-utils-$(CAN_UTILS_VER).src.cpio.zst
 	mkdir -p pkg && mv -fv tmp/can-utils/can-utils-$(CAN_UTILS_VER).src.cpio.zst pkg/
 	rm -fr tmp/can-utils
+	rm -fr tmp/tmp
+# GIT: busybox :: 1.36
+pkg/busybox-$(BUSYBOX_VER).src.cpio.zst:
+	mkdir -p lfs-chroot/opt/mysdk/tmp && ln -sf lfs-chroot/opt/mysdk/tmp
+	rm -fr tmp/busybox && mkdir -p tmp/busybox/git
+	git clone https://git.busybox.net/busybox -b $(BUSYBOX_VER)_stable tmp/busybox/git
+ifeq ($(GIT_RM),y)
+	rm -fr tmp/busybox/git/.git
+endif
+	cd tmp/busybox/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../busybox.src.cpio.zst
+	mkdir -p pkg && mv -fv tmp/busybox/busybox.src.cpio.zst $@
+	rm -fr tmp/busybox
 	rm -fr tmp/tmp
 # GIT: rkdeveloptool :: 46bb4c073624226c3f05b37b9ecc50bbcf543f5a
 pkg/rkdeveloptool.src.cpio.zst:
@@ -5802,6 +5816,79 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-tools.cpio.zst
 	rm -fr tmp/opi5-linux
 tgt-linux-kernel: pkg3/kernel.5.10.110.xunlong.cpio.zst
 
+tgt-linux-config:
+	rm -fr tmp/opi5-linux
+	mkdir -p tmp/opi5-linux/src
+	mkdir -p tmp/opi5-linux/bld
+	pv pkg/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
+	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(BCMDHD_ROOT)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rkwifi\/bcmdhd\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/Makefile
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
+	sed -i "s/-I\$$(src)\/core\/crypto/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/core\/crypto/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/common.mk
+	sed -i "s/phl_path_d1 := \$$(src)/phl_path_d1 := \$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/phl/phl.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189es\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189es/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8189fs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8189fs/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8192eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8192eu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8812au\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8812au/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8811cu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8811cu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8188eu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8188eu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2bu\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2bu/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/core\/crypto/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/core\/crypto/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl88x2cs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/hal/phydm/sd4_phydm_2_kernel.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723ds\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723ds/Makefile
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/hal/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/hal/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8723du\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8723du/hal/phydm/phydm.mk
+	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/include/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/platform/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/platform/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/btc/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/hal\/btc/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/Makefile
+	sed -i "s/-I\$$(src)\/hal\/phydm/-I\$$(src)\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rtl8822bs\/hal\/phydm/" tmp/opi5-linux/src/drivers/net/wireless/rtl8822bs/hal/phydm/phydm.mk
+	mkdir -p tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan
+	cp -far tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/
+	cd tmp/opi5-linux/bld/drivers/net/wireless/rockchip_wlan/rtl8852be && find . -name "*.c" -type f -delete
+	cp -f cfg/kernel_opi5plus_my_defconfig tmp/opi5-linux/src/arch/arm64/configs/
+	cd tmp/opi5-linux/src && make V=$(VERB) O=../bld kernel_opi5plus_my_defconfig
+	sed -i "s|CONFIG_LOCALVERSION_AUTO=.*|CONFIG_LOCALVERSION_AUTO=n|" tmp/opi5-linux/bld/.config
+	cd tmp/opi5-linux/bld && make LOCALVERSION= kernelversion > ../kerver.txt
+	sed -i '/make/d' tmp/opi5-linux/kerver.txt
+	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" menuconfig
+
 pkg3/kernel-modules.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
 	rm -fr tmp/kernel
 	mkdir -p tmp/kernel
@@ -6057,6 +6144,229 @@ pkg3/boot-scr.cpio.zst: pkg3/uboot-xunlong.cpio.zst
 	rm -fr tmp/boot-scr
 tgt-boot-scr: pkg3/boot-scr.cpio.zst
 
+
+# BUILD_TIME :: 54s
+#	sed -i 's|# CONFIG_STATIC is not set|CONFIG_STATIC=y|' tmp/busybox/bld/.config
+pkg3/busybox.cpio.zst:
+	rm -fr tmp/busybox
+	mkdir -p tmp/busybox/src
+	mkdir -p tmp/busybox/bld
+	pv pkg/busybox-$(BUSYBOX_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/busybox/src	
+#	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+#	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/etc\//\/aetc\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/sbin\//\/asbin\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/bin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/bin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.h" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
+	find tmp/busybox/src -name "*.c" -exec sed -i "s/\/asbin\//\/abin\//g" {} +
+#	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src V=$(VERB) defconfig
+#	sed -i 's|# CONFIG_INSTALL_NO_USR is not set|CONFIG_INSTALL_NO_USR=y|' tmp/busybox/bld/.config
+#	cd tmp/busybox/bld && make CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
+	cp -f cfg/busybox_my_config tmp/busybox/bld/.config
+	cd tmp/busybox/bld && make -f ../src/Makefile KBUILD_SRC=../src CFLAGS="$(BASE_OPT_FLAGS)" V=$(VERB) $(JOBS)
+	mkdir -p tmp/busybox/ins/abin
+	cp tmp/busybox/bld/busybox tmp/busybox/ins/abin
+	echo '#!/bin/bash' > tmp/busybox/ins/abin/gen.sh
+	echo 'for i in $$(./busybox --list)' >> tmp/busybox/ins/abin/gen.sh
+	echo 'do' >> tmp/busybox/ins/abin/gen.sh
+	echo '  ln -s busybox $$i' >> tmp/busybox/ins/abin/gen.sh
+	echo 'done' >> tmp/busybox/ins/abin/gen.sh
+	chmod ugo+x tmp/busybox/ins/abin/gen.sh
+	cd tmp/busybox/ins/abin && ./gen.sh
+	rm -f tmp/busybox/ins/abin/gen.sh
+	rm -fv tmp/busybox/ins/abin/linuxrc
+	cd tmp/busybox/ins && ln -sfv abin/busybox init
+	cd tmp/busybox/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	rm -fr tmp/busybox
+tgt-busybox: pkg3/busybox.cpio.zst
+
+
+
+
+# libarchive.so
+# libarchive.so.13
+# libarchive.so.13.4.3
+# libasan.so
+# libasan.so.6
+# libasan.so.6.0.0
+# libasm-0.180.so
+# libasm.so
+# libasm.so.1
+# libasprintf.so
+# libasprintf.so.0
+# libasprintf.so.0.0.0
+# libatomic.so
+# libatomic.so.1
+# libatomic.so.1.2.0
+# libbfd-2.35.so
+# libbfd.so
+# libcc1.so
+# libcc1.so.0
+# libcc1.so.0.0.0
+# libcheck.so
+# libcheck.so.0
+# libcheck.so.0.0.0
+# libcom_err.so
+# libcom_err.so.2
+# libcom_err.so.2.1
+# libctf-nobfd.so
+# libctf-nobfd.so.0
+# libctf-nobfd.so.0.0.0
+# libctf.so
+# libctf.so.0
+# libctf.so.0.0.0
+# libdb-5.3.so
+# libdb-5.so
+# libdb_cxx-5.3.so
+# libdb_cxx-5.so
+# libdb_cxx.so
+# libdb.so
+# libdb_tcl-5.3.so
+# libdb_tcl-5.so
+# libdb_tcl.so
+# libdw-0.180.so
+# libdw.so
+# libdw.so.1
+# libe2p.so
+# libe2p.so.2
+# libe2p.so.2.3
+# libelf-0.180.so
+# libelf.so
+# libelf.so.1
+# libexpect5.45.4.so
+# libext2fs.so
+# libext2fs.so.2
+# libext2fs.so.2.4
+# libfdt.so
+# libfdt.so.1
+# libfdt.so.1.6.0
+# libffi.so
+# libffi.so.7
+# libffi.so.7.1.0
+# libfl.so
+# libfl.so.2
+# libfl.so.2.0.0
+# libform.so
+# libformw.so
+# libformw.so.6
+# libformw.so.6.2
+# libgcc_s.so
+# libgcc_s.so.1
+# libgdbm_compat.so
+# libgdbm_compat.so.4
+# libgdbm_compat.so.4.0.0
+# libgdbm.so
+# libgdbm.so.6
+# libgdbm.so.6.0.0
+# libgettextlib-0.21.so
+# libgettextlib.so
+# libgettextpo.so
+# libgettextpo.so.0
+# libgettextpo.so.0.5.7
+# libgettextsrc-0.21.so
+# libgettextsrc.so
+# libgmp.so
+# libgmp.so.10
+# libgmp.so.10.4.0
+# libgmpxx.so
+# libgmpxx.so.4
+# libgmpxx.so.4.6.0
+# libgomp.so
+# libgomp.so.1
+# libgomp.so.1.0.0
+# libisl.so
+# libisl.so.23
+# libisl.so.23.0.0
+# libisl.so.23.0.0-gdb.py
+# libitm.so
+# libitm.so.1
+# libitm.so.1.0.0
+# liblsan.so
+# liblsan.so.0
+# liblsan.so.0.0.0
+# libltdl.so
+# libltdl.so.7
+# libltdl.so.7.3.1
+# libmemusage.so
+# libmenu.so
+# libmenuw.so
+# libmenuw.so.6
+# libmenuw.so.6.2
+# libmnl.so
+# libmnl.so.0
+# libmnl.so.0.2.0
+# libmpc.so
+# libmpc.so.3
+# libmpc.so.3.1.0
+# libmpfr.so
+# libmpfr.so.6
+# libmpfr.so.6.1.0
+# libopcodes-2.35.so
+# libopcodes.so
+# libpanel.so
+# libpanelw.so
+# libpanelw.so.6
+# libpanelw.so.6.2
+# libparted-fs-resize.so
+# libparted-fs-resize.so.0
+# libparted-fs-resize.so.0.0.2
+# libpcre16.so
+# libpcre16.so.0
+# libpcre16.so.0.2.12
+# libpcre32.so
+# libpcre32.so.0
+# libpcre32.so.0.0.12
+# libpcrecpp.so
+# libpcrecpp.so.0
+# libpcrecpp.so.0.0.2
+# libpcreposix.so
+# libpcreposix.so.0
+# libpcreposix.so.0.0.7
+# libpcre.so
+# libpcre.so.1
+# libpcre.so.1.2.12
+# libpipeline.so
+# libpipeline.so.1
+# libpipeline.so.1.5.3
+# libpopt.so
+# libpopt.so.0
+# libpopt.so.0.0.1
+# libprocps.so
+# libprocps.so.8
+# libprocps.so.8.0.2
+# libpython3.8.so
+# libpython3.8.so.1.0
+# libpython3.so
+# libssp.so
+# libssp.so.0
+# libssp.so.0.0.0
+# libss.so
+# libss.so.2
+# libss.so.2.0
+# libstdc++.so
+# libstdc++.so.6
+# libstdc++.so.6.0.28
+# libstdc++.so.6.0.28-gdb.py
+# libtcl8.6.so
+# libtextstyle.so
+# libtextstyle.so.0
+# libtextstyle.so.0.1.1
+# libticw.so
+# libticw.so.6
+# libticw.so.6.2
+# libtsan.so
+# libtsan.so.0
+# libtsan.so.0.0.0
+# libubsan.so
+# libubsan.so.1
+# libubsan.so.1.0.0
+# libudev.so
+# libudev.so.1
+# libudev.so.1.6.18
+# preloadable_libintl.so
+
+
 pkg3/issue.cpio.zst: pkg3/boot-scr.cpio.zst
 	rm -fr tmp/issue
 	mkdir -p tmp/issue
@@ -6069,6 +6379,7 @@ pkg3/issue.cpio.zst: pkg3/boot-scr.cpio.zst
 	cd tmp/issue && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
 	rm -fr tmp/issue
 tgt-issue: pkg3/issue.cpio.zst
+
 
 pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
 	rm -fr tmp/dbus
@@ -6087,6 +6398,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -fr tmp/initrd
 	mkdir -p tmp/initrd
 # system
+#	pv pkg3/busybox.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 	mkdir -p tmp/initrd/dev/pts
 	mknod -m 600  tmp/initrd/dev/console c 5 1 || true
 	mknod -m 666  tmp/initrd/dev/null c 1 3 || true
@@ -6157,7 +6469,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libsystemd.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libparted.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libuuid.so*  tmp/initrd/usr/lib/
-	cp -far /usr/lib/libelf.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libelf-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libelf.*so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libmnl.so*  tmp/initrd/usr/lib/
 # --- apps
 	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
@@ -6271,6 +6584,41 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f cfg/etc/inputrc tmp/initrd/etc/
 #nanorc
 	cp -f cfg/etc/nanorc tmp/initrd/etc/
+## inittab
+#	echo "::sysinit:/abin/busybox mount -t proc -o nodev,noexec,nosuid proc /proc" > tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t sysfs -o nodev,noexec,nosuid sysfs /sys" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t devtmpfs -o nosuid,mode=0755 udev /dev" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mkdir /dev/pts" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/abin/busybox mount -t devpts -o noexec,nosuid,gid=5,mode=0620 devpts /dev/pts" >> tmp/initrd/etc/inittab
+#	echo "::sysinit:/etc/rc.d/rcS" >> tmp/initrd/etc/inittab
+#	echo "::respawn:-/abin/busybox sh -l" >> tmp/initrd/etc/inittab
+#	echo "ttyFIQ0::respawn:/abin/getty -L -f 0 1500000 ttyFIQ0 vt100" >> tmp/initrd/etc/inittab
+#	echo "::ctrlaltdel:/abin/busybox poweroff" >> tmp/initrd/etc/inittab
+#	echo "::shutdown:/etc/rc.d/rc0" >> tmp/initrd/etc/inittab
+## rc0
+#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rc0
+#	echo '/abin/busybox sync && /abin/busybox umount -a -r > /dev/null 2>&1' >> tmp/initrd/etc/rc.d/rc0
+#	chmod ugo+x tmp/initrd/etc/rc.d/rc0
+## rcS
+#	echo '#!/abin/busybox sh' > tmp/initrd/etc/rc.d/rcS
+#	echo 'for x in $$(/abin/busybox cat /proc/cmdline); do' >>tmp/initrd/etc/rc.d/rcS
+#	echo '  case $$x in' >> tmp/initrd/etc/rc.d/rcS
+#	echo '  myboot=*)' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    BOOT_DEV=$${x#myboot=}' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    BOOT_DEV_NAME=/dev/mmcblk$${BOOT_DEV}' >> tmp/initrd/etc/rc.d/rcS
+##	echo '    /abin/busybox echo "BOOT_DEV_NAME = $${BOOT_DEV_NAME}"' >> tmp/initrd/etc/rc.d/rcS
+#	echo '    ;;' >> tmp/initrd/etc/rc.d/rcS
+#	echo '  esac' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'done' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'if [ $${BOOT_DEV} = "0" ]' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'then' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=microSD' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'else' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   BOOT_DEV_TYPE=eMMC' >> tmp/initrd/etc/rc.d/rcS
+#	echo '   /abin/busybox mount /dev/mmcblk$${BOOT_DEV}p1 /mnt/p1' >> tmp/initrd/etc/rc.d/rcS
+#	echo 'fi' >> tmp/initrd/etc/rc.d/rcS
+#	echo '/abin/busybox echo "BOOT_DEV = $${BOOT_DEV_TYPE} [ $${BOOT_DEV_NAME} ]"' >> tmp/initrd/etc/rc.d/rcS
+#	chmod ugo+x tmp/initrd/etc/rc.d/rcS
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # profile
@@ -6486,6 +6834,17 @@ flash: mmc.img
 ## mkdir -pv /usr/{,local/}share/man/man{1..8}
 #	install -dv -m 0750 /root
 #	ln -sfv /proc/self/mounts /etc/mtab
+
+
+## bin
+#mkdir -p out/rd/abin
+#cp -f src/busybox/busybox out/rd/abin/
+#cd out/rd && ln -sf /abin/busybox init && cd -
+
+#pkg3/busybox.ready
+#mkdir -p src/busybox
+#pv src/busybox.cpio.zst | zstd -d | cpio -iduH newc -D src/busybox
+#cd src/busybox && make defconfig && cd -
 
 
 # Extra :: python 'pyelftools' (for uboot)
