@@ -387,7 +387,7 @@ PKG+=pkg/pkg-config-$(PKG_CONFIG_VER).tar.gz
 PKG+=pkg/popt-$(POPT_VER).tar.gz
 PKG+=pkg/procps-ng-$(PROCPS_VER).tar.xz
 PKG+=pkg/psmisc-$(PSMISC_VER).tar.xz
-PKG+=pkg/pv-$(PV_VER).tar.gz
+PKG+=pkg/pv_$(PV_VER).orig.tar.gz
 PKG+=pkg/pyelftools-$(PYELFTOOLS_VER).zip
 PKG+=pkg/Python-$(PYTHON_VER).tar.xz
 PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
@@ -607,9 +607,9 @@ pkg/procps-ng-$(PROCPS_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://sourceforge.net/projects/procps-ng/files/Production/procps-ng-$(PROCPS_VER).tar.xz && touch $@
 pkg/psmisc-$(PSMISC_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-$(PSMISC_VER).tar.xz && touch $@
-pkg/pv-$(PV_VER).tar.gz: pkg/.gitignore
+pkg/pv_$(PV_VER).orig.tar.gz: pkg/.gitignore
 #	wget -P pkg https://www.ivarch.com/programs/sources/pv-$(PV_VER).tar.gz && touch $@
-	wget -P pkg http://deb.debian.org/debian/pool/main/p/pv/pv_$(PV_VER).orig.tar.gz
+	wget -P pkg http://deb.debian.org/debian/pool/main/p/pv/pv_$(PV_VER).orig.tar.gz && touch $@
 pkg/pyelftools-$(PYELFTOOLS_VER).zip: pkg/.gitignore
 	wget -O $@ https://github.com/eliben/pyelftools/archive/refs/tags/v$(PYELFTOOLS_VER).zip && touch $@
 pkg/Python-$(PYTHON_VER).tar.xz: pkg/.gitignore
@@ -1399,7 +1399,7 @@ PV_OPT1+= --disable-nls
 PV_OPT1+= --disable-splice
 PV_OPT1+= --disable-ipc
 PV_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-pv-$(PV_VER).cpio.zst: pkg/pv-$(PV_VER).tar.gz pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst
+pkg1/lfs-hst-pv-$(PV_VER).cpio.zst: pkg/pv_$(PV_VER).orig.tar.gz pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 	rm -fr tmp/lfs-hst-pv
 	mkdir -p tmp/lfs-hst-pv/bld
 	tar -xzf $< -C tmp/lfs-hst-pv
@@ -2371,7 +2371,7 @@ PV_OPT3+= $(OPT_FLAGS)
 pkg3/pv-$(PV_VER).cpio.zst: pkg3/cpio-$(CPIO_VER).cpio.zst
 	rm -fr tmp/pv
 	mkdir -p tmp/pv/bld
-	tar -xzf pkg/pv-$(PV_VER).tar.gz -C tmp/pv
+	tar -xzf pkg/pv_$(PV_VER).orig.tar.gz -C tmp/pv
 	cd tmp/pv/bld && ../pv-$(PV_VER)/configure $(PV_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/pv/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
