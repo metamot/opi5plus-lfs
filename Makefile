@@ -608,7 +608,8 @@ pkg/procps-ng-$(PROCPS_VER).tar.xz: pkg/.gitignore
 pkg/psmisc-$(PSMISC_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://sourceforge.net/projects/psmisc/files/psmisc/psmisc-$(PSMISC_VER).tar.xz && touch $@
 pkg/pv-$(PV_VER).tar.gz: pkg/.gitignore
-	wget -P pkg https://www.ivarch.com/programs/sources/pv-$(PV_VER).tar.gz && touch $@
+#	wget -P pkg https://www.ivarch.com/programs/sources/pv-$(PV_VER).tar.gz && touch $@
+	wget -P pkg http://deb.debian.org/debian/pool/main/p/pv/pv_$(PV_VER).orig.tar.gz
 pkg/pyelftools-$(PYELFTOOLS_VER).zip: pkg/.gitignore
 	wget -O $@ https://github.com/eliben/pyelftools/archive/refs/tags/v$(PYELFTOOLS_VER).zip && touch $@
 pkg/Python-$(PYTHON_VER).tar.xz: pkg/.gitignore
@@ -6244,6 +6245,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/less tmp/initrd/usr/bin/
 #	cp -f /usr/bin/make tmp/initrd/usr/bin/
 	cp -f /usr/bin/cpio tmp/initrd/usr/bin/
+	cp -f /usr/bin/find tmp/initrd/usr/bin/
 	cp -f /usr/bin/zstd tmp/initrd/usr/bin/
 	cp -f /usr/bin/which tmp/initrd/usr/bin/
 	cp -f /usr/bin/mount tmp/initrd/usr/bin/
@@ -6263,6 +6265,10 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/echo tmp/initrd/usr/bin/
 	cp -f /usr/bin/mkdir tmp/initrd/usr/bin/
 	cp -f /usr/bin/dd tmp/initrd/usr/bin/
+	cp -f /usr/bin/find tmp/initrd/usr/bin/
+	cp -f /usr/bin/kmod tmp/initrd/usr/bin/
+	cp -f /usr/bin/cp tmp/initrd/usr/bin/
+	cd tmp/initrd/usr/bin/ && ln -sf kmod depmod && ln -sf kmod insmod && ln -sf kmod lsmod && ln -sf kmod modinfo && ln -sf kmod modprobe && ln -sf kmod rmmod
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
 	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
 	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
@@ -6277,32 +6283,28 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	mkdir -p tmp/initrd/usr/share/terminfo/v
 	cp -f /usr/share/terminfo/v/vt100 tmp/initrd/usr/share/terminfo/v/
 # --- systemd
-	mkdir -p tmp/initrd/usr/lib/systemd/system
-	cp -far /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
-	cp -far /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
-	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
-	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
-	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
-#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
 # Targets and Services
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
 # StandardOutput=
 # inherit, null, tty, journal, kmsg, journal+console, kmsg+console, file:path, append:path, truncate:path, socket or fd:name.
 # https://opensource.com/article/20/5/systemd-startup
-#	cp -far /usr/lib/systemd/system tmp/initrd/usr/lib/systemd/
+	mkdir -p tmp/initrd/usr/lib/systemd/system
+	mkdir -p tmp/initrd/etc/systemd/system
+	cp -far /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
+	cp -far /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
+	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
+	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
+	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
+#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
 	cp -far /usr/lib/systemd/system/emergency.target tmp/initrd/usr/lib/systemd/system/
-#	cp -far cfg/systemd/system/emergency.target  tmp/initrd/usr/lib/systemd/system/
 	cp -far cfg/systemd/system/emergency.service tmp/initrd/usr/lib/systemd/system/
 #	sed -i 's|StandardOutput=inherit|StandardOutput=kmsg+console|' tmp/initrd/usr/lib/systemd/system/emergency.service
 #	cp -f /usr/lib/systemd/system/systemd-update-utmp-runlevel.service tmp/initrd/usr/lib/systemd/system/
 #	cp -far /usr/lib/systemd/system/rescue.* tmp/initrd/usr/lib/systemd/system/
 #	cp -f /usr/lib/systemd/system/sysinit.target tmp/initrd/usr/lib/systemd/system/
-	cd tmp/initrd/usr/lib/systemd/system/ && ln -sf emergency.target default.target
-#	cp -f cfg/scripts/emergency.sh tmp/initrd/usr/bin/
-#	chmod ugo+x tmp/initrd/usr/bin/emergency.sh
-#	mkdir -p tmp/initrd/etc/systemd
 #	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
-	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
+	cd tmp/initrd/etc/systemd/system/ && ln -sf /usr/lib/systemd/system/emergency.target default.target
 # === dbus
 	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 # ===
@@ -6474,16 +6476,21 @@ tgt-etc: pkg3/etc.cpio.zst
 pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
-# (!!!) seek=X, type here value-1 from ODS
-	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=117
+# (!!!) seek=X, type here value-1 from ODS (117 for example)
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=245
 	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
 	mkdir -p tmp/fat/mnt/zst
 	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/shadow-4.8.1.cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/etc.cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/shadow-$(SHADOW_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/isl-$(ISL_VER).cpio.zst tmp/fat/mnt/zst/
+	mkdir -p tmp/fat/etc
+	echo "My ETC" > tmp/fat/etc/my.txt
+	cd tmp/fat/etc && find . -print0 | cpio -o0H newc > ../mnt/etc.cpio
+#	cp --force --no-preserve=all --recursive pkg3/etc.cpio.zst tmp/fat/mnt/zst/
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
 	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
@@ -6497,19 +6504,19 @@ TGT_UBOOT=u-boot-xunlong.bin
 mmc.img: pkg3/boot-fat.cpio.zst
 	rm -fr tmp/init
 	mkdir -p tmp/init
-# (!!!) seek=X, type here value-10 from ODS
-	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=128
+# (!!!) seek=X, type here value-10 from ODS (256 for example)
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=256
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 	parted -s tmp/init/mmc.img mklabel gpt
-# (!!!) last value, type here value-5 from ODS
-	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 260095
+# (!!!) last value, type here value-5 from ODS (260095 for example)
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 522239
 #	cp -f tmp/init/mmc.img .
 	mkdir -p tmp/init/ins
 	cp -f tmp/init/mmc.img tmp/init/ins/
 	cat tmp/init/mmc.img | zstd -z9T9 > tmp/init/ins/mmc.zst
-# (!!!) count=X, type here value-3 from ODS
-	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=239616
+# (!!!) count=X, type here value-3 from ODS (239616 for example)
+	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=501760
 	mkdir -p tmp/init/ins/fat
 	mount tmp/init/ins/fat.bin tmp/init/ins/fat
 	cp --force --no-preserve=all tmp/init/ins/mmc.zst tmp/init/ins/fat
