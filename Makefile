@@ -6243,7 +6243,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/cat tmp/initrd/usr/bin/
 	cp -f /usr/bin/ls tmp/initrd/usr/bin/
 	cp -f /usr/bin/less tmp/initrd/usr/bin/
-#	cp -f /usr/bin/make tmp/initrd/usr/bin/
+	cp -f /usr/bin/make tmp/initrd/usr/bin/
 	cp -f /usr/bin/cpio tmp/initrd/usr/bin/
 	cp -f /usr/bin/find tmp/initrd/usr/bin/
 	cp -f /usr/bin/zstd tmp/initrd/usr/bin/
@@ -6267,16 +6267,32 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/dd tmp/initrd/usr/bin/
 	cp -f /usr/bin/find tmp/initrd/usr/bin/
 	cp -f /usr/bin/kmod tmp/initrd/usr/bin/
-	cp -f /usr/bin/cp tmp/initrd/usr/bin/
 	cd tmp/initrd/usr/bin/ && ln -sf kmod depmod && ln -sf kmod insmod && ln -sf kmod lsmod && ln -sf kmod modinfo && ln -sf kmod modprobe && ln -sf kmod rmmod
+	cp -f /usr/bin/cp tmp/initrd/usr/bin/
+	cp -f /usr/bin/hexdump tmp/initrd/usr/bin/
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
 	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
 	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
 	cp -f /usr/sbin/ip tmp/initrd/usr/sbin/
 #	cp -f cfg/boot-src.sh tmp/initrd/usr/local/sbin/
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
-	cp -f cfg/my-*.sh tmp/initrd/usr/local/sbin/
+	cp -f cfg/my-* tmp/initrd/usr/local/sbin/
 	chmod ugo+x tmp/initrd/usr/local/sbin/my-*.sh
+	echo -e 'all: gcc isl gmp mpc mpfr glibc binutils' > tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'gcc:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/gcc-10.2.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'isl:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/isl-0.23.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'gmp:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/gmp-6.2.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'mpc:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/mpc-1.1.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'mpfr:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/mpfr-4.1.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'glibc:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/glibc-2.32.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'binutils:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/binutils-2.35.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 # --- share
 	mkdir -p tmp/initrd/usr/share/terminfo/l
 	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
@@ -6354,7 +6370,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"' > tmp/initrd/etc/profile
 	echo '/bin/cat /etc/issue' >> tmp/initrd/etc/profile
 	echo 'umask 022' >> tmp/initrd/etc/profile
-#.bashrc	
+#.bashrc
 	echo 'alias ls="ls --color"' >> tmp/initrd/root/.bashrc
 	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.bashrc
 # group
@@ -6484,11 +6500,20 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
 	mkdir -p tmp/fat/mnt/zst
 	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/shadow-$(SHADOW_VER).cpio.zst tmp/fat/mnt/zst/
+#	cp --force --no-preserve=all --recursive pkg3/shadow-$(SHADOW_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/isl-$(ISL_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/gmp-$(GMP_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/mpc-$(MPC_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/mpfr-$(MPFR_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).cpio.zst tmp/fat/mnt/zst/
 	mkdir -p tmp/fat/etc
-	echo "My ETC" > tmp/fat/etc/my.txt
+	echo '#include <stdio.h>' > tmp/fat/etc/mytest.c
+	echo 'int main() {' >> tmp/fat/etc/mytest.c
+	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/mytest.c
+	echo '  return 0;' >> tmp/fat/etc/mytest.c
+	echo '}' >> tmp/fat/etc/mytest.c
 	cd tmp/fat/etc && find . -print0 | cpio -o0H newc > ../mnt/etc.cpio
 #	cp --force --no-preserve=all --recursive pkg3/etc.cpio.zst tmp/fat/mnt/zst/
 	umount tmp/fat/mnt
