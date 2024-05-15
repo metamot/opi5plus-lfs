@@ -5798,6 +5798,7 @@ pkg3/kernel.5.10.110.xunlong.cpio.zst: pkg3/uboot-tools.cpio.zst
 	rm -fv tmp/opi5-linux/ins/usr/lib/modules/`cat tmp/opi5-linux/kerver.txt`/build
 	rm -fv tmp/opi5-linux/ins/usr/lib/modules/`cat tmp/opi5-linux/kerver.txt`/source
 	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
+	cp -f tmp/opi5-linux/kerver.txt .
 	cd tmp/opi5-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/opi5-linux
@@ -5876,7 +5877,17 @@ tgt-linux-config:
 	sed -i '/make/d' tmp/opi5-linux/kerver.txt
 	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) $(JOBS) KCFLAGS="$(BASE_OPT_FLAGS)" menuconfig
 
-pkg3/kernel-modules.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+pkg3/kernel-headers.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst
+	rm -fr tmp/kernel
+	mkdir -p tmp/kernel
+	pv $< | zstd -d | cpio -iduH newc -D tmp/kernel
+	rm -fr tmp/kernel/usr/lib
+	rm -fr tmp/kernel/usr/share
+	cd tmp/kernel && find . -print0 | cpio -o0H newc | zstd -z4T9 > ../../$@
+	rm -fr tmp/kernel
+tgt-headers: pkg3/kernel-headers.cpio.zst
+
+pkg3/kernel-modules.cpio.zst: pkg3/kernel.5.10.110.xunlong.cpio.zst pkg3/kernel-headers.cpio.zst
 	rm -fr tmp/kernel
 	mkdir -p tmp/kernel
 	pv $< | zstd -d | cpio -iduH newc -D tmp/kernel
@@ -6256,8 +6267,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/df tmp/initrd/usr/bin/
 	cp -f /usr/bin/sync tmp/initrd/usr/bin/
 	cp -f /usr/bin/nano tmp/initrd/usr/bin/
-	cp -fa /usr/bin/rnano tmp/initrd/usr/bin/
-	cp -far /usr/share/nano tmp/initrd/usr/share/
+	cp -fa  /usr/bin/rnano   tmp/initrd/usr/bin/
+	mkdir -p tmp/initrd/usr/share/nano
+	cp -far /usr/share/nano/* tmp/initrd/usr/share/nano/
 	cp -f /usr/bin/grep tmp/initrd/usr/bin/
 	cp -f /usr/bin/head tmp/initrd/usr/bin/
 	cp -f /usr/bin/printenv tmp/initrd/usr/bin/
@@ -6269,30 +6281,33 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/kmod tmp/initrd/usr/bin/
 	cd tmp/initrd/usr/bin/ && ln -sf kmod depmod && ln -sf kmod insmod && ln -sf kmod lsmod && ln -sf kmod modinfo && ln -sf kmod modprobe && ln -sf kmod rmmod
 	cp -f /usr/bin/cp tmp/initrd/usr/bin/
+	cp -f /usr/bin/rm tmp/initrd/usr/bin/
 	cp -f /usr/bin/hexdump tmp/initrd/usr/bin/
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
-	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
-	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
+#	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
+#	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
 	cp -f /usr/sbin/ip tmp/initrd/usr/sbin/
 #	cp -f cfg/boot-src.sh tmp/initrd/usr/local/sbin/
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
 	cp -f cfg/my-* tmp/initrd/usr/local/sbin/
 	chmod ugo+x tmp/initrd/usr/local/sbin/my-*.sh
-	echo -e 'all: gcc isl gmp mpc mpfr glibc binutils' > tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'all: gcc isl gmp mpc mpfr glibc binutils kernel-headers' > tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'gcc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/gcc-10.2.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/gcc-$(GCC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'isl:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/isl-0.23.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/isl-$(ISL_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'gmp:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/gmp-6.2.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/gmp-$(GMP_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'mpc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/mpc-1.1.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/mpc-$(MPC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'mpfr:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/mpfr-4.1.0.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/mpfr-$(MPFR_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'glibc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/glibc-2.32.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 	echo -e 'binutils:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/binutils-2.35.cpio.zst | zstd -d | cpio -idumH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/binutils-$(BINUTILS_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e 'kernel-headers:' >> tmp/initrd/usr/local/sbin/my-build.mk
+	echo -e '\tcat /mnt/p1/zst/kernel-headers.cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 # --- share
 	mkdir -p tmp/initrd/usr/share/terminfo/l
 	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
@@ -6500,6 +6515,7 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
 	mkdir -p tmp/fat/mnt/zst
 	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/kernel-headers.cpio.zst tmp/fat/mnt/zst/
 #	cp --force --no-preserve=all --recursive pkg3/shadow-$(SHADOW_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/isl-$(ISL_VER).cpio.zst tmp/fat/mnt/zst/
@@ -6508,6 +6524,7 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/mpfr-$(MPFR_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst tmp/fat/mnt/zst/
 	mkdir -p tmp/fat/etc
 	echo '#include <stdio.h>' > tmp/fat/etc/mytest.c
 	echo 'int main() {' >> tmp/fat/etc/mytest.c

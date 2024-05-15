@@ -5,4 +5,6 @@ set mouse
 set tabsize 4
 set titlecolor cyan,blue
 set numbercolor yellow,blue
-
+include /usr/share/nano/c.nanorc
+include /usr/share/nano/makefile.nanorc
+include /usr/share/nano/sh.nanorc
