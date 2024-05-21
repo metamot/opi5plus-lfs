@@ -6189,6 +6189,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cd tmp/initrd && ln -sf usr/bin bin
 	mkdir -p      tmp/initrd/usr/sbin
 	cd tmp/initrd && ln -sf usr/sbin sbin
+# --- modules
+	pv pkg3/kernel-modules.cpio.zst | zstd -d | cpio -idH newc -D tmp/initrd
 # --- glibc
 	cp -far /usr/lib/ld-*     tmp/initrd/usr/lib/
 	cp -far /usr/lib/libc-*   tmp/initrd/usr/lib/
@@ -6325,12 +6327,18 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	mkdir -p tmp/initrd/etc/systemd/system
 	cd tmp/initrd/etc/systemd/system/ && ln -sf /usr/lib/systemd/system/rescue.target default.target
 	mkdir -p tmp/initrd/usr/lib/systemd/system
-	cp -far /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
-	cp -far /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
-	cp -far /usr/lib/systemd/systemd-binfmt tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd-binfmt tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd-sysctl tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd-modules-load tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
+	cp -f /usr/lib/systemd/systemd-journald tmp/initrd/usr/lib/systemd/
 	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
 	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
-	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
+	cp -f /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
+	cp -f /usr/bin/bootctl tmp/initrd/usr/bin/
+	cp -f /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
 	cp -far cfg/systemd/system/* tmp/initrd/usr/lib/systemd/system/
@@ -6513,7 +6521,7 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
 # (!!!) seek=X, type here value-1 from ODS (117 for example)
-	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=245
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=309
 	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
@@ -6552,18 +6560,18 @@ mmc.img: pkg3/boot-fat.cpio.zst
 	rm -fr tmp/init
 	mkdir -p tmp/init
 # (!!!) seek=X, type here value-10 from ODS (256 for example)
-	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=256
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=320
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 	parted -s tmp/init/mmc.img mklabel gpt
 # (!!!) last value, type here value-5 from ODS (260095 for example)
-	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 522239
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 653311
 #	cp -f tmp/init/mmc.img .
 	mkdir -p tmp/init/ins
 	cp -f tmp/init/mmc.img tmp/init/ins/
 	cat tmp/init/mmc.img | zstd -z9T9 > tmp/init/ins/mmc.zst
 # (!!!) count=X, type here value-3 from ODS (239616 for example)
-	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=501760
+	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=632832
 	mkdir -p tmp/init/ins/fat
 	mount tmp/init/ins/fat.bin tmp/init/ins/fat
 	cp --force --no-preserve=all tmp/init/ins/mmc.zst tmp/init/ins/fat
