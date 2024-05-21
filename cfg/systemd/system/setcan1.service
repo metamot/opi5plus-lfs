@@ -1,0 +1,14 @@
+[Unit]
+Description=Setup CAN1 speed
+DefaultDependencies=no
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStart=/usr/sbin/ip link set can1 down
+ExecStart=/usr/sbin/ip link set can1 type can bitrate 500000
+ExecStart=/usr/sbin/ip link set can1 up
+Type=oneshot
+StandardInput=tty-force
+StandardOutput=tty
+StandardError=tty

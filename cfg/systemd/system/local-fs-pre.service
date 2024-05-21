@@ -1,0 +1,12 @@
+[Unit]
+Description=Detect Boot Media
+DefaultDependencies=no
+
+[Service]
+Environment=HOME=/root
+WorkingDirectory=-/root
+ExecStart=-/usr/local/sbin/my-boot.sh
+Type=oneshot
+StandardInput=tty-force
+StandardOutput=tty
+StandardError=tty

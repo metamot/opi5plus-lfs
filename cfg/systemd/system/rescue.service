@@ -1,24 +1,19 @@
 [Unit]
-Description=Emergency Shell
+Description=Rescue Shell
 Documentation=man:sulogin(8)
 DefaultDependencies=no
 Conflicts=shutdown.target
-Conflicts=rescue.service
+After=sysinit.target
 Before=shutdown.target
-Before=rescue.service
 
 [Service]
 Environment=HOME=/root
 WorkingDirectory=-/root
-ExecStart=-/lib/systemd/systemd-sulogin-shell emergency
-#ExecStart=-/bin/bash -l
+#ExecStartPre=-/usr/local/sbin/my-boot.sh
+ExecStart=-/lib/systemd/systemd-sulogin-shell rescue
 Type=idle
 StandardInput=tty-force
-#StandardOutput=inherit
-#StandardOutput=console
 StandardOutput=tty
-#StandardError=inherit
-#StandardError=console
 StandardError=tty
 KillMode=process
 IgnoreSIGPIPE=no

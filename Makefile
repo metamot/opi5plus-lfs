@@ -6167,7 +6167,8 @@ pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
 # systemd ExecStart= , what is 'minus' means? I.e. ExecStart=-/bin/bash
 # https://unix.stackexchange.com/questions/404199/documentation-of-equals-minus-in-systemd-unit-files
 
-INITRD_GZIP=y
+#INITRD_GZIP=y
+INITRD_GZIP=n
 
 pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -fr tmp/initrd
@@ -6246,6 +6247,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libelf-*.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libelf.*so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libmnl.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libprocps.so*  tmp/initrd/usr/lib/
 # --- apps
 	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
 	cp -f /usr/bin/bash tmp/initrd/usr/bin/
@@ -6274,6 +6276,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/head tmp/initrd/usr/bin/
 	cp -f /usr/bin/printenv tmp/initrd/usr/bin/
 	cp -f /usr/bin/pstree tmp/initrd/usr/bin/
+	cp -f /usr/bin/ps tmp/initrd/usr/bin/
 	cp -f /usr/bin/echo tmp/initrd/usr/bin/
 	cp -f /usr/bin/mkdir tmp/initrd/usr/bin/
 	cp -f /usr/bin/dd tmp/initrd/usr/bin/
@@ -6319,23 +6322,25 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # StandardOutput=
 # inherit, null, tty, journal, kmsg, journal+console, kmsg+console, file:path, append:path, truncate:path, socket or fd:name.
 # https://opensource.com/article/20/5/systemd-startup
-	mkdir -p tmp/initrd/usr/lib/systemd/system
 	mkdir -p tmp/initrd/etc/systemd/system
+	cd tmp/initrd/etc/systemd/system/ && ln -sf /usr/lib/systemd/system/rescue.target default.target
+	mkdir -p tmp/initrd/usr/lib/systemd/system
 	cp -far /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
 	cp -far /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
+	cp -far /usr/lib/systemd/systemd-binfmt tmp/initrd/usr/lib/systemd/
 	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
+	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
 	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
-#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
-	cp -far /usr/lib/systemd/system/emergency.target tmp/initrd/usr/lib/systemd/system/
-	cp -far cfg/systemd/system/emergency.service tmp/initrd/usr/lib/systemd/system/
+	cp -far cfg/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+#	mkdir -p tmp/initrd/usr/lib/systemd/system/local-fs.target.wants
+#	cd tmp/initrd/usr/lib/systemd/system/local-fs.target.wants && ln -sf ../tmp.mount tmp.mount
 #	sed -i 's|StandardOutput=inherit|StandardOutput=kmsg+console|' tmp/initrd/usr/lib/systemd/system/emergency.service
 #	cp -f /usr/lib/systemd/system/systemd-update-utmp-runlevel.service tmp/initrd/usr/lib/systemd/system/
 #	cp -far /usr/lib/systemd/system/rescue.* tmp/initrd/usr/lib/systemd/system/
 #	cp -f /usr/lib/systemd/system/sysinit.target tmp/initrd/usr/lib/systemd/system/
 #	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
-	cd tmp/initrd/etc/systemd/system/ && ln -sf /usr/lib/systemd/system/emergency.target default.target
 # === dbus
 	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 # ===

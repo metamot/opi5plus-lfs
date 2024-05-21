@@ -1,0 +1,6 @@
+[Unit]
+Description=Emergency Mode
+Documentation=man:systemd.special(7)
+Requires=emergency.service
+After=emergency.service
+AllowIsolate=yes
