@@ -1,0 +1,18 @@
+# This service can dynamically be pulled-in by legacy services which
+# cannot reliably cope with dynamic device configurations, and wrongfully
+# expect a populated /dev during bootup.
+
+[Unit]
+Description=Wait for udev To Complete Device Initialization
+Documentation=man:systemd-udev-settle.service(8)
+DefaultDependencies=no
+Wants=systemd-udevd.service
+After=systemd-udev-trigger.service
+Before=sysinit.target
+ConditionPathIsReadWrite=/sys
+
+[Service]
+Type=oneshot
+TimeoutSec=180
+RemainAfterExit=yes
+ExecStart=udevadm settle

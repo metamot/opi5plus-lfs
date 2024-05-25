@@ -1,0 +1,6 @@
+[Unit]
+Description=Final Step
+Documentation=man:systemd.special(7)
+DefaultDependencies=no
+RefuseManualStart=yes
+After=shutdown.target umount.target

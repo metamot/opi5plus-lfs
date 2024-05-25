@@ -1,0 +1,13 @@
+[Unit]
+Description=Cleanup of Temporary Directories
+Documentation=man:tmpfiles.d(5) man:systemd-tmpfiles(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=local-fs.target time-set.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+ExecStart=systemd-tmpfiles --clean
+SuccessExitStatus=DATAERR
+IOSchedulingClass=idle

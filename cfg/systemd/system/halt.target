@@ -1,0 +1,10 @@
+[Unit]
+Description=Halt
+Documentation=man:systemd.special(7)
+DefaultDependencies=no
+Requires=systemd-halt.service
+After=systemd-halt.service
+AllowIsolate=yes
+
+[Install]
+Alias=ctrl-alt-del.target

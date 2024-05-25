@@ -1,0 +1,14 @@
+[Unit]
+Description=Update UTMP about System Boot/Shutdown
+Documentation=man:systemd-update-utmp.service(8) man:utmp(5)
+DefaultDependencies=no
+RequiresMountsFor=/var/log/wtmp
+Conflicts=shutdown.target
+After=systemd-remount-fs.service systemd-tmpfiles-setup.service auditd.service
+Before=sysinit.target shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/lib/systemd/systemd-update-utmp reboot
+ExecStop=/lib/systemd/systemd-update-utmp shutdown

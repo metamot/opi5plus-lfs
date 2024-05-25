@@ -1,0 +1,15 @@
+# This network file matches the bridge interface created by systemd-nspawn's
+# --network-zone= switch. See systemd-nspawn(1) for details.
+
+[Match]
+Name=vz-*
+Driver=bridge
+
+[Network]
+# Default to using a /24 prefix, giving up to 253 addresses per virtual network.
+Address=0.0.0.0/24
+LinkLocalAddressing=yes
+DHCPServer=yes
+IPMasquerade=yes
+LLDP=yes
+EmitLLDP=customer-bridge

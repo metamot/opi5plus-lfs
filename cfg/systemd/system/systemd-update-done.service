@@ -1,0 +1,14 @@
+[Unit]
+Description=Update is Completed
+Documentation=man:systemd-update-done.service(8)
+DefaultDependencies=no
+Conflicts=shutdown.target
+After=local-fs.target
+Before=sysinit.target shutdown.target
+ConditionNeedsUpdate=|/etc
+ConditionNeedsUpdate=|/var
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/lib/systemd/systemd-update-done

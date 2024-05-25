@@ -1,0 +1,13 @@
+[Unit]
+Description=Mark the Current Boot Loader Entry as Good
+Documentation=man:systemd-bless-boot.service(8)
+DefaultDependencies=no
+Requires=boot-complete.target
+After=local-fs.target boot-complete.target
+Conflicts=shutdown.target
+Before=shutdown.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/lib/systemd/systemd-bless-boot good

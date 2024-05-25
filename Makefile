@@ -182,27 +182,37 @@ ACL_VER=2.2.53
 ATTR_VER=2.4.48
 AUTOCONF_VER=2.69
 AUTOMAKE_VER=1.16.2
+# AUTOMAKE_VER=1.16.3 = Debian11
 AUTOMAKE_VER0=1.16
 BASH_VER=5.0
+PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
+# BASH_VER=5.1 = Debian11
 BC_VER=3.1.5
 BINUTILS_VER=2.35
+# BINUTILS_VER=2.35.2 = Debian11
 BISON_VER=3.7.1
+# BISON_VER=3.7.5 = Debian11
 BZIP2_VER=1.0.8
+PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
 CHECK_VER=0.15.2
 CMAKE_VER0=3.18
 CMAKE_VER=3.18.1
 CONVMV_VER=2.05
 CORE_UTILS_VER=8.32
+PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
 CPIO_VER=2.13
 CRACKLIB_VER=2.9.7
 DB_BERKELEY_VER=5.3.28
 DBUS_VER=1.12.20
+# DBUS_VER=1.12.24 = Debian11
 DEJAGNU_VER=1.6.2
 DIFF_UTILS_VER=3.7
 DOS_FS_TOOLS_VER=4.1
+# DOS_FS_TOOLS_VER=4.1 = Debian11
 #DTC_VER=1.6.1
 DTC_VER=1.7.0
 E2FSPROGS_VER=1.45.6
+# E2FSPROGS_VER=1.46.2 = Debian11
 ELF_UTILS_VER=0.180
 # EXPAT_VER=2.2.9
 # ^^^ is unaviable now(01.01.24) for download. Original expat-site say to replace it with 2.5.0.
@@ -212,37 +222,50 @@ EXPAT_VER=2.6.2
 EXPECT_VER=5.45.4
 FILE_VER=5.39
 FIND_UTILS_VER=4.7.0
+# FIND_UTILS_VER=4.8.0 = Debian11
 FLEX_VER=2.6.4
 GAWK_VER=5.1.0
 GCC_VER=10.2.0
+# GCC_VER=10.2.1 = Debian11
 GDBM_VER=1.18.1
 GETTEXT_VER=0.21
 GLIBC_VER=2.32
+PKG+=pkg/glibc-$(GLIBC_VER)-fhs-1.patch
 GMP_VER=6.2.0
 GPERF_VER=3.1
 GREP_VER=3.4
+# GPEP_VER=3.6 = Debian11
 GROFF_VER=1.22.4
 GZIP_VER=1.10
 IANA_ETC_VER=20200821
 INET_UTILS_VER=1.9.4
 INTL_TOOL_VER=0.51.0
 IP_ROUTE2_VER=5.8.0
+# IP_ROUTE2_VER=5.10.0 =Debian11
 IP_TABLES_VER=1.8.5
+# IP_TABLES_VER=1.8.7 = Debian11
 ISL_VER=0.23
 KBD_VER=2.3.0
 KMOD_VER=27
+#KMOD_VER=28 = Debian11
+PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 LESS_VER=551
 LIBARCHIVE_VER=3.4.3
+PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 LIBCAP_VER=2.42
+# LIBCAP_VER=2.44 = Debian11
 LIBFFI_VER=3.3
 LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
 LIBTOOL_VER=2.4.6
 LIBUSB_VER=1.0.23
+# LIBUSB_VER=1.0.24 = Debian11
 LIBUV_VER=v1.38.1
+# LIBUV_VER=v1.40.0 = Debian11
 M4_VER=1.4.18
 MAKE_VER=4.3
 MAN_DB_VER=2.9.3
+# MAN_DB_VER=2.9.4 = Debian11
 MAN_PAGES_VER=5.08
 MESON_VER=0.55.0
 MICROCOM_VER=2023.09.0
@@ -253,10 +276,13 @@ NCURSES_VER=6.2
 NFTABLES_VER=1.0.9
 NINJA_VER=1.10.0
 OPEN_SSL_VER=1.1.1g
+#OPEN_SSL_VER=1.1.1n = Debian11
 PARTED_VER=3.3
+# PARTED_VER=3.4 = Debian11
 PATCH_VER=2.7.6
 PCRE_VER=8.44
 PERL_VER=5.32.0
+# PERL_VER=5.32.1 = Debian11
 PERL_VER0=5.32
 PKG_CONFIG_VER=0.29.2
 POPT_VER=1.18
@@ -265,32 +291,43 @@ PROCPS_VER=3.3.16
 # ^^ undowladable now: 2024.03
 PSMISC_VER=23.4
 PV_VER=1.8.5
+#PV_VER=1.6.6 = Debian11
 PYELFTOOLS_VER=0.30
 PYTHON_VER=3.8.5
+# PYTHON_VER=3.9.2 = Debian11
 PYTHON_DOC_VER=$(PYTHON_VER)
 PYTHON_VER0=3.8
 PYTHON_VER00=3
 PYTHON2_VER=2.7.18
 RE2C_VER=3.1
 READLINE_VER=8.0
+# READLINE_VER=8.1 = Debian11
 RSYNC_VER=3.2.3
 SED_VER=4.8
+# SED_VER=4.7 = Debian11
 SHADOW_VER=4.8.1
 SHARUTILS_VER=4.15.2
 SWIG_VER=4.0.2
 SYSTEMD_VER=246
+# SYSTEMD_VER=247.3 = Debian11
 TAR_VER=1.32
+# TAR_VER=1.34 = Debian11
 TCL_VER=8.6.10
+# TCL_VER=8.6.11 = Debian11
 TCL_VER_BRIEF=8.6
 TCL_DOC_VER=$(TCL_VER)
 TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
 UNZIP_VER0=60
 UNZIP_VER=6.0
+PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
 USB_UTILS_VER=012
+# USB_UTILS_VER=013 = Debian11
 UTIL_LINUX_VER=2.36
 VIM_VER=8.2.1361
+# VIM_VER=8.2.2434 = Debian11
 WGET_VER=1.20.3
+# WGET_VER=1.21 = Debian11
 WHICH_VER=2.21
 XML_PARSER_VER=2.46
 XZ_VER=5.2.5
@@ -303,13 +340,6 @@ ZSTD_VER=1.4.5
 
 # Incremental rule for download:
 
-PKG+=pkg/glibc-$(GLIBC_VER)-fhs-1.patch
-PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
-PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
-PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
-PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
-PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
-PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 PKG+=pkg/acl-$(ACL_VER).tar.gz
 PKG+=pkg/attr-$(ATTR_VER).tar.gz
 PKG+=pkg/autoconf-$(AUTOCONF_VER).tar.xz
@@ -6161,14 +6191,15 @@ pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
 	mkdir -p tmp/dbus
 	pv pkg3/dbus-1.12.20.cpio.zst | zstd -d | cpio -idumH newc -D tmp/dbus
 	rm -fr tmp/dbus/usr/include
+	rm -fr tmp/dbus/usr/lib/systemd
 	cd tmp/dbus && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
 	rm -fr tmp/dbus
 
 # systemd ExecStart= , what is 'minus' means? I.e. ExecStart=-/bin/bash
 # https://unix.stackexchange.com/questions/404199/documentation-of-equals-minus-in-systemd-unit-files
 
-#INITRD_GZIP=y
-INITRD_GZIP=n
+INITRD_GZIP=y
+#INITRD_GZIP=n
 
 pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -fr tmp/initrd
@@ -6213,6 +6244,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libnss_files*.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_db-*.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_db*.so* tmp/initrd/usr/lib/
+	cp -far /usr/lib/libutil-*.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libutil.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_compat-*.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_compat*.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_hesiod-*.so* tmp/initrd/usr/lib/
@@ -6250,6 +6283,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libelf.*so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libmnl.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libprocps.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libfdisk.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libcrypt.so*  tmp/initrd/usr/lib/
 # --- apps
 	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
 	cp -f /usr/bin/bash tmp/initrd/usr/bin/
@@ -6284,14 +6319,13 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/dd tmp/initrd/usr/bin/
 	cp -f /usr/bin/find tmp/initrd/usr/bin/
 	cp -f /usr/bin/kmod tmp/initrd/usr/bin/
-	cd tmp/initrd/usr/bin/ && ln -sf kmod depmod && ln -sf kmod insmod && ln -sf kmod lsmod && ln -sf kmod modinfo && ln -sf kmod modprobe && ln -sf kmod rmmod
+	cd tmp/initrd/usr/sbin/ && ln -sf ../bin/kmod depmod && ln -sf ../bin/kmod insmod && ln -sf ../bin/kmod lsmod && ln -sf ../bin/kmod modinfo && ln -sf ../bin/kmod modprobe && ln -sf ../bin/kmod rmmod
 	cp -f /usr/bin/cp tmp/initrd/usr/bin/
 	cp -f /usr/bin/rm tmp/initrd/usr/bin/
 	cp -f /usr/bin/hexdump tmp/initrd/usr/bin/
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
-#	cp -f /usr/local/bin/candump tmp/initrd/usr/local/bin/
-#	cp -f /usr/local/bin/cansend tmp/initrd/usr/local/bin/
 	cp -f /usr/sbin/ip tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/agetty tmp/initrd/usr/sbin/
 #	cp -f cfg/boot-src.sh tmp/initrd/usr/local/sbin/
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
 	cp -f cfg/my-* tmp/initrd/usr/local/sbin/
@@ -6325,29 +6359,126 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # inherit, null, tty, journal, kmsg, journal+console, kmsg+console, file:path, append:path, truncate:path, socket or fd:name.
 # https://opensource.com/article/20/5/systemd-startup
 	mkdir -p tmp/initrd/etc/systemd/system
-	cd tmp/initrd/etc/systemd/system/ && ln -sf /usr/lib/systemd/system/rescue.target default.target
-	mkdir -p tmp/initrd/usr/lib/systemd/system
-	cp -f /usr/lib/systemd/systemd tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/systemd-binfmt tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/systemd-sysctl tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/systemd-modules-load tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/systemd-sulogin-shell tmp/initrd/usr/lib/systemd/
-	cp -f /usr/lib/systemd/systemd-journald tmp/initrd/usr/lib/systemd/
-	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
-	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
-	cp -f /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
-	cp -f /usr/bin/bootctl tmp/initrd/usr/bin/
-	cp -f /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
+	rm -fr tmp/systemd
+	mkdir -p tmp/systemd
+	pv pkg3/systemd-$(SYSTEMD_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/systemd
+	rm -fr tmp/systemd/usr/include
+	rm -fr tmp/systemd/usr/share/pkgconfig
+	rm -fr tmp/systemd/usr/share/zsh
+	rm -fr tmp/systemd/usr/share/systemd/*
+	echo "# Generated from system-config-keyboard's model list" > tmp/systemd/usr/share/systemd/kbd-model-map
+	echo "# consolelayout		xlayout	xmodel		xvariant	xoptions" >> tmp/systemd/usr/share/systemd/kbd-model-map
+	echo "us			us	pc105+inet	-		terminate:ctrl_alt_bksp" >> tmp/systemd/usr/share/systemd/kbd-model-map
+	rm -f tmp/systemd/usr/sbin/init
+	rm -fr tmp/systemd/usr/lib/kernel
+	rm -fr tmp/systemd/usr/lib/pkgconfig
+	mv tmp/systemd/usr/lib/systemd/catalog/systemd.catalog tmp/systemd/usr/lib/systemd/
+	rm -f tmp/systemd/usr/lib/systemd/catalog/*
+	mv tmp/systemd/usr/lib/systemd/systemd.catalog tmp/systemd/usr/lib/systemd/catalog/
+#	rm -fr tmp/systemd/usr/lib/systemd/system
+	mkdir -p tmp/initrd/var/
+	cp -far tmp/systemd/etc/* tmp/initrd/etc/
+	cp -far tmp/systemd/usr/* tmp/initrd/usr/
+	cp -far tmp/systemd/var/* tmp/initrd/var/
+	rm -fr tmp/systemd
+	rm -fr tmp/shadow
+	mkdir -p tmp/shadow
+	pv pkg3/shadow-$(SHADOW_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/shadow
+	cp -far tmp/shadow/etc/* tmp/initrd/etc/
+	sed -i 's|MAIL_CHECK_ENAB|#MAIL_CHECK_ENAB|' tmp/initrd/etc/login.defs
+	cp -far tmp/shadow/usr/* tmp/initrd/usr/
+	rm -fr tmp/shadow
+	rm -fr tmp/ip
+	mkdir -p tmp/ip
+	pv pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/ip
+	rm -fr tmp/ip/usr/include
+	cp -far tmp/ip/* tmp/initrd/
+	rm -fr tmp/ip
+	rm -fr tmp/inet
+	mkdir -p tmp/inet
+	pv pkg3/inetutils-$(INET_UTILS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/inet
+	cp -far tmp/inet/* tmp/initrd/
+	rm -fr tmp/inet
+#	mkdir -p tmp/initrd/usr/lib/systemd/system
+#	cp -f /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd                  tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-binfmt           tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-sysctl           tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-modules-load     tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-sulogin-shell    tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-journald         tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-random-seed      tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-udevd            tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-update-done      tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-update-utmp      tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-logind           tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-user-runtime-dir tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-localed          tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-hostnamed        tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-vconsole-setup   tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/lib/systemd/systemd-initctl          tmp/initrd/usr/lib/systemd/
+#	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
+#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
+#	cp -f /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
+#	cp -f /usr/bin/bootctl tmp/initrd/usr/bin/
+#	cp -f /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
+#	cp -f /usr/bin/systemd-machine-id-setup tmp/initrd/usr/bin/
+#	cp -f /usr/bin/systemd-repart tmp/initrd/usr/bin/
+#	cp -f /usr/bin/systemd-tmpfiles tmp/initrd/usr/bin/
+#	cp -f /usr/bin/udevadm tmp/initrd/usr/bin/
+#	cp -far /usr/bin/bootctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/busctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/coredumpctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/hostnamectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/journalctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/kernel-install tmp/initrd/usr/bin/
+#	cp -far /usr/bin/localectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/loginctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/machinectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/networkctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/portablectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/resolvectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemctl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-analyze tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-ask-password tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-cat tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-cgls tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-cgtop tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-delta tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-detect-virt tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-escape tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-id128 tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-inhibit tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-machine-id-setup tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-mount tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-notify tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-nspawn tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-path tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-repart tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-resolve tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-run tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-socket-activate tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-stdio-bridge tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-tmpfiles tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
+#	cp -far /usr/bin/systemd-umount tmp/initrd/usr/bin/
+#	cp -far /usr/bin/timedatectl tmp/initrd/usr/bin/
+#	cp -far /usr/bin/udevadm tmp/initrd/usr/bin/
+#	cp -far /usr/sbin/halt tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/poweroff tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/reboot tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/resolvconf tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/runlevel tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/shutdown tmp/initrd/usr/sbin/
+#	cp -far /usr/sbin/telinit tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
-	cp -far cfg/systemd/system/* tmp/initrd/usr/lib/systemd/system/
-#	mkdir -p tmp/initrd/usr/lib/systemd/system/local-fs.target.wants
-#	cd tmp/initrd/usr/lib/systemd/system/local-fs.target.wants && ln -sf ../tmp.mount tmp.mount
-#	sed -i 's|StandardOutput=inherit|StandardOutput=kmsg+console|' tmp/initrd/usr/lib/systemd/system/emergency.service
-#	cp -f /usr/lib/systemd/system/systemd-update-utmp-runlevel.service tmp/initrd/usr/lib/systemd/system/
-#	cp -far /usr/lib/systemd/system/rescue.* tmp/initrd/usr/lib/systemd/system/
-#	cp -f /usr/lib/systemd/system/sysinit.target tmp/initrd/usr/lib/systemd/system/
+	cp -far cfg/systemd/system/* tmp/initrd/etc/systemd/system/
+	mkdir -p tmp/initrd/etc/systemd/network/
+	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
+	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
+#	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/rescue.target default.target
 #	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
 # === dbus
 	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
@@ -6365,7 +6496,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	mkdir -p      tmp/initrd/var/lib/nss_db
 	mkdir -p      tmp/initrd/var/lib/systemd
 	mkdir -p      tmp/initrd/var/local
-	mkdir -p      tmp/initrd/var/log
+	mkdir -p      tmp/initrd/var/log/journal
 	touch         tmp/initrd/var/log/btmp
 	touch         tmp/initrd/var/log/lastlog
 	touch         tmp/initrd/var/log/faillog
@@ -6394,13 +6525,20 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f cfg/etc/nanorc tmp/initrd/etc/
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
-# profile
+# (1) /etc/environment
+	touch tmp/initrd/etc/environment
+# (2) /etc/profile
 	echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"' > tmp/initrd/etc/profile
 	echo '/bin/cat /etc/issue' >> tmp/initrd/etc/profile
 	echo 'umask 022' >> tmp/initrd/etc/profile
-#.bashrc
-	echo 'alias ls="ls --color"' >> tmp/initrd/root/.bashrc
-	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.bashrc
+# (3) $HOME/.profile
+	echo 'alias ls="ls --color"' > tmp/initrd/root/.profile
+	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.profile
+# (4) $HOME/.env (ABSENT)
+#
+# .bashrc (for non-interactive)
+#	echo 'alias ls="ls --color"' >> tmp/initrd/root/.bashrc
+#	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.bashrc
 # group
 #	cp -f cfg/etc/group tmp/initrd/etc/
 	cp -f /etc/group tmp/initrd/etc/
@@ -6462,7 +6600,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #/etc/resolv.conf: Creating the /etc/resolv.conf File
 #/etc/vimrc: Configuring Vim
 # shells
-#	echo "/bin/bash" > tmp/initrd/etc/shells
+	echo "/bin/sh" > tmp/initrd/etc/shells
+	echo "/bin/bash" >> tmp/initrd/etc/shells
 #	echo "/abin/sh" >> tmp/initrd/etc/shells
 #	echo "/abin/ash" >> tmp/initrd/etc/shells
 # shadow
@@ -6521,7 +6660,7 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
 # (!!!) seek=X, type here value-1 from ODS (117 for example)
-	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=309
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=400
 	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
@@ -6560,18 +6699,18 @@ mmc.img: pkg3/boot-fat.cpio.zst
 	rm -fr tmp/init
 	mkdir -p tmp/init
 # (!!!) seek=X, type here value-10 from ODS (256 for example)
-	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=320
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=411
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 	parted -s tmp/init/mmc.img mklabel gpt
 # (!!!) last value, type here value-5 from ODS (260095 for example)
-	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 653311
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 839679
 #	cp -f tmp/init/mmc.img .
 	mkdir -p tmp/init/ins
 	cp -f tmp/init/mmc.img tmp/init/ins/
 	cat tmp/init/mmc.img | zstd -z9T9 > tmp/init/ins/mmc.zst
 # (!!!) count=X, type here value-3 from ODS (239616 for example)
-	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=632832
+	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=819200
 	mkdir -p tmp/init/ins/fat
 	mount tmp/init/ins/fat.bin tmp/init/ins/fat
 	cp --force --no-preserve=all tmp/init/ins/mmc.zst tmp/init/ins/fat

@@ -1,0 +1,4 @@
+[Unit]
+Description=System Time Set
+Documentation=man:systemd.special(7)
+RefuseManualStart=yes

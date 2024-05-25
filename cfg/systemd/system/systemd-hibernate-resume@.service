@@ -1,0 +1,13 @@
+[Unit]
+Description=Resume from hibernation using device %f
+Documentation=man:systemd-hibernate-resume@.service(8)
+DefaultDependencies=no
+BindsTo=%i.device
+Wants=local-fs-pre.target
+After=%i.device
+Before=local-fs-pre.target
+ConditionPathExists=/etc/initrd-release
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/systemd-hibernate-resume %f

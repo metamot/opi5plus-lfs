@@ -1,0 +1,5 @@
+[Unit]
+Description=Slices
+Documentation=man:systemd.special(7)
+Wants=-.slice system.slice
+After=-.slice system.slice

@@ -1,0 +1,10 @@
+[Unit]
+Description=initctl Compatibility Daemon
+Documentation=man:systemd-initctl.service(8)
+DefaultDependencies=no
+
+[Service]
+ExecStart=/lib/systemd/systemd-initctl
+NoNewPrivileges=yes
+NotifyAccess=all
+SystemCallArchitectures=native

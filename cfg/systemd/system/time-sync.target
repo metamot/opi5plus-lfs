@@ -1,0 +1,6 @@
+[Unit]
+Description=System Time Synchronized
+Documentation=man:systemd.special(7)
+RefuseManualStart=yes
+After=time-set.target
+Wants=time-set.target

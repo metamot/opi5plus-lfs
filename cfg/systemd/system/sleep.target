@@ -1,0 +1,6 @@
+[Unit]
+Description=Sleep
+Documentation=man:systemd.special(7)
+DefaultDependencies=no
+RefuseManualStart=yes
+StopWhenUnneeded=yes

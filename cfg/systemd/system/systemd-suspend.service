@@ -1,0 +1,10 @@
+[Unit]
+Description=Suspend
+Documentation=man:systemd-suspend.service(8)
+DefaultDependencies=no
+Requires=sleep.target
+After=sleep.target
+
+[Service]
+Type=oneshot
+ExecStart=/lib/systemd/systemd-sleep suspend

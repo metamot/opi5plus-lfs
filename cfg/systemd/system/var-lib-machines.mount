@@ -1,0 +1,9 @@
+[Unit]
+Description=Virtual Machine and Container Storage (Compatibility)
+ConditionPathExists=/var/lib/machines.raw
+
+[Mount]
+What=/var/lib/machines.raw
+Where=/var/lib/machines
+Type=btrfs
+Options=loop

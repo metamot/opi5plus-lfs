@@ -1,0 +1,14 @@
+[Unit]
+Description=Network Service Netlink Socket
+Documentation=man:systemd-networkd.service(8) man:rtnetlink(7)
+ConditionCapability=CAP_NET_ADMIN
+DefaultDependencies=no
+Before=sockets.target
+
+[Socket]
+ReceiveBuffer=128M
+ListenNetlink=route 1361
+PassPacketInfo=yes
+
+[Install]
+WantedBy=sockets.target

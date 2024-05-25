@@ -1,0 +1,7 @@
+# This exists mostly for compatibility with SysV/LSB units, and
+# implementations lacking socket/bus activation.
+
+[Unit]
+Description=Host and Network Name Lookups
+Documentation=man:systemd.special(7)
+RefuseManualStart=yes
