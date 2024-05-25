@@ -6375,7 +6375,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	mv tmp/systemd/usr/lib/systemd/catalog/systemd.catalog tmp/systemd/usr/lib/systemd/
 	rm -f tmp/systemd/usr/lib/systemd/catalog/*
 	mv tmp/systemd/usr/lib/systemd/systemd.catalog tmp/systemd/usr/lib/systemd/catalog/
-#	rm -fr tmp/systemd/usr/lib/systemd/system
 	mkdir -p tmp/initrd/var/
 	cp -far tmp/systemd/etc/* tmp/initrd/etc/
 	cp -far tmp/systemd/usr/* tmp/initrd/usr/
@@ -6399,79 +6398,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	pv pkg3/inetutils-$(INET_UTILS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/inet
 	cp -far tmp/inet/* tmp/initrd/
 	rm -fr tmp/inet
-#	mkdir -p tmp/initrd/usr/lib/systemd/system
-#	cp -f /usr/lib/systemd/libsystemd-shared-$(SYSTEMD_VER).so tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd                  tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-binfmt           tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-sysctl           tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-modules-load     tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-sulogin-shell    tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-journald         tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-random-seed      tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-udevd            tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-update-done      tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-update-utmp      tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-logind           tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-user-runtime-dir tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-localed          tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-hostnamed        tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-vconsole-setup   tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/lib/systemd/systemd-initctl          tmp/initrd/usr/lib/systemd/
-#	cp -f /usr/bin/systemctl tmp/initrd/usr/bin/
-#	cp -f /usr/bin/journalctl tmp/initrd/usr/bin/
-#	cp -f /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
-#	cp -f /usr/bin/bootctl tmp/initrd/usr/bin/
-#	cp -f /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
-#	cp -f /usr/bin/systemd-machine-id-setup tmp/initrd/usr/bin/
-#	cp -f /usr/bin/systemd-repart tmp/initrd/usr/bin/
-#	cp -f /usr/bin/systemd-tmpfiles tmp/initrd/usr/bin/
-#	cp -f /usr/bin/udevadm tmp/initrd/usr/bin/
-#	cp -far /usr/bin/bootctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/busctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/coredumpctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/hostnamectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/journalctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/kernel-install tmp/initrd/usr/bin/
-#	cp -far /usr/bin/localectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/loginctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/machinectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/networkctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/portablectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/resolvectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemctl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-analyze tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-ask-password tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-cat tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-cgls tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-cgtop tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-delta tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-detect-virt tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-escape tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-hwdb tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-id128 tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-inhibit tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-machine-id-setup tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-mount tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-notify tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-nspawn tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-path tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-repart tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-resolve tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-run tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-socket-activate tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-stdio-bridge tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-tmpfiles tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-tty-ask-password-agent tmp/initrd/usr/bin/
-#	cp -far /usr/bin/systemd-umount tmp/initrd/usr/bin/
-#	cp -far /usr/bin/timedatectl tmp/initrd/usr/bin/
-#	cp -far /usr/bin/udevadm tmp/initrd/usr/bin/
-#	cp -far /usr/sbin/halt tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/poweroff tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/reboot tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/resolvconf tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/runlevel tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/shutdown tmp/initrd/usr/sbin/
-#	cp -far /usr/sbin/telinit tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
 	cp -far cfg/systemd/system/* tmp/initrd/etc/systemd/system/
