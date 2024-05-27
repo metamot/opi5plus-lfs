@@ -6401,6 +6401,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
 	cp -far cfg/systemd/system/* tmp/initrd/etc/systemd/system/
+	rm -fr tmp/initrd/usr/lib/systemd/network
 	mkdir -p tmp/initrd/etc/systemd/network/
 	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
 	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
@@ -6515,7 +6516,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #
 	cp -f /etc/nsswitch.conf tmp/initrd/etc/
 #/etc/fstab: Creating the /etc/fstab File
-#/etc/hosts: Customizing the /etc/hosts File
 #/etc/inputrc: Creating the /etc/inputrc File
 #/etc/ld.so.conf: Configuring the Dynamic Loader
 #/etc/lfs-release: The End
@@ -6524,6 +6524,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #/etc/modprobe.d/usb.conf: Configuring Linux Module Load Order
 #/etc/os-release: The End
 #/etc/resolv.conf: Creating the /etc/resolv.conf File
+	cd tmp/initrd/etc && ln -sf ../run/systemd/resolve/resolv.conf resolv.conf
 #/etc/vimrc: Configuring Vim
 # shells
 	echo "/bin/sh" > tmp/initrd/etc/shells
@@ -6543,8 +6544,16 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	echo "nobody:*:::::::" >> tmp/initrd/etc/shadow
 # hostname
 #	cp -f cfg/etc/HOSTNAME tmp/initrd/etc/
-#	echo 'myadas' > tmp/initrd/etc/hostname
+	echo 'opi5plus' > tmp/initrd/etc/hostname
 # hosts
+	echo "127.0.0.1	localhost" > tmp/initrd/etc/hosts
+	echo "127.0.1.1	opi5plus" >> tmp/initrd/etc/hosts
+	echo "# The following lines are desirable for IPv6 capable hosts" >> tmp/initrd/etc/hosts
+	echo "::1     ip6-localhost ip6-loopback" >> tmp/initrd/etc/hosts
+	echo "fe00::0 ip6-localnet" >> tmp/initrd/etc/hosts
+	echo "ff00::0 ip6-mcastprefix" >> tmp/initrd/etc/hosts
+	echo "ff02::1 ip6-allnodes" >> tmp/initrd/etc/hosts
+	echo "ff02::2 ip6-allrouters" >> tmp/initrd/etc/hosts
 #	echo "127.0.0.1 localhost `hostname`" > tmp/initrd/etc/hosts
 #	echo -e "127.0.0.1\tlocalhost" > tmp/initrd/etc/hosts
 # host.conf

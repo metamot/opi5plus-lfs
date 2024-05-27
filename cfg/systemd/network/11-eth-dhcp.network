@@ -1,0 +1,9 @@
+[Match]
+Name=enP4p65s0
+
+[Network]
+DHCP=ipv4
+
+[DHCP]
+UseDomains=true
+
