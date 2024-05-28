@@ -1,4 +1,0 @@
-[Unit]
-Description=Sound Card
-Documentation=man:systemd.special(7)
-StopWhenUnneeded=yes

@@ -1,7 +1,0 @@
-[Unit]
-Description=Suspend
-Documentation=man:systemd.special(7)
-DefaultDependencies=no
-Requires=systemd-suspend.service
-After=systemd-suspend.service
-StopWhenUnneeded=yes

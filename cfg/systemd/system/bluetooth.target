@@ -1,4 +1,0 @@
-[Unit]
-Description=Bluetooth
-Documentation=man:systemd.special(7)
-StopWhenUnneeded=yes

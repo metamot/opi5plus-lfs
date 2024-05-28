@@ -1,7 +1,0 @@
-[Unit]
-Description=Containers
-Documentation=man:systemd.special(7)
-Before=multi-user.target
-
-[Install]
-WantedBy=multi-user.target

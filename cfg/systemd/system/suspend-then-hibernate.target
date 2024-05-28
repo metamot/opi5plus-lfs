@@ -1,7 +1,0 @@
-[Unit]
-Description=Suspend; Hibernate if not used for a period of time
-Documentation=man:systemd.special(7)
-DefaultDependencies=no
-Requires=systemd-suspend-then-hibernate.service
-After=systemd-suspend-then-hibernate.service
-StopWhenUnneeded=yes

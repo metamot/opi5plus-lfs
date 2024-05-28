@@ -1,5 +1,0 @@
-[Unit]
-Description=Boot Completion Check
-Documentation=man:systemd.special(7)
-Requires=sysinit.target
-After=sysinit.target

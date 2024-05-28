@@ -1,7 +1,0 @@
-# This exists mostly for implementations lacking socket/bus
-# activation.
-
-[Unit]
-Description=User and Group Name Lookups
-Documentation=man:systemd.special(7)
-RefuseManualStart=yes

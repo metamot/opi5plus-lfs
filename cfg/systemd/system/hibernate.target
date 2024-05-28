@@ -1,7 +1,0 @@
-[Unit]
-Description=Hibernate
-Documentation=man:systemd.special(7)
-DefaultDependencies=no
-Requires=systemd-hibernate.service
-After=systemd-hibernate.service
-StopWhenUnneeded=yes
