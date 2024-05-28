@@ -6191,7 +6191,7 @@ pkg3/dbus-min.cpio.zst: pkg3/issue.cpio.zst
 	mkdir -p tmp/dbus
 	pv pkg3/dbus-1.12.20.cpio.zst | zstd -d | cpio -idumH newc -D tmp/dbus
 	rm -fr tmp/dbus/usr/include
-	rm -fr tmp/dbus/usr/lib/systemd
+#	rm -fr tmp/dbus/usr/lib/systemd
 	cd tmp/dbus && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
 	rm -fr tmp/dbus
 
@@ -6376,10 +6376,54 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	rm -f tmp/systemd/usr/lib/systemd/catalog/*
 	mv tmp/systemd/usr/lib/systemd/systemd.catalog tmp/systemd/usr/lib/systemd/catalog/
 	mkdir -p tmp/initrd/var/
+	cp -far tmp/systemd/var/* tmp/initrd/var/
 	cp -far tmp/systemd/etc/* tmp/initrd/etc/
 	cp -far tmp/systemd/usr/* tmp/initrd/usr/
-	cp -far tmp/systemd/var/* tmp/initrd/var/
 	rm -fr tmp/systemd
+	cp -far cfg/systemd/system/* tmp/initrd/etc/systemd/system/
+#	rm -fr tmp/initrd/usr/lib/systemd/network
+	mkdir -p tmp/initrd/etc/systemd/network/
+	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
+	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
+#	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
+# === sulogin , shutdown , nscd
+	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/nscd tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/e2scrub tmp/initrd/usr/sbin/
+	cp -f /usr/sbin/e2scrub_all tmp/initrd/usr/sbin/
+# === util-linux systemd : fstrim.service, fstrim.timer, uuidd.service, uuidd.socket
+	rm -fr tmp/util-linux
+	mkdir -p tmp/util-linux
+	pv pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/util-linux
+	cp -far tmp/util-linux/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+	rm -fr tmp/util-linux
+# === glibc systemd: nscd.service
+	rm -fr tmp/glibc
+	mkdir -p tmp/glibc
+	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/glibc
+	cp -far tmp/glibc/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+#	rm -fr tmp/glibc
+# === e2fsprogs systemd: e2scrub_all.service, e2scrub_all.timer, e2scrub_fail@.service, e2scrub_reap.service, e2scrub@.service
+	rm -fr tmp/e2fsprogs
+	mkdir -p tmp/e2fsprogs
+	pv pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/e2fsprogs
+	cp -far tmp/e2fsprogs/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+	rm -fr tmp/e2fsprogs
+# === inetutils
+	rm -fr tmp/inet
+	mkdir -p tmp/inet
+	pv pkg3/inetutils-$(INET_UTILS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/inet
+	cp -far tmp/inet/* tmp/initrd/
+	rm -fr tmp/inet
+# === iproute
+	rm -fr tmp/ip
+	mkdir -p tmp/ip
+	pv pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/ip
+	rm -fr tmp/ip/usr/include
+	cp -far tmp/ip/* tmp/initrd/
+	rm -fr tmp/ip
+# === shadow
 	rm -fr tmp/shadow
 	mkdir -p tmp/shadow
 	pv pkg3/shadow-$(SHADOW_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/shadow
@@ -6387,26 +6431,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	sed -i 's|MAIL_CHECK_ENAB|#MAIL_CHECK_ENAB|' tmp/initrd/etc/login.defs
 	cp -far tmp/shadow/usr/* tmp/initrd/usr/
 	rm -fr tmp/shadow
-	rm -fr tmp/ip
-	mkdir -p tmp/ip
-	pv pkg3/iproute2-$(IP_ROUTE2_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/ip
-	rm -fr tmp/ip/usr/include
-	cp -far tmp/ip/* tmp/initrd/
-	rm -fr tmp/ip
-	rm -fr tmp/inet
-	mkdir -p tmp/inet
-	pv pkg3/inetutils-$(INET_UTILS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/inet
-	cp -far tmp/inet/* tmp/initrd/
-	rm -fr tmp/inet
-	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
-	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
-	cp -far cfg/systemd/system/* tmp/initrd/etc/systemd/system/
-	rm -fr tmp/initrd/usr/lib/systemd/network
-	mkdir -p tmp/initrd/etc/systemd/network/
-	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
-	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
-#	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/rescue.target default.target
-#	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
 # === dbus
 	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 # ===
@@ -6450,6 +6474,10 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f cfg/etc/inputrc tmp/initrd/etc/
 #nanorc
 	cp -f cfg/etc/nanorc tmp/initrd/etc/
+#nscd.conf
+	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
+	mkdir -p tmp/initrd/run/nscd
+	mkdir -p tmp/initrd/var/cache/nscd
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # (1) /etc/environment
