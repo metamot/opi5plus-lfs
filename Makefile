@@ -6384,7 +6384,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	rm -fr tmp/initrd/usr/lib/systemd/network
 	mkdir -p tmp/initrd/etc/systemd/network/
 	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
-	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
+#	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
+	cd tmp/initrd/usr/lib/systemd/system && ln -sf multi-user.target default.target
+	cd tmp/initrd/etc/systemd/system && ln -sf poweroff.target ctrl-alt-del.target
 #	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
 # === sulogin , shutdown , nscd
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
@@ -6399,10 +6401,10 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far tmp/util-linux/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
 	rm -fr tmp/util-linux
 # === glibc systemd: nscd.service
-	rm -fr tmp/glibc
-	mkdir -p tmp/glibc
-	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/glibc
-	cp -far tmp/glibc/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+#	rm -fr tmp/glibc
+#	mkdir -p tmp/glibc
+#	pv pkg3/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/glibc
+#	cp -far tmp/glibc/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
 #	rm -fr tmp/glibc
 # === e2fsprogs systemd: e2scrub_all.service, e2scrub_all.timer, e2scrub_fail@.service, e2scrub_reap.service, e2scrub@.service
 	rm -fr tmp/e2fsprogs
@@ -6475,9 +6477,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #nanorc
 	cp -f cfg/etc/nanorc tmp/initrd/etc/
 #nscd.conf
-	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
-	mkdir -p tmp/initrd/run/nscd
-	mkdir -p tmp/initrd/var/cache/nscd
+#	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
+#	mkdir -p tmp/initrd/run/nscd
+#	mkdir -p tmp/initrd/var/cache/nscd
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # (1) /etc/environment
