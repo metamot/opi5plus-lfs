@@ -1,6 +1,6 @@
 [Unit]
 Description=Local File Systems (Pre)
 Documentation=man:systemd.special(7)
-Requires=local-fs-pre.service
-After=local-fs-pre.service
+Requires=local-fs-pre.service setcan0.service setcan1.service
+After=local-fs-pre.service setcan0.service setcan1.service
 RefuseManualStart=yes

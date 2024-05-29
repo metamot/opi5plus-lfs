@@ -6391,9 +6391,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # === sulogin , shutdown , nscd
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
 	cp -f /usr/sbin/shutdown tmp/initrd/usr/sbin/
-	cp -f /usr/sbin/nscd tmp/initrd/usr/sbin/
-	cp -f /usr/sbin/e2scrub tmp/initrd/usr/sbin/
-	cp -f /usr/sbin/e2scrub_all tmp/initrd/usr/sbin/
+#	cp -f /usr/sbin/nscd tmp/initrd/usr/sbin/
+#	cp -f /usr/sbin/e2scrub tmp/initrd/usr/sbin/
+#	cp -f /usr/sbin/e2scrub_all tmp/initrd/usr/sbin/
 # === util-linux systemd : fstrim.service, fstrim.timer, uuidd.service, uuidd.socket
 	rm -fr tmp/util-linux
 	mkdir -p tmp/util-linux
@@ -6407,11 +6407,11 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	cp -far tmp/glibc/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
 #	rm -fr tmp/glibc
 # === e2fsprogs systemd: e2scrub_all.service, e2scrub_all.timer, e2scrub_fail@.service, e2scrub_reap.service, e2scrub@.service
-	rm -fr tmp/e2fsprogs
-	mkdir -p tmp/e2fsprogs
-	pv pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/e2fsprogs
-	cp -far tmp/e2fsprogs/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
-	rm -fr tmp/e2fsprogs
+#	rm -fr tmp/e2fsprogs
+#	mkdir -p tmp/e2fsprogs
+#	pv pkg3/e2fsprogs-$(E2FSPROGS_VER).cpio.zst | zstd -d | cpio -idumH newc -D tmp/e2fsprogs
+#	cp -far tmp/e2fsprogs/usr/lib/systemd/system/* tmp/initrd/usr/lib/systemd/system/
+#	rm -fr tmp/e2fsprogs
 # === inetutils
 	rm -fr tmp/inet
 	mkdir -p tmp/inet
@@ -6480,6 +6480,12 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
 #	mkdir -p tmp/initrd/run/nscd
 #	mkdir -p tmp/initrd/var/cache/nscd
+# time
+	mkdir -p tmp/initrd/usr/share/zoneinfo
+	cp -far /usr/share/zoneinfo/* tmp/initrd/usr/share/zoneinfo
+	cd tmp/initrd/etc && ln -sfv /usr/share/zoneinfo/Etc/GMT localtime
+	cp -f /usr/bin/date tmp/initrd/usr/bin/
+	cp -f /usr/sbin/hwclock tmp/initrd/usr/sbin/
 # issue
 	pv pkg3/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
 # (1) /etc/environment

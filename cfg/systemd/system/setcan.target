@@ -1,5 +1,0 @@
-[Unit]
-Description=Set CAN up
-Requires=setcan0.service setcan1.service
-After=setcan0.service setcan1.service
-AllowIsolate=yes
