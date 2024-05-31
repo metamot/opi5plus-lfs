@@ -5732,12 +5732,25 @@ tgt-can-utils: pkg3/can-utils.cpio.zst
 
 # extra blfs :: libtasn1-4.16.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libtasn1.html
-# BUILD_TIME ::
+# BUILD_TIME :: 44s
+LIBASN1_OPT3+= --prefix=/usr
+LIBASN1_OPT3+= --disable-static
+LIBASN1_OPT3+= $(OPT_FLAGS)
 pkg3/libtasn1-$(LIBASN1_VER).cpio.zst: pkg3/can-utils.cpio.zst
 	rm -fr tmp/libtasn1
-	mkdir -p tmp/libtasn1
+	mkdir -p tmp/libtasn1/bld
 	tar -xzf pkg/libtasn1-$(LIBASN1_VER).tar.gz -C tmp/libtasn1
-#	rm -fr tmp/libtasn1
+	cd tmp/libtasn1/bld && ../libtasn1-$(LIBASN1_VER)/configure $(WGET_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libtasn1/ins/usr/share
+	rm -fr tmp/libtasn1/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-debug    tmp/libtasn1/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/libtasn1/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/libtasn1/ins/usr/bin/* || true
+endif
+	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libtasn1
 tgt-libasn1: pkg3/libtasn1-$(LIBASN1_VER).cpio.zst
 
 # RKDEVELOPTOOL
