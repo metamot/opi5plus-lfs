@@ -1,2 +1,3 @@
 #!/bin/sh
-/bin/cat /mnt/p1/etc.cpio | /bin/cpio -idumH newc -D /etc
+cat /boot/etc.cpio | cpio -idumH newc -D /var/myboot/etc
+

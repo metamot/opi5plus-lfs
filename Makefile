@@ -251,6 +251,7 @@ KMOD_VER=27
 PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 LESS_VER=551
 LIBARCHIVE_VER=3.4.3
+LIBASN1_VER=4.16.0
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 LIBCAP_VER=2.42
 # LIBCAP_VER=2.44 = Debian11
@@ -389,6 +390,7 @@ PKG+=pkg/kbd-$(KBD_VER).tar.xz
 PKG+=pkg/kmod-$(KMOD_VER).tar.xz
 PKG+=pkg/less-$(LESS_VER).tar.gz
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER).tar.xz
+PKG+=pkg/libtasn1-$(LIBASN1_VER).tar.gz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
 PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
@@ -579,6 +581,8 @@ pkg/less-$(LESS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://www.greenwoodsoftware.com/less/less-$(LESS_VER).tar.gz && touch $@
 pkg/libarchive-$(LIBARCHIVE_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/libarchive/libarchive/releases/download/v$(LIBARCHIVE_VER)/libarchive-$(LIBARCHIVE_VER).tar.xz && touch $@
+pkg/libtasn1-$(LIBASN1_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/libtasn1/libtasn1-$(LIBASN1_VER).tar.gz && touch $@
 pkg/libcap-$(LIBCAP_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-$(LIBCAP_VER).tar.xz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
@@ -6285,6 +6289,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libprocps.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libfdisk.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libcrypt.so*  tmp/initrd/usr/lib/
+	cp -far /usr/lib/libpcre.so*  tmp/initrd/usr/lib/
 # --- apps
 	pv pkg3/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
 	cp -f /usr/bin/bash tmp/initrd/usr/bin/
@@ -6319,6 +6324,11 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/bin/dd tmp/initrd/usr/bin/
 	cp -f /usr/bin/find tmp/initrd/usr/bin/
 	cp -f /usr/bin/kmod tmp/initrd/usr/bin/
+	cp -f /usr/bin/stat tmp/initrd/usr/bin/
+#	cp -f /usr/bin/free tmp/initrd/usr/bin/
+#	cp -f /usr/sbin/swapon tmp/initrd/usr/bin/
+#	cp -f /usr/sbin/swapoff tmp/initrd/usr/bin/
+#	cp -f /usr/sbin/swaplabel tmp/initrd/usr/bin/
 	cd tmp/initrd/usr/sbin/ && ln -sf ../bin/kmod depmod && ln -sf ../bin/kmod insmod && ln -sf ../bin/kmod lsmod && ln -sf ../bin/kmod modinfo && ln -sf ../bin/kmod modprobe && ln -sf ../bin/kmod rmmod
 	cp -f /usr/bin/cp tmp/initrd/usr/bin/
 	cp -f /usr/bin/rm tmp/initrd/usr/bin/
@@ -6330,23 +6340,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
 	cp -f cfg/my-* tmp/initrd/usr/local/sbin/
 	chmod ugo+x tmp/initrd/usr/local/sbin/my-*.sh
-	echo -e 'all: gcc isl gmp mpc mpfr glibc binutils kernel-headers' > tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'gcc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/gcc-$(GCC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'isl:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/isl-$(ISL_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'gmp:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/gmp-$(GMP_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'mpc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/mpc-$(MPC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'mpfr:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/mpfr-$(MPFR_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'glibc:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/glibc-$(GLIBC_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'binutils:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/binutils-$(BINUTILS_VER).cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e 'kernel-headers:' >> tmp/initrd/usr/local/sbin/my-build.mk
-	echo -e '\tcat /mnt/p1/zst/kernel-headers.cpio.zst | zstd -d | cpio -idH newc -D /' >> tmp/initrd/usr/local/sbin/my-build.mk
 # --- share
 	mkdir -p tmp/initrd/usr/share/terminfo/l
 	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
@@ -6436,8 +6429,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # === dbus
 	pv pkg3/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
 # ===
-	mkdir -p      tmp/initrd/mnt/p1
-	cd tmp/initrd/ && ln -sf mnt/p1 boot
+	mkdir -p      tmp/initrd/boot
+	mkdir -p      tmp/initrd/opt
 	mkdir -p      tmp/initrd/run
 	mkdir -p      tmp/initrd/var/cache
 	mkdir -p      tmp/initrd/var/lib/arpd
@@ -6460,7 +6453,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	mkdir -p      tmp/initrd/var/mail
 	mkdir -p      tmp/initrd/var/opt
 	mkdir -p      tmp/initrd/var/spool
-	mkdir -p      tmp/initrd/var/myboot
+	mkdir -p      tmp/initrd/var/myboot/etc
 	cd tmp/initrd/var && ln -sf ../run run
 	install -d -m 1777 tmp/initrd/run/lock
 	cd tmp/initrd/var && ln -sf ../run/lock lock
@@ -6470,12 +6463,10 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	mkdir -p tmp/initrd/etc/rc.d
 	mkdir -p tmp/initrd/etc
 	cd tmp/initrd/etc && ln -sf ../proc/self/mounts mtab
-#fstab
-#	cp -f cfg/etc/fstab tmp/initrd/etc/
-#inputrc
-	cp -f cfg/etc/inputrc tmp/initrd/etc/
-#nanorc
-	cp -f cfg/etc/nanorc tmp/initrd/etc/
+#
+	cp -far cfg/etc/* tmp/initrd/etc/
+#	cp -f cfg/etc/inputrc tmp/initrd/etc/
+#	cp -f cfg/etc/nanorc tmp/initrd/etc/
 #nscd.conf
 #	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
 #	mkdir -p tmp/initrd/run/nscd
@@ -6619,15 +6610,7 @@ endif
 	rm -fr tmp/initrd_ins
 tgt-rd: pkg3/boot-initrd.cpio.zst
 
-pkg3/etc.cpio.zst: pkg3/boot-initrd.cpio.zst
-	rm -fr tmp/etc
-	mkdir -p tmp/etc/ins
-	cp -far /etc tmp/etc/ins
-	cd tmp/etc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	rm -fr tmp/etc
-tgt-etc: pkg3/etc.cpio.zst
-
-pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
+pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
 # (!!!) seek=X, type here value-1 from ODS (117 for example)
@@ -6648,14 +6631,16 @@ pkg3/boot-fat.cpio.zst: pkg3/etc.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst tmp/fat/mnt/zst/
-	mkdir -p tmp/fat/etc
-	echo '#include <stdio.h>' > tmp/fat/etc/mytest.c
-	echo 'int main() {' >> tmp/fat/etc/mytest.c
-	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/mytest.c
-	echo '  return 0;' >> tmp/fat/etc/mytest.c
-	echo '}' >> tmp/fat/etc/mytest.c
+	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/
+	mkdir -p tmp/fat/etc/myetc
+	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
+	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
+	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/myetc/mytest.c
+	echo '  return 0;' >> tmp/fat/etc/myetc/mytest.c
+	echo '}' >> tmp/fat/etc/myetc/mytest.c
 	cd tmp/fat/etc && find . -print0 | cpio -o0H newc > ../mnt/etc.cpio
-#	cp --force --no-preserve=all --recursive pkg3/etc.cpio.zst tmp/fat/mnt/zst/
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
 	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
