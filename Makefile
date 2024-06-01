@@ -251,14 +251,16 @@ KMOD_VER=27
 PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 LESS_VER=551
 LIBARCHIVE_VER=3.4.3
-LIBASN1_VER=4.16.0
+LIBTASN1_VER=4.16.0
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 LIBCAP_VER=2.42
 # LIBCAP_VER=2.44 = Debian11
 LIBFFI_VER=3.3
+LIBIDN2_VER=2.3.0
 LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
 LIBTOOL_VER=2.4.6
+LIBUNISTRING_VER=0.9.10
 LIBUSB_VER=1.0.23
 # LIBUSB_VER=1.0.24 = Debian11
 LIBUV_VER=v1.38.1
@@ -417,12 +419,14 @@ PKG+=pkg/kbd-$(KBD_VER).tar.xz
 PKG+=pkg/kmod-$(KMOD_VER).tar.xz
 PKG+=pkg/less-$(LESS_VER).tar.gz
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER).tar.xz
-PKG+=pkg/libtasn1-$(LIBASN1_VER).tar.gz
+PKG+=pkg/libtasn1-$(LIBTASN1_VER).tar.gz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
+PKG+=pkg/libidn2-$(LIBIDN2_VER).tar.gz
 PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
 PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
 PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
+PKG+=pkg/libunistring-$(LIBUNISTRING_VER).tar.xz
 PKG+=pkg/libusb-$(LIBUSB_VER).tar.bz2
 PKG+=pkg/libuv-$(LIBUV_VER).tar.gz
 PKG+=pkg/m4-$(M4_VER).tar.xz
@@ -608,18 +612,22 @@ pkg/less-$(LESS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://www.greenwoodsoftware.com/less/less-$(LESS_VER).tar.gz && touch $@
 pkg/libarchive-$(LIBARCHIVE_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/libarchive/libarchive/releases/download/v$(LIBARCHIVE_VER)/libarchive-$(LIBARCHIVE_VER).tar.xz && touch $@
-pkg/libtasn1-$(LIBASN1_VER).tar.gz: pkg/.gitignore
-	wget -P pkg https://ftp.gnu.org/gnu/libtasn1/libtasn1-$(LIBASN1_VER).tar.gz && touch $@
+pkg/libtasn1-$(LIBTASN1_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/libtasn1/libtasn1-$(LIBTASN1_VER).tar.gz && touch $@
 pkg/libcap-$(LIBCAP_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-$(LIBCAP_VER).tar.xz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
 	wget -P pkg ftp://sourceware.org/pub/libffi/libffi-$(LIBFFI_VER).tar.gz && touch $@
+pkg/libidn2-$(LIBIDN2_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/libidn/libidn2-$(LIBIDN2_VER).tar.gz && touch $@
 pkg/libmnl-$(LIBMNL_VER).tar.bz2: pkg/.gitignore
 	wget -P pkg https://netfilter.org/projects/libmnl/files/libmnl-$(LIBMNL_VER).tar.bz2 && touch $@
 pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/libpipeline/libpipeline-$(LIBPIPILINE_VER).tar.gz && touch $@
 pkg/libtool-$(LIBTOOL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/libtool/libtool-$(LIBTOOL_VER).tar.xz && touch $@
+pkg/libunistring-$(LIBUNISTRING_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/libunistring/libunistring-$(LIBUNISTRING_VER).tar.xz && touch $@
 pkg/libusb-$(LIBUSB_VER).tar.bz2: pkg/.gitignore
 	wget -P pkg https://github.com/libusb/libusb/releases/download/v$(LIBUSB_VER)/libusb-$(LIBUSB_VER).tar.bz2 && touch $@
 pkg/libuv-$(LIBUV_VER).tar.gz: pkg/.gitignore
@@ -5727,26 +5735,70 @@ tgt-can-utils: pkg3/can-utils.cpio.zst
 # extra blfs :: libtasn1-4.16.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libtasn1.html
 # BUILD_TIME :: 44s
-LIBASN1_OPT3+= --prefix=/usr
-LIBASN1_OPT3+= --disable-static
-LIBASN1_OPT3+= $(OPT_FLAGS)
-pkg3/libtasn1-$(LIBASN1_VER).cpio.zst: pkg3/can-utils.cpio.zst
+LIBTASN1_OPT3+= --prefix=/usr
+LIBTASN1_OPT3+= --disable-static
+LIBTASN1_OPT3+= $(OPT_FLAGS)
+pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst: pkg3/can-utils.cpio.zst
 	rm -fr tmp/libtasn1
 	mkdir -p tmp/libtasn1/bld
-	tar -xzf pkg/libtasn1-$(LIBASN1_VER).tar.gz -C tmp/libtasn1
-	cd tmp/libtasn1/bld && ../libtasn1-$(LIBASN1_VER)/configure $(WGET_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	tar -xzf pkg/libtasn1-$(LIBTASN1_VER).tar.gz -C tmp/libtasn1
+	cd tmp/libtasn1/bld && ../libtasn1-$(LIBTASN1_VER)/configure $(LIBTASN1_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/libtasn1/ins/usr/share
 	rm -fr tmp/libtasn1/ins/usr/lib/*.la
 ifeq ($(BUILD_STRIP),y)
-	strip --strip-debug    tmp/libtasn1/ins/usr/lib/*.a
+#	strip --strip-debug    tmp/libtasn1/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/libtasn1/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/libtasn1/ins/usr/bin/* || true
 endif
 	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/libtasn1
-tgt-libasn1: pkg3/libtasn1-$(LIBASN1_VER).cpio.zst
+tgt-libtasn1: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
 
+# extra blfs :: libunistring-0.9.10
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libunistring.html
+# BUILD_TIME :: 2m 51s
+LIBUNISTRING_OPT3+= --prefix=/usr
+LIBUNISTRING_OPT3+= --disable-static
+LIBUNISTRING_OPT3+= --docdir=/usr/share/doc/libunistring-$(LIBUNISTRING_VER)
+LIBUNISTRING_OPT3+= $(OPT_FLAGS)
+pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
+	rm -fr tmp/libunistring
+	mkdir -p tmp/libunistring/bld
+	tar -xJf pkg/libunistring-$(LIBUNISTRING_VER).tar.xz -C tmp/libunistring
+	cd tmp/libunistring/bld && ../libunistring-$(LIBUNISTRING_VER)/configure $(LIBUNISTRING_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libunistring/ins/usr/share
+	rm -fr tmp/libunistring/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libunistring/ins/usr/lib/*.so*
+endif
+	cd tmp/libunistring/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libunistring
+tgt-libunistring: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
+
+# extra blfs :: libidn2-2.3.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libidn2.html
+# BUILD_TIME :: 50s
+LIBIDN2_OPT3+= --prefix=/usr
+LIBIDN2_OPT3+= --disable-static
+LIBIDN2_OPT3+= $(OPT_FLAGS)
+pkg3/libidn2-$(LIBIDN2_VER).cpio.zst: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
+	rm -fr tmp/libidn2
+	mkdir -p tmp/libidn2/bld
+	tar -xzf pkg/libidn2-$(LIBIDN2_VER).tar.gz -C tmp/libidn2
+	cd tmp/libidn2/bld && ../libidn2-$(LIBIDN2_VER)/configure $(LIBIDN2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libidn2/ins/usr/share
+	rm -f tmp/libidn2/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libidn2/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/libidn2/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libidn2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libidn2
+tgt-libidn2: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
+	
 # RKDEVELOPTOOL
 # BUILD_TIME :: 10s
 pkg3/rkdeveloptool.cpio.zst: pkg3/can-utils.cpio.zst
