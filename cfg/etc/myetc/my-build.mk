@@ -11,6 +11,11 @@ PKG+= binutils
 PKG+= wget
 PKG+= coreutils
 PKG+= util-linux
+PKG+= tar
+PKG+= xz
+PKG+= sed
+PKG+= gawk
+PKG+= diffutils
 all: $(PKG)
 kernel-headers:
 	$(V)cat /boot/zst/kernel-headers.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
@@ -34,4 +39,13 @@ coreutils:
 	$(V)cat /boot/zst/coreutils-$(COREUTILS_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 util-linux:
 	$(V)cat /boot/zst/util-linux-$(UTIL-LINUX_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
-
+tar:
+	$(V)cat /boot/zst/tar-$(TAR_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+xz:
+	$(V)cat /boot/zst/xz-$(XZ_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+sed:
+	$(V)cat /boot/zst/sed-$(SED_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+gawk:
+	$(V)cat /boot/zst/gawk-$(GAWK_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+diffutils:
+	$(V)cat /boot/zst/diffutils-$(DIFF_UTILS_VER).cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1

@@ -177,6 +177,8 @@ LFS_VER=10.0
 UBOOT_VER=v2024.04
 CAN_UTILS_VER=v2020.12.0
 
+
+
 # LFS-packages versions:
 ACL_VER=2.2.53
 ATTR_VER=2.4.48
@@ -185,7 +187,6 @@ AUTOMAKE_VER=1.16.2
 # AUTOMAKE_VER=1.16.3 = Debian11
 AUTOMAKE_VER0=1.16
 BASH_VER=5.0
-PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
 # BASH_VER=5.1 = Debian11
 BC_VER=3.1.5
 BINUTILS_VER=2.35
@@ -193,13 +194,11 @@ BINUTILS_VER=2.35
 BISON_VER=3.7.1
 # BISON_VER=3.7.5 = Debian11
 BZIP2_VER=1.0.8
-PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
 CHECK_VER=0.15.2
 CMAKE_VER0=3.18
 CMAKE_VER=3.18.1
 CONVMV_VER=2.05
 CORE_UTILS_VER=8.32
-PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
 CPIO_VER=2.13
 CRACKLIB_VER=2.9.7
 DB_BERKELEY_VER=5.3.28
@@ -230,7 +229,6 @@ GCC_VER=10.2.0
 GDBM_VER=1.18.1
 GETTEXT_VER=0.21
 GLIBC_VER=2.32
-PKG+=pkg/glibc-$(GLIBC_VER)-fhs-1.patch
 GMP_VER=6.2.0
 GPERF_VER=3.1
 GREP_VER=3.4
@@ -248,17 +246,18 @@ ISL_VER=0.23
 KBD_VER=2.3.0
 KMOD_VER=27
 #KMOD_VER=28 = Debian11
-PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 LESS_VER=551
 LIBARCHIVE_VER=3.4.3
-LIBTASN1_VER=4.16.0
-PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 LIBCAP_VER=2.42
 # LIBCAP_VER=2.44 = Debian11
+LIBCBOR_VER=0.7.0
+LIBEDIT_VER=20240517-3.1
 LIBFFI_VER=3.3
 LIBIDN2_VER=2.3.0
+LIBMD_VER=1.0.3
 LIBMNL_VER=1.0.4
 LIBPIPILINE_VER=1.5.3
+LIBTASN1_VER=4.16.0
 LIBTOOL_VER=2.4.6
 LIBUNISTRING_VER=0.9.10
 LIBUSB_VER=1.0.23
@@ -267,6 +266,7 @@ LIBUV_VER=v1.38.1
 # LIBUV_VER=v1.40.0 = Debian11
 M4_VER=1.4.18
 MAKE_VER=4.3
+MAKE_CA_VER=1.7
 MAN_DB_VER=2.9.3
 # MAN_DB_VER=2.9.4 = Debian11
 MAN_PAGES_VER=5.08
@@ -278,6 +278,7 @@ NANO_VER=5.2
 NCURSES_VER=6.2
 NFTABLES_VER=1.0.9
 NINJA_VER=1.10.0
+NGHTTP2_VER=1.41.0
 OPEN_SSL_VER=1.1.1g
 #OPEN_SSL_VER=1.1.1n = Debian11
 PARTED_VER=3.3
@@ -315,15 +316,14 @@ SYSTEMD_VER=246
 # SYSTEMD_VER=247.3 = Debian11
 TAR_VER=1.32
 # TAR_VER=1.34 = Debian11
-TCL_VER=8.6.10
 # TCL_VER=8.6.11 = Debian11
 TCL_VER_BRIEF=8.6
+TCL_VER=$(TCL_VER_BRIEF).10
 TCL_DOC_VER=$(TCL_VER)
 TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
 UNZIP_VER0=60
 UNZIP_VER=6.0
-PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
 USB_UTILS_VER=012
 # USB_UTILS_VER=013 = Debian11
 UTIL_LINUX_VER=2.36
@@ -344,16 +344,17 @@ ZSTD_VER=1.4.5
 
 #CURL deps (Ubuntu 22.04)
 ### libcurl.so.4 => /lib/aarch64-linux-gnu/libcurl.so.4 (0x0000ffffbcde0000)
-# libnghttp2.so.14 => /lib/aarch64-linux-gnu/libnghttp2.so.14 (0x0000ffffbcbc0000)
-# libidn2.so.0 => /lib/aarch64-linux-gnu/libidn2.so.0 (0x0000ffffbcb90000)
+
+
 # librtmp.so.1 => /lib/aarch64-linux-gnu/librtmp.so.1 (0x0000ffffbcb60000)
+# https://packages.debian.org/ru/bullseye/librtmp1
+
 # libssh.so.4 => /lib/aarch64-linux-gnu/libssh.so.4 (0x0000ffffbcae0000)
 # libpsl.so.5 => /lib/aarch64-linux-gnu/libpsl.so.5 (0x0000ffffbcab0000)
 # libgssapi_krb5.so.2 => /lib/aarch64-linux-gnu/libgssapi_krb5.so.2 (0x0000ffffbc5b0000)
 # libldap-2.5.so.0 => /lib/aarch64-linux-gnu/libldap-2.5.so.0 (0x0000ffffbc540000)
 # liblber-2.5.so.0 => /lib/aarch64-linux-gnu/liblber-2.5.so.0 (0x0000ffffbc520000)
 # libbrotlidec.so.1 => /lib/aarch64-linux-gnu/libbrotlidec.so.1 (0x0000ffffbc430000)
-# libunistring.so.2 => /lib/aarch64-linux-gnu/libunistring.so.2 (0x0000ffffbc270000)
 # libgnutls.so.30 => /lib/aarch64-linux-gnu/libgnutls.so.30 (0x0000ffffbc060000)
 # libhogweed.so.6 => /lib/aarch64-linux-gnu/libhogweed.so.6 (0x0000ffffbc000000)
 # libnettle.so.8 => /lib/aarch64-linux-gnu/libnettle.so.8 (0x0000ffffbbfa0000)
@@ -366,9 +367,92 @@ ZSTD_VER=1.4.5
 # libp11-kit.so.0 => /lib/aarch64-linux-gnu/libp11-kit.so.0 (0x0000ffffbbbf0000)
 # libkeyutils.so.1 => /lib/aarch64-linux-gnu/libkeyutils.so.1 (0x0000ffffbbba0000)
 
+# https://packages.debian.org/ru/bullseye/libssh-4
+# https://www.libssh.org/files/0.9/libssh-0.9.8.tar.xz
 
+# https://packages.debian.org/ru/bullseye/openssh-client
+# https://packages.debian.org/ru/bullseye/libfido2-1
+# https://packages.debian.org/ru/bullseye/librtmp1
+# https://rtmpdump.mplayerhq.hu/
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/openssh.html
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libssh2.html
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/make-ca.html
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/server/openldap.html
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/keyutils.html
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/curl.html
+
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/cyrus-sasl.html
+#SASL_VER=2.1.27
+#PKG+=pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch
+#pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch: pkg/.gitignore
+#	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch && touch $@
+#PKG+=pkg/cyrus-sasl-$(SASL_VER).tar.gz
+#pkg/cyrus-sasl-$(SASL_VER).tar.gz: pkg/.gitignore
+#	wget -P pkg https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-$(SASL_VER)/cyrus-sasl-$(SASL_VER).tar.gz && touch $@
+
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/server/openldap.html
+#OPENLDAP_VER=2.4.51
+#PKG+=pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch
+#pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch: pkg/.gitignore
+#	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/openldap-$(OPENLDAP_VER)-consolidated-2.patch && touch $@
+#PKG+=pkg/openldap-$(OPENLDAP_VER).tgz
+#pkg/openldap-$(OPENLDAP_VER).tgz: pkg/.gitignore
+#	wget -P pkg ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-$(OPENLDAP_VER).tgz && touch $@
+
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/mitkrb.html
+#MITKERBEROS_VER_BRIEF=1.18
+#MITKERBEROS_VER=$(MITKERBEROS_VER_BRIEF).2
+#PKG+=pkg/krb5-$(MITKERBEROS_VER).tar.gz
+#pkg/krb5-$(MITKERBEROS_VER).tar.gz: pkg/.gitignore
+#	wget -P pkg https://kerberos.org/dist/krb5/$(MITKERBEROS_VER_BRIEF)/krb5-$(MITKERBEROS_VER).tar.gz && touch $@
+
+#cd src &&
+#sed -i -e 's@\^u}@^u cols 300}@' tests/dejagnu/config/default.exp     &&
+#sed -i -e '/eq 0/{N;s/12 //}'    plugins/kdb/db2/libdb2/test/run.test &&
+#./configure --prefix=/usr            \
+#            --sysconfdir=/etc        \
+#            --localstatedir=/var/lib \
+#            --with-system-et         \
+#            --with-system-ss         \
+#            --with-system-verto=no   \
+#            --enable-dns-for-realm &&
+#make
+
+#make install &&
+#for f in gssapi_krb5 gssrpc k5crypto kadm5clnt kadm5srv \
+#         kdb5 kdb_ldap krad krb5 krb5support verto ; do
+#    find /usr/lib -type f -name "lib$f*.so*" -exec chmod -v 755 {} \;    
+#done          &&
+#mv -v /usr/lib/libkrb5.so.3*        /lib &&
+#mv -v /usr/lib/libk5crypto.so.3*    /lib &&
+#mv -v /usr/lib/libkrb5support.so.0* /lib &&
+#ln -v -sf ../../lib/libkrb5.so.3.3        /usr/lib/libkrb5.so        &&
+#ln -v -sf ../../lib/libk5crypto.so.3.1    /usr/lib/libk5crypto.so    &&
+#ln -v -sf ../../lib/libkrb5support.so.0.1 /usr/lib/libkrb5support.so &&
+#mv -v /usr/bin/ksu /bin &&
+#chmod -v 755 /bin/ksu   &&
+#install -v -dm755 /usr/share/doc/krb5-1.18.2 &&
+#cp -vfr ../doc/*  /usr/share/doc/krb5-1.18.2
+
+#LIBBSD_VER=0.11.3
+#PKG+=pkg/libbsd-$(LIBBSD_VER).tar.xz
+#pkg/libbsd-$(LIBBSD_VER).tar.xz: pkg/.gitignore
+#	wget -P pkg https://libbsd.freedesktop.org/releases/libbsd-$(LIBBSD_VER).tar.xz && touch $@
+
+#LIBEDIT_BULLSEYE_VER=3.1-20191231
+#PKG+=pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz
+#pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz: pkg/.gitignore
+#	wget -O $@ http://deb.debian.org/debian/pool/main/libe/libedit/libedit_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz && touch $@
 
 # Incremental rule for download:
+PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
+PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
+PKG+=pkg/coreutils-$(CORE_UTILS_VER)-i18n-1.patch
+PKG+=pkg/glibc-$(GLIBC_VER)-fhs-1.patch
+PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
+PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
+PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
+
 
 PKG+=pkg/acl-$(ACL_VER).tar.gz
 PKG+=pkg/attr-$(ATTR_VER).tar.gz
@@ -419,18 +503,22 @@ PKG+=pkg/kbd-$(KBD_VER).tar.xz
 PKG+=pkg/kmod-$(KMOD_VER).tar.xz
 PKG+=pkg/less-$(LESS_VER).tar.gz
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER).tar.xz
-PKG+=pkg/libtasn1-$(LIBTASN1_VER).tar.gz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
+PKG+=pkg/libcbor-$(LIBCBOR_VER).zip
+PKG+=pkg/libedit-$(LIBEDIT_VER).tar.gz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
 PKG+=pkg/libidn2-$(LIBIDN2_VER).tar.gz
+PKG+=pkg/libmd-$(LIBMD_VER).tar.xz
 PKG+=pkg/libmnl-$(LIBMNL_VER).tar.bz2
 PKG+=pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz
+PKG+=pkg/libtasn1-$(LIBTASN1_VER).tar.gz
 PKG+=pkg/libtool-$(LIBTOOL_VER).tar.xz
 PKG+=pkg/libunistring-$(LIBUNISTRING_VER).tar.xz
 PKG+=pkg/libusb-$(LIBUSB_VER).tar.bz2
 PKG+=pkg/libuv-$(LIBUV_VER).tar.gz
 PKG+=pkg/m4-$(M4_VER).tar.xz
 PKG+=pkg/make-$(MAKE_VER).tar.gz
+PKG+=pkg/make-ca-$(MAKE_CA_VER).tar.xz
 PKG+=pkg/man-db-$(MAN_DB_VER).tar.xz
 PKG+=pkg/man-pages-$(MAN_PAGES_VER).tar.xz
 PKG+=pkg/meson-$(MESON_VER).tar.gz
@@ -441,6 +529,7 @@ PKG+=pkg/nano-$(NANO_VER).tar.xz
 PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
 PKG+=pkg/nftables-$(NFTABLES_VER).tar.xz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
+PKG+=pkg/nghttp2-$(NGHTTP2_VER).tar.xz
 PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
 PKG+=pkg/parted-$(PARTED_VER).tar.xz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
@@ -612,18 +701,24 @@ pkg/less-$(LESS_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://www.greenwoodsoftware.com/less/less-$(LESS_VER).tar.gz && touch $@
 pkg/libarchive-$(LIBARCHIVE_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/libarchive/libarchive/releases/download/v$(LIBARCHIVE_VER)/libarchive-$(LIBARCHIVE_VER).tar.xz && touch $@
-pkg/libtasn1-$(LIBTASN1_VER).tar.gz: pkg/.gitignore
-	wget -P pkg https://ftp.gnu.org/gnu/libtasn1/libtasn1-$(LIBTASN1_VER).tar.gz && touch $@
 pkg/libcap-$(LIBCAP_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://www.kernel.org/pub/linux/libs/security/linux-privs/libcap2/libcap-$(LIBCAP_VER).tar.xz && touch $@
+pkg/libcbor-$(LIBCBOR_VER).zip: pkg/.gitignore
+	wget -O $@ https://github.com/PJK/libcbor/archive/refs/tags/v$(LIBCBOR_VER).zip && touch $@
+pkg/libedit-$(LIBEDIT_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://www.thrysoee.dk/editline/libedit-$(LIBEDIT_VER).tar.gz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
 	wget -P pkg ftp://sourceware.org/pub/libffi/libffi-$(LIBFFI_VER).tar.gz && touch $@
 pkg/libidn2-$(LIBIDN2_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/libidn/libidn2-$(LIBIDN2_VER).tar.gz && touch $@
+pkg/libmd-$(LIBMD_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://archive.hadrons.org/software/libmd/libmd-$(LIBMD_VER).tar.xz && touch $@
 pkg/libmnl-$(LIBMNL_VER).tar.bz2: pkg/.gitignore
 	wget -P pkg https://netfilter.org/projects/libmnl/files/libmnl-$(LIBMNL_VER).tar.bz2 && touch $@
 pkg/libpipeline-$(LIBPIPILINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/libpipeline/libpipeline-$(LIBPIPILINE_VER).tar.gz && touch $@
+pkg/libtasn1-$(LIBTASN1_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://ftp.gnu.org/gnu/libtasn1/libtasn1-$(LIBTASN1_VER).tar.gz && touch $@
 pkg/libtool-$(LIBTOOL_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/libtool/libtool-$(LIBTOOL_VER).tar.xz && touch $@
 pkg/libunistring-$(LIBUNISTRING_VER).tar.xz: pkg/.gitignore
@@ -636,6 +731,8 @@ pkg/m4-$(M4_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/m4/m4-$(M4_VER).tar.xz && touch $@
 pkg/make-$(MAKE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/make/make-$(MAKE_VER).tar.gz && touch $@
+pkg/make-ca-$(MAKE_CA_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://github.com/djlucas/make-ca/releases/download/v$(MAKE_CA_VER)/make-ca-$(MAKE_CA_VER).tar.xz && touch $@
 pkg/man-db-$(MAN_DB_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/man-db/man-db-$(MAN_DB_VER).tar.xz && touch $@
 pkg/man-pages-$(MAN_PAGES_VER).tar.xz: pkg/.gitignore
@@ -657,6 +754,8 @@ pkg/nftables-$(NFTABLES_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://netfilter.org/projects/nftables/files/nftables-$(NFTABLES_VER).tar.xz && touch $@
 pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://github.com/ninja-build/ninja/archive/v$(NINJA_VER)/ninja-$(NINJA_VER).tar.gz && touch $@
+pkg/nghttp2-$(NGHTTP2_VER).tar.xz: pkg/.gitignore
+	wget -P pkg https://github.com/nghttp2/nghttp2/releases/download/v$(NGHTTP2_VER)/nghttp2-$(NGHTTP2_VER).tar.xz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
 pkg/parted-$(PARTED_VER).tar.xz: pkg/.gitignore
@@ -5782,6 +5881,7 @@ tgt-libunistring: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
 # BUILD_TIME :: 50s
 LIBIDN2_OPT3+= --prefix=/usr
 LIBIDN2_OPT3+= --disable-static
+LIBIDN2_OPT3+= --disable-nls
 LIBIDN2_OPT3+= $(OPT_FLAGS)
 pkg3/libidn2-$(LIBIDN2_VER).cpio.zst: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
 	rm -fr tmp/libidn2
@@ -5798,8 +5898,98 @@ endif
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/libidn2
 tgt-libidn2: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
-	
+
+# extra
+# BUILD_TIME :: 5s
+LIBCBOR_CMAKE3+= -DCMAKE_BUILD_TYPE=Release
+LIBCBOR_CMAKE3+= -DCBOR_CUSTOM_ALLOC=ON
+LIBCBOR_CMAKE3+= -DCMAKE_C_FLAGS_RELEASE="$(BASE_OPT_FLAGS)"
+LIBCBOR_CMAKE3+= -DCMAKE_VERBOSE_MAKEFILE=true
+LIBCBOR_CMAKE3+= -DCMAKE_INSTALL_PREFIX=/usr
+pkg3/libcbor-$(LIBCBOR_VER).zpio.zst: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
+	rm -fr tmp/libcbor
+	mkdir -p tmp/libcbor/bld
+	bsdtar -xf pkg/libcbor-$(LIBCBOR_VER).zip -C tmp/libcbor
+	sed -i "s|-O3||" tmp/libcbor/libcbor-$(LIBCBOR_VER)/CMakeLists.txt
+	cd tmp/libcbor/bld && cmake $(LIBCBOR_CMAKE3) ../libcbor-$(LIBCBOR_VER) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libcbor/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libcbor/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libcbor
+tgt-libcbor: pkg3/libcbor-$(LIBCBOR_VER).zpio.zst
+
+# EXTRA: BLFS-10: nghtt2
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/nghttp2.html
+# BUILD_TIME :: 29s
+NGHTTP2_OPT3+= --prefix=/usr
+NGHTTP2_OPT3+= --disable-static
+NGHTTP2_OPT3+= --enable-lib-only
+NGHTTP2_OPT3+= --docdir=/usr/share/doc/nghttp2-$(NGHTTP2_VER)
+NGHTTP2_OPT3+= $(OPT_FLAGS)
+pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst: pkg3/libcbor-$(LIBCBOR_VER).zpio.zst
+	rm -fr tmp/nghttp2
+	mkdir -p tmp/nghttp2/bld
+	tar -xJf pkg/nghttp2-$(NGHTTP2_VER).tar.xz -C tmp/nghttp2
+	cd tmp/nghttp2/bld && ../nghttp2-$(NGHTTP2_VER)/configure $(NGHTTP2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/nghttp2/ins/usr/share/doc
+	rm -fr tmp/nghttp2/ins/usr/share/man
+	rm -fr tmp/nghttp2/ins/usr/bin
+	rm -fr tmp/nghttp2/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/nghttp2/ins/usr/lib/*.so* || true
+endif
+	cd tmp/nghttp2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/nghttp2
+tgt-nghttp2: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
+
+# EXTRA
+#
+# BUILD_TIME :: 10s
+LIBMD_OPT3+= --prefix=/usr
+LIBMD_OPT3+= --disable-static
+LIBMD_OPT3+= $(OPT_FLAGS)
+pkg3/libmd-$(LIBMD_VER).cpio.zst: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
+	rm -fr tmp/libmd
+	mkdir -p tmp/libmd/bld
+	tar -xJf pkg/libmd-$(LIBMD_VER).tar.xz -C tmp/libmd
+	cd tmp/libmd/bld && ../libmd-$(LIBMD_VER)/configure $(LIBMD_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/libmd/ins/usr/lib/*.la
+	rm -fr tmp/libmd/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libmd/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libmd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libmd
+tgt-libmd: pkg3/libmd-$(LIBMD_VER).cpio.zst
+
+# EXTRA
+# 
+# BUILD_TIME :: 18m
+LIBEDIT_OPT3+= --prefix=/usr
+LIBEDIT_OPT3+= --disable-static
+LIBEDIT_OPT3+= $(OPT_FLAGS)
+pkg3/libedit-$(LIBEDIT_VER).cpio.zst: pkg3/libmd-$(LIBMD_VER).cpio.zst
+	rm -fr tmp/libedit
+	mkdir -p tmp/libedit/bld
+	tar -xzf pkg/libedit-$(LIBEDIT_VER).tar.gz -C tmp/libedit
+	cd tmp/libedit/bld && ../libedit-$(LIBEDIT_VER)/configure $(LIBEDIT_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libedit/ins/usr/share
+	rm -f  tmp/libedit/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libedit/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libedit/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libedit
+tgt-libedit: pkg3/libedit-$(LIBEDIT_VER).cpio.zst
+
+
 # RKDEVELOPTOOL
+# https://github.com/PJK/libcbor
 # BUILD_TIME :: 10s
 pkg3/rkdeveloptool.cpio.zst: pkg3/can-utils.cpio.zst
 	rm -fr tmp/rkdeveloptool
@@ -6416,6 +6606,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -fa  /usr/bin/rnano   tmp/initrd/usr/bin/
 	mkdir -p tmp/initrd/usr/share/nano
 	cp -far /usr/share/nano/* tmp/initrd/usr/share/nano/
+	sed -i 's|blue|cyan|' tmp/initrd/usr/share/nano/makefile.nanorc
 	cp -f /usr/bin/grep tmp/initrd/usr/bin/
 	cp -f /usr/bin/head tmp/initrd/usr/bin/
 	cp -f /usr/bin/printenv tmp/initrd/usr/bin/
@@ -6736,6 +6927,11 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/tar-$(TAR_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/xz-$(XZ_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/sed-$(SED_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/gawk-$(GAWK_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst tmp/fat/mnt/zst/
 	mkdir -p tmp/fat/etc/myetc
 	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
 	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
