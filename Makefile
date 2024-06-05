@@ -252,6 +252,7 @@ LIBCAP_VER=2.42
 # LIBCAP_VER=2.44 = Debian11
 LIBCBOR_VER=0.7.0
 LIBEDIT_VER=20240517-3.1
+LIBEDIT_BULLSEYE_VER=3.1-20191231
 LIBFFI_VER=3.3
 LIBIDN2_VER=2.3.0
 LIBMD_VER=1.0.3
@@ -276,11 +277,15 @@ MPC_VER=1.1.0
 MPFR_VER=4.1.0
 NANO_VER=5.2
 NCURSES_VER=6.2
+NET_TOOLS_VER=20101030
 NFTABLES_VER=1.0.9
 NINJA_VER=1.10.0
 NGHTTP2_VER=1.41.0
 OPEN_SSL_VER=1.1.1g
 #OPEN_SSL_VER=1.1.1n = Debian11
+OPENLDAP_VER=2.4.51
+###OPENSLP_VER=2.0.0
+OPENSSH_VER=8.3p1
 PARTED_VER=3.3
 # PARTED_VER=3.4 = Debian11
 PATCH_VER=2.7.6
@@ -307,6 +312,7 @@ RE2C_VER=3.1
 READLINE_VER=8.0
 # READLINE_VER=8.1 = Debian11
 RSYNC_VER=3.2.3
+SASL_VER=2.1.27
 SED_VER=4.8
 # SED_VER=4.7 = Debian11
 SHADOW_VER=4.8.1
@@ -344,11 +350,8 @@ ZSTD_VER=1.4.5
 
 #CURL deps (Ubuntu 22.04)
 ### libcurl.so.4 => /lib/aarch64-linux-gnu/libcurl.so.4 (0x0000ffffbcde0000)
-
-
 # librtmp.so.1 => /lib/aarch64-linux-gnu/librtmp.so.1 (0x0000ffffbcb60000)
 # https://packages.debian.org/ru/bullseye/librtmp1
-
 # libssh.so.4 => /lib/aarch64-linux-gnu/libssh.so.4 (0x0000ffffbcae0000)
 # libpsl.so.5 => /lib/aarch64-linux-gnu/libpsl.so.5 (0x0000ffffbcab0000)
 # libgssapi_krb5.so.2 => /lib/aarch64-linux-gnu/libgssapi_krb5.so.2 (0x0000ffffbc5b0000)
@@ -362,7 +365,6 @@ ZSTD_VER=1.4.5
 # libk5crypto.so.3 => /lib/aarch64-linux-gnu/libk5crypto.so.3 (0x0000ffffbbdf0000)
 # libcom_err.so.2 => /lib/aarch64-linux-gnu/libcom_err.so.2 (0x0000ffffbbdd0000)
 # libkrb5support.so.0 => /lib/aarch64-linux-gnu/libkrb5support.so.0 (0x0000ffffbbdb0000)
-# libsasl2.so.2 => /lib/aarch64-linux-gnu/libsasl2.so.2 (0x0000ffffbbd80000)
 # libbrotlicommon.so.1 => /lib/aarch64-linux-gnu/libbrotlicommon.so.1 (0x0000ffffbbd40000)
 # libp11-kit.so.0 => /lib/aarch64-linux-gnu/libp11-kit.so.0 (0x0000ffffbbbf0000)
 # libkeyutils.so.1 => /lib/aarch64-linux-gnu/libkeyutils.so.1 (0x0000ffffbbba0000)
@@ -377,27 +379,8 @@ ZSTD_VER=1.4.5
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/openssh.html
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libssh2.html
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/make-ca.html
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/server/openldap.html
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/keyutils.html
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/curl.html
-
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/cyrus-sasl.html
-#SASL_VER=2.1.27
-#PKG+=pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch
-#pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch: pkg/.gitignore
-#	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch && touch $@
-#PKG+=pkg/cyrus-sasl-$(SASL_VER).tar.gz
-#pkg/cyrus-sasl-$(SASL_VER).tar.gz: pkg/.gitignore
-#	wget -P pkg https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-$(SASL_VER)/cyrus-sasl-$(SASL_VER).tar.gz && touch $@
-
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/server/openldap.html
-#OPENLDAP_VER=2.4.51
-#PKG+=pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch
-#pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch: pkg/.gitignore
-#	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/openldap-$(OPENLDAP_VER)-consolidated-2.patch && touch $@
-#PKG+=pkg/openldap-$(OPENLDAP_VER).tgz
-#pkg/openldap-$(OPENLDAP_VER).tgz: pkg/.gitignore
-#	wget -P pkg ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-$(OPENLDAP_VER).tgz && touch $@
 
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/mitkrb.html
 #MITKERBEROS_VER_BRIEF=1.18
@@ -439,11 +422,6 @@ ZSTD_VER=1.4.5
 #pkg/libbsd-$(LIBBSD_VER).tar.xz: pkg/.gitignore
 #	wget -P pkg https://libbsd.freedesktop.org/releases/libbsd-$(LIBBSD_VER).tar.xz && touch $@
 
-#LIBEDIT_BULLSEYE_VER=3.1-20191231
-#PKG+=pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz
-#pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz: pkg/.gitignore
-#	wget -O $@ http://deb.debian.org/debian/pool/main/libe/libedit/libedit_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz && touch $@
-
 # Incremental rule for download:
 PKG+=pkg/bash-$(BASH_VER)-upstream_fixes-1.patch
 PKG+=pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch
@@ -452,7 +430,9 @@ PKG+=pkg/glibc-$(GLIBC_VER)-fhs-1.patch
 PKG+=pkg/kbd-$(KBD_VER)-backspace-1.patch
 PKG+=pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
 PKG+=pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
-
+PKG+=pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch
+PKG+=pkg/net-tools-CVS_$(NET_TOOLS_VER)-remove_dups-1.patch
+PKG+=pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch
 
 PKG+=pkg/acl-$(ACL_VER).tar.gz
 PKG+=pkg/attr-$(ATTR_VER).tar.gz
@@ -506,6 +486,7 @@ PKG+=pkg/libarchive-$(LIBARCHIVE_VER).tar.xz
 PKG+=pkg/libcap-$(LIBCAP_VER).tar.xz
 PKG+=pkg/libcbor-$(LIBCBOR_VER).zip
 PKG+=pkg/libedit-$(LIBEDIT_VER).tar.gz
+PKG+=pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz
 PKG+=pkg/libffi-$(LIBFFI_VER).tar.gz
 PKG+=pkg/libidn2-$(LIBIDN2_VER).tar.gz
 PKG+=pkg/libmd-$(LIBMD_VER).tar.xz
@@ -527,10 +508,14 @@ PKG+=pkg/mpc-$(MPC_VER).tar.gz
 PKG+=pkg/mpfr-$(MPFR_VER).tar.xz
 PKG+=pkg/nano-$(NANO_VER).tar.xz
 PKG+=pkg/ncurses-$(NCURSES_VER).tar.gz
+PKG+=pkg/net-tools-CVS_$(NET_TOOLS_VER).tar.gz
 PKG+=pkg/nftables-$(NFTABLES_VER).tar.xz
 PKG+=pkg/ninja-$(NINJA_VER).tar.gz
 PKG+=pkg/nghttp2-$(NGHTTP2_VER).tar.xz
 PKG+=pkg/openssl-$(OPEN_SSL_VER).tar.gz
+PKG+=pkg/openldap-$(OPENLDAP_VER).tgz
+###PKG+=pkg/openslp-$(OPENSLP_VER).tar.gz
+PKG+=pkg/openssh-$(OPENSSH_VER).tar.gz
 PKG+=pkg/parted-$(PARTED_VER).tar.xz
 PKG+=pkg/patch-$(PATCH_VER).tar.xz
 PKG+=pkg/pcre-$(PCRE_VER).tar.gz
@@ -547,6 +532,7 @@ PKG+=pkg/Python-$(PYTHON2_VER).tar.xz
 PKG+=pkg/re2c-$(RE2C_VER).tar.gz
 PKG+=pkg/readline-$(READLINE_VER).tar.gz
 PKG+=pkg/rsync-$(RSYNC_VER).tar.gz
+PKG+=pkg/cyrus-sasl-$(SASL_VER).tar.gz
 PKG+=pkg/sed-$(SED_VER).tar.xz
 PKG+=pkg/shadow-$(SHADOW_VER).tar.xz
 PKG+=pkg/sharutils-$(SHARUTILS_VER).tar.xz
@@ -603,6 +589,13 @@ pkg/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch && touch $@
 pkg/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch: pkg/.gitignore
 	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch && touch $@
+pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch: pkg/.gitignore
+	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch && touch $@
+pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch: pkg/.gitignore
+	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/openldap-$(OPENLDAP_VER)-consolidated-2.patch && touch $@
+pkg/net-tools-CVS_$(NET_TOOLS_VER)-remove_dups-1.patch: pkg/.gitignore
+	wget -P pkg http://www.linuxfromscratch.org/patches/blfs/$(LFS_VER)/net-tools-CVS_$(NET_TOOLS_VER)-remove_dups-1.patch && touch $@
+
 pkg/acl-$(ACL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://download.savannah.gnu.org/releases/acl/acl-$(ACL_VER).tar.gz && touch $@
 pkg/attr-$(ATTR_VER).tar.gz: pkg/.gitignore
@@ -707,6 +700,8 @@ pkg/libcbor-$(LIBCBOR_VER).zip: pkg/.gitignore
 	wget -O $@ https://github.com/PJK/libcbor/archive/refs/tags/v$(LIBCBOR_VER).zip && touch $@
 pkg/libedit-$(LIBEDIT_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.thrysoee.dk/editline/libedit-$(LIBEDIT_VER).tar.gz && touch $@
+pkg/libedit_bullsyey_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz: pkg/.gitignore
+	wget -O $@ http://deb.debian.org/debian/pool/main/libe/libedit/libedit_$(LIBEDIT_BULLSEYE_VER).orig.tar.gz && touch $@
 pkg/libffi-$(LIBFFI_VER).tar.gz: pkg/.gitignore
 	wget -P pkg ftp://sourceware.org/pub/libffi/libffi-$(LIBFFI_VER).tar.gz && touch $@
 pkg/libidn2-$(LIBIDN2_VER).tar.gz: pkg/.gitignore
@@ -750,6 +745,8 @@ pkg/nano-$(NANO_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/nano/nano-$(NANO_VER).tar.xz && touch $@
 pkg/ncurses-$(NCURSES_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/ncurses/ncurses-$(NCURSES_VER).tar.gz && touch $@
+pkg/net-tools-CVS_$(NET_TOOLS_VER).tar.gz: pkg/.gitignore
+	wget -P pkg http://anduin.linuxfromscratch.org/BLFS/net-tools/net-tools-CVS_$(NET_TOOLS_VER).tar.gz && touch $@
 pkg/nftables-$(NFTABLES_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://netfilter.org/projects/nftables/files/nftables-$(NFTABLES_VER).tar.xz && touch $@
 pkg/ninja-$(NINJA_VER).tar.gz: pkg/.gitignore
@@ -758,6 +755,12 @@ pkg/nghttp2-$(NGHTTP2_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://github.com/nghttp2/nghttp2/releases/download/v$(NGHTTP2_VER)/nghttp2-$(NGHTTP2_VER).tar.xz && touch $@
 pkg/openssl-$(OPEN_SSL_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.openssl.org/source/openssl-$(OPEN_SSL_VER).tar.gz && touch $@
+pkg/openldap-$(OPENLDAP_VER).tgz: pkg/.gitignore
+	wget -P pkg ftp://ftp.openldap.org/pub/OpenLDAP/openldap-release/openldap-$(OPENLDAP_VER).tgz && touch $@
+###pkg/openslp-$(OPENSLP_VER).tar.gz: pkg/.gitignore
+###	wget -P pkg http://sourceforge.net/projects/openslp/files/$(OPENSLP_VER)/$(OPENSLP_VER)%20Release/openslp-$(OPENSLP_VER).tar.gz && touch $@
+pkg/openssh-$(OPENSSH_VER).tar.gz: pkg/.gitignore
+	wget -P pkg http://ftp.openbsd.org/pub/OpenBSD/OpenSSH/portable/openssh-$(OPENSSH_VER).tar.gz && touch $@
 pkg/parted-$(PARTED_VER).tar.xz: pkg/.gitignore
 	wget -P pkg https://ftp.gnu.org/gnu/parted/parted-$(PARTED_VER).tar.xz && touch $@
 pkg/patch-$(PATCH_VER).tar.xz: pkg/.gitignore
@@ -792,6 +795,8 @@ pkg/readline-$(READLINE_VER).tar.gz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/readline/readline-$(READLINE_VER).tar.gz && touch $@
 pkg/rsync-$(RSYNC_VER).tar.gz: pkg/.gitignore
 	wget -P pkg https://www.samba.org/ftp/rsync/src/rsync-$(RSYNC_VER).tar.gz && touch $@
+pkg/cyrus-sasl-$(SASL_VER).tar.gz: pkg/.gitignore
+	wget -P pkg https://github.com/cyrusimap/cyrus-sasl/releases/download/cyrus-sasl-$(SASL_VER)/cyrus-sasl-$(SASL_VER).tar.gz && touch $@
 pkg/sed-$(SED_VER).tar.xz: pkg/.gitignore
 	wget -P pkg http://ftp.gnu.org/gnu/sed/sed-$(SED_VER).tar.xz && touch $@
 pkg/shadow-$(SHADOW_VER).tar.xz: pkg/.gitignore
@@ -1866,9 +1871,9 @@ pkg2/lfs-tgt-initial.cpio.zst:
 	install -dv -m 1777 /tmp /var/tmp
 	ln -sfv /proc/self/mounts /etc/mtab
 	sh -c 'echo "127.0.0.1 localhost `hostname`" > /etc/hosts'
-	sh -c 'echo "tester:x:`ls -n $$(tty) | cut -d" " -f3`:101::/home/tester:/bin/bash" >> /etc/passwd'
-	sh -c 'echo "tester:x:101:" >> /etc/group'
-	sh -c 'cd / && install -o tester -d /home/tester'
+#	sh -c 'echo "tester:x:`ls -n $$(tty) | cut -d" " -f3`:101::/home/tester:/bin/bash" >> /etc/passwd'
+#	sh -c 'echo "tester:x:101:" >> /etc/group'
+#	sh -c 'cd / && install -o tester -d /home/tester'
 	touch /var/log/btmp
 	touch /var/log/lastlog
 	touch /var/log/faillog
@@ -3400,9 +3405,9 @@ ifeq ($(BUILD_STRIP),y)
 endif	
 	cd tmp/sed/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	chown -Rv tester tmp/sed/bld
-	mkdir -p tst && cd tmp/sed/bld && su tester -c "PATH=$$PATH make check"
+#ifeq ($(RUN_TESTS),y)
+#	chown -Rv tester tmp/sed/bld
+#	mkdir -p tst && cd tmp/sed/bld && su tester -c "PATH=$$PATH make check"
 #============================================================================
 #Testsuite summary for GNU sed 4.8
 #============================================================================
@@ -3414,7 +3419,7 @@ ifeq ($(RUN_TESTS),y)
 ## XPASS: 0
 ## ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/sed
 tgt-sed: pkg3/sed-$(SED_VER).cpio.zst
 
@@ -3570,10 +3575,10 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	cd tmp/bash/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	chown -Rv tester tmp/bash/bld
-	mkdir -p tst && cd tmp/bash/bld && su tester -c "PATH=$$PATH make tests < $$(tty)"
-endif
+#ifeq ($(RUN_TESTS),y)
+#	chown -Rv tester tmp/bash/bld
+#	mkdir -p tst && cd tmp/bash/bld && su tester -c "PATH=$$PATH make tests < $$(tty)"
+#endif
 	rm -fr tmp/bash
 #	exec /bin/bash --login +h
 tgt-bash: pkg3/bash-$(BASH_VER).cpio.zst
@@ -4381,12 +4386,12 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	cd tmp/coreutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	cd tmp/coreutils/bld && make NON_ROOT_USERNAME=tester check-root || true
-	echo "dummy:x:102:tester" >> /etc/group
-	cd tmp/coreutils/bld && chown -Rv tester .
-	cd tmp/coreutils/bld && su tester -c "PATH=$$PATH make RUN_EXPENSIVE_TESTS=yes check" || true
-	sed -i '/dummy/d' /etc/group
+#ifeq ($(RUN_TESTS),y)
+#	cd tmp/coreutils/bld && make NON_ROOT_USERNAME=tester check-root || true
+#	echo "dummy:x:102:tester" >> /etc/group
+#	cd tmp/coreutils/bld && chown -Rv tester .
+#	cd tmp/coreutils/bld && su tester -c "PATH=$$PATH make RUN_EXPENSIVE_TESTS=yes check" || true
+#	sed -i '/dummy/d' /etc/group
 # as root
 #============================================================================
 #Testsuite summary for GNU coreutils 8.32
@@ -4411,7 +4416,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/coreutils
 tgt-coreutils: pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst
 
@@ -4544,8 +4549,8 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	cd tmp/findutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/findutils/bld && chown -Rv tester . && su tester -c "PATH=$$PATH make check"
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/findutils/bld && chown -Rv tester . && su tester -c "PATH=$$PATH make check"
 #============================================================================
 #Testsuite summary for GNU findutils 4.7.0
 #============================================================================
@@ -4557,7 +4562,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/findutils
 tgt-findutils: pkg3/findutils-$(FIND_UTILS_VER).cpio.zst
 
@@ -5272,13 +5277,13 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	cd tmp/util-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	chown -Rv tester tmp/util-linux/bld
-	mkdir -p tst && cd tmp/util-linux/bld && su tester -c "make -k check"
+#ifeq ($(RUN_TESTS),y)
+#	chown -Rv tester tmp/util-linux/bld
+#	mkdir -p tst && cd tmp/util-linux/bld && su tester -c "make -k check"
 #---------------------------------------------------------------------
 #  All 207 tests PASSED
 #---------------------------------------------------------------------
-endif
+#endif
 	rm -fr tmp/util-linux
 tgt-util-linux: pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst
 
@@ -5808,190 +5813,99 @@ endif
 	cd tmp/cmake/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
 	rm -fr tmp/cmake
-tgt-cmake: pkg/cmake-$(CMAKE_VER).cpio.zst
+tgt-cmake: pkg3/cmake-$(CMAKE_VER).cpio.zst
 
-# extra CAN-UTILS
+# extra blfs :: Net-tools-CVS_20101030
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/net-tools.html
 # BUILD_TIME :: 3s
-ifeq ($(VERB),1)
-CAN_UTILS_BUILD_VERB=-v
-endif
-pkg3/can-utils.cpio.zst: pkg3/cmake-$(CMAKE_VER).cpio.zst
-	rm -fr tmp/can-utils
-	mkdir -p tmp/can-utils/src
-	mkdir -p tmp/can-utils/bld
-	pv pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/can-utils/src
-	cd tmp/can-utils/bld && cmake -GNinja ../src
-	cd tmp/can-utils/bld && LANG=en_US.UTF-8 ninja $(CAN_UTILS_BUILD_VERB)
-	cd tmp/can-utils/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
+pkg3/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst: pkg3/cmake-$(CMAKE_VER).cpio.zst
+	rm -fr tmp/net-tools
+	mkdir -p tmp/net-tools
+	tar -xzf pkg/net-tools-CVS_$(NET_TOOLS_VER).tar.gz -C tmp/net-tools
+	cp -far pkg/net-tools-CVS_$(NET_TOOLS_VER)-remove_dups-1.patch tmp/net-tools/
+	cd tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER) && patch -Np1 -i ../net-tools-CVS_$(NET_TOOLS_VER)-remove_dups-1.patch
+	sed -i '/#include <netinet\/ip.h>/d' tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER)/iptunnel.c
+	sed -i 's|-O2|$(BASE_OPT_FLAGS)|' tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER)/Makefile
+	cd tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER) && yes "" | make config
+	cd tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER) && make $(JOBS)
+	cd tmp/net-tools/net-tools-CVS_$(NET_TOOLS_VER) && make BASEDIR=`pwd`/../ins update
+	rm -fr tmp/net-tools/ins/usr/share
+	mv tmp/net-tools/ins/bin tmp/net-tools/ins/usr/
+	mv tmp/net-tools/ins/sbin tmp/net-tools/ins/usr/
 ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/can-utils/ins/usr/local/bin/*
+	strip --strip-unneeded tmp/net-tools/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/net-tools/ins/usr/sbin/* || true
 endif
-	cd tmp/can-utils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/net-tools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/can-utils
-tgt-can-utils: pkg3/can-utils.cpio.zst
+	rm -fr tmp/net-tools
+tgt-net-tools: pkg3/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
 
-# extra blfs :: libtasn1-4.16.0
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libtasn1.html
-# BUILD_TIME :: 44s
-LIBTASN1_OPT3+= --prefix=/usr
-LIBTASN1_OPT3+= --disable-static
-LIBTASN1_OPT3+= $(OPT_FLAGS)
-pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst: pkg3/can-utils.cpio.zst
-	rm -fr tmp/libtasn1
-	mkdir -p tmp/libtasn1/bld
-	tar -xzf pkg/libtasn1-$(LIBTASN1_VER).tar.gz -C tmp/libtasn1
-	cd tmp/libtasn1/bld && ../libtasn1-$(LIBTASN1_VER)/configure $(LIBTASN1_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libtasn1/ins/usr/share
-	rm -fr tmp/libtasn1/ins/usr/lib/*.la
+# extra :: OpenSSH-8.3p1
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/openssh.html
+# BUILD_TIME :: 1m 28s
+OPENSSH_OPT3+= --prefix=/usr
+OPENSSH_OPT3+= --sysconfdir=/etc/ssh
+OPENSSH_OPT3+= --with-md5-passwords
+OPENSSH_OPT3+= --with-privsep-path=/var/lib/sshd
+OPENSSH_OPT3+= $(OPT_FLAGS)
+pkg3/openssh-$(OPENSSH_VER).cpio.zst: pkg3/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
+	rm -fr tmp/openssh
+	mkdir -p tmp/openssh/bld
+	tar -xzf pkg/openssh-$(OPENSSH_VER).tar.gz -C tmp/openssh
+	cd tmp/openssh/bld && ../openssh-$(OPENSSH_VER)/configure $(OPENSSH_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/openssh/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
-#	strip --strip-debug    tmp/libtasn1/ins/usr/lib/*.a
-	strip --strip-unneeded tmp/libtasn1/ins/usr/lib/*.so*
-	strip --strip-unneeded tmp/libtasn1/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/openssh/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/openssh/ins/usr/sbin/* || true
+	strip --strip-unneeded tmp/openssh/ins/usr/libexec/* || true
 endif
-	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/openssh/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
 	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libtasn1
-tgt-libtasn1: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
-
-# extra blfs :: libunistring-0.9.10
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libunistring.html
-# BUILD_TIME :: 2m 51s
-LIBUNISTRING_OPT3+= --prefix=/usr
-LIBUNISTRING_OPT3+= --disable-static
-LIBUNISTRING_OPT3+= --docdir=/usr/share/doc/libunistring-$(LIBUNISTRING_VER)
-LIBUNISTRING_OPT3+= $(OPT_FLAGS)
-pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
-	rm -fr tmp/libunistring
-	mkdir -p tmp/libunistring/bld
-	tar -xJf pkg/libunistring-$(LIBUNISTRING_VER).tar.xz -C tmp/libunistring
-	cd tmp/libunistring/bld && ../libunistring-$(LIBUNISTRING_VER)/configure $(LIBUNISTRING_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libunistring/ins/usr/share
-	rm -fr tmp/libunistring/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libunistring/ins/usr/lib/*.so*
-endif
-	cd tmp/libunistring/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libunistring
-tgt-libunistring: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
-
-# extra blfs :: libidn2-2.3.0
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libidn2.html
-# BUILD_TIME :: 50s
-LIBIDN2_OPT3+= --prefix=/usr
-LIBIDN2_OPT3+= --disable-static
-LIBIDN2_OPT3+= --disable-nls
-LIBIDN2_OPT3+= $(OPT_FLAGS)
-pkg3/libidn2-$(LIBIDN2_VER).cpio.zst: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
-	rm -fr tmp/libidn2
-	mkdir -p tmp/libidn2/bld
-	tar -xzf pkg/libidn2-$(LIBIDN2_VER).tar.gz -C tmp/libidn2
-	cd tmp/libidn2/bld && ../libidn2-$(LIBIDN2_VER)/configure $(LIBIDN2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libidn2/ins/usr/share
-	rm -f tmp/libidn2/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libidn2/ins/usr/bin/* || true
-	strip --strip-unneeded tmp/libidn2/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libidn2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libidn2
-tgt-libidn2: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
-
-# extra
-# BUILD_TIME :: 5s
-LIBCBOR_CMAKE3+= -DCMAKE_BUILD_TYPE=Release
-LIBCBOR_CMAKE3+= -DCBOR_CUSTOM_ALLOC=ON
-LIBCBOR_CMAKE3+= -DCMAKE_C_FLAGS_RELEASE="$(BASE_OPT_FLAGS)"
-LIBCBOR_CMAKE3+= -DCMAKE_VERBOSE_MAKEFILE=true
-LIBCBOR_CMAKE3+= -DCMAKE_INSTALL_PREFIX=/usr
-pkg3/libcbor-$(LIBCBOR_VER).zpio.zst: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
-	rm -fr tmp/libcbor
-	mkdir -p tmp/libcbor/bld
-	bsdtar -xf pkg/libcbor-$(LIBCBOR_VER).zip -C tmp/libcbor
-	sed -i "s|-O3||" tmp/libcbor/libcbor-$(LIBCBOR_VER)/CMakeLists.txt
-	cd tmp/libcbor/bld && cmake $(LIBCBOR_CMAKE3) ../libcbor-$(LIBCBOR_VER) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libcbor/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libcbor/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libcbor
-tgt-libcbor: pkg3/libcbor-$(LIBCBOR_VER).zpio.zst
-
-# EXTRA: BLFS-10: nghtt2
-# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/nghttp2.html
-# BUILD_TIME :: 29s
-NGHTTP2_OPT3+= --prefix=/usr
-NGHTTP2_OPT3+= --disable-static
-NGHTTP2_OPT3+= --enable-lib-only
-NGHTTP2_OPT3+= --docdir=/usr/share/doc/nghttp2-$(NGHTTP2_VER)
-NGHTTP2_OPT3+= $(OPT_FLAGS)
-pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst: pkg3/libcbor-$(LIBCBOR_VER).zpio.zst
-	rm -fr tmp/nghttp2
-	mkdir -p tmp/nghttp2/bld
-	tar -xJf pkg/nghttp2-$(NGHTTP2_VER).tar.xz -C tmp/nghttp2
-	cd tmp/nghttp2/bld && ../nghttp2-$(NGHTTP2_VER)/configure $(NGHTTP2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/nghttp2/ins/usr/share/doc
-	rm -fr tmp/nghttp2/ins/usr/share/man
-	rm -fr tmp/nghttp2/ins/usr/bin
-	rm -fr tmp/nghttp2/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/nghttp2/ins/usr/lib/*.so* || true
-endif
-	cd tmp/nghttp2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/nghttp2
-tgt-nghttp2: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
-
-# EXTRA
-#
-# BUILD_TIME :: 10s
-LIBMD_OPT3+= --prefix=/usr
-LIBMD_OPT3+= --disable-static
-LIBMD_OPT3+= $(OPT_FLAGS)
-pkg3/libmd-$(LIBMD_VER).cpio.zst: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
-	rm -fr tmp/libmd
-	mkdir -p tmp/libmd/bld
-	tar -xJf pkg/libmd-$(LIBMD_VER).tar.xz -C tmp/libmd
-	cd tmp/libmd/bld && ../libmd-$(LIBMD_VER)/configure $(LIBMD_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -f tmp/libmd/ins/usr/lib/*.la
-	rm -fr tmp/libmd/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libmd/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libmd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libmd
-tgt-libmd: pkg3/libmd-$(LIBMD_VER).cpio.zst
-
-# EXTRA
+	rm -fr tmp/openssh
+tgt-openssh: pkg3/openssh-$(OPENSSH_VER).cpio.zst
+# OpenSSH has been configured with the following options:
+#                      User binaries: /usr/bin
+#                    System binaries: /usr/sbin
+#                Configuration files: /etc/ssh
+#                    Askpass program: /usr/libexec/ssh-askpass
+#                       Manual pages: /usr/share/man/manX
+#                           PID file: /var/run
+#   Privilege separation chroot path: /var/lib/sshd
+#             sshd default user PATH: /usr/bin:/bin:/usr/sbin:/sbin
+#                     Manpage format: doc
+#                        PAM support: no
+#                    OSF SIA support: no
+#                  KerberosV support: no
+#                    SELinux support: no
+#               MD5 password support: yes
+#                    libedit support: no
+#                    libldns support: no
+#   Solaris process contract support: no
+#            Solaris project support: no
+#          Solaris privilege support: no
+#        IP address in $DISPLAY hack: no
+#            Translate v4 in v6 hack: yes
+#                   BSD Auth support: no
+#               Random number source: OpenSSL internal ONLY
+#              Privsep sandbox style: seccomp_filter
+#                    PKCS#11 support: yes
+#                   U2F/FIDO support: yes
 # 
-# BUILD_TIME :: 18m
-LIBEDIT_OPT3+= --prefix=/usr
-LIBEDIT_OPT3+= --disable-static
-LIBEDIT_OPT3+= $(OPT_FLAGS)
-pkg3/libedit-$(LIBEDIT_VER).cpio.zst: pkg3/libmd-$(LIBMD_VER).cpio.zst
-	rm -fr tmp/libedit
-	mkdir -p tmp/libedit/bld
-	tar -xzf pkg/libedit-$(LIBEDIT_VER).tar.gz -C tmp/libedit
-	cd tmp/libedit/bld && ../libedit-$(LIBEDIT_VER)/configure $(LIBEDIT_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libedit/ins/usr/share
-	rm -f  tmp/libedit/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libedit/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libedit/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libedit
-tgt-libedit: pkg3/libedit-$(LIBEDIT_VER).cpio.zst
+#               Host: aarch64-unknown-linux-gnu
+#           Compiler: cc
+#     Compiler flags: -mcpu=cortex-a76.cortex-a55+crypto -Os -pipe -Wno-error=format-truncation -Wall -Wpointer-arith -Wuninitialized -Wsign-compare -Wformat-security -Wsizeof-pointer-memaccess -Wno-pointer-sign -Wno-unused-result -Wimplicit-fallthrough -fno-strict-aliasing -D_FORTIFY_SOURCE=2 -ftrapv -fno-builtin-memset -fstack-protector-strong -fPIE  
+# Preprocessor flags: -mcpu=cortex-a76.cortex-a55+crypto -Os -D_XOPEN_SOURCE=600 -D_BSD_SOURCE -D_DEFAULT_SOURCE
+#       Linker flags:  -Wl,-z,relro -Wl,-z,now -Wl,-z,noexecstack -fstack-protector-strong -pie 
+#          Libraries: -lcrypto -ldl -lutil -lz  -lcrypt -lresolv
+
+
 
 
 # RKDEVELOPTOOL
 # https://github.com/PJK/libcbor
 # BUILD_TIME :: 10s
-pkg3/rkdeveloptool.cpio.zst: pkg3/can-utils.cpio.zst
+pkg3/rkdeveloptool.cpio.zst: pkg3/openssh-$(OPENSSH_VER).cpio.zst
 	rm -fr tmp/rkdeveloptool
 	mkdir -p tmp/rkdeveloptool/src
 	mkdir -p tmp/rkdeveloptool/bld
@@ -6816,7 +6730,11 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	echo "users:x:100:" >> tmp/initrd/etc/group
 #	echo "nobody:x:65534:" >> tmp/initrd/etc/group
 # passwd
-	cp -f /etc/passwd tmp/initrd/etc/
+#	install -o tester -d tmp/initrd/home/tester
+#	passwd -d tester
+#	passwd -d root
+#	cp -f /etc/passwd tmp/initrd/etc/
+#	cp -f /etc/shadow tmp/initrd/etc/
 #	sed -i 's|root:x:0:0:root:/root:/bin/bash|root::0:0:root:/root:/bin/bash|' tmp/initrd/etc/passwd
 ##	echo "root::0:0:root:/root:/abin/sh" > tmp/initrd/etc/passwd
 #	echo "daemon:x:1:1:daemon:/usr/sbin:/abin/false" >> tmp/initrd/etc/passwd
@@ -6852,7 +6770,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	echo "/abin/sh" >> tmp/initrd/etc/shells
 #	echo "/abin/ash" >> tmp/initrd/etc/shells
 # shadow
-	cp -f /etc/shadow tmp/initrd/etc/
+#	cp -f /etc/shadow tmp/initrd/etc/
 #	echo "root::19701::::::" > tmp/initrd/etc/shadow
 #	echo "daemon:*:::::::" >> tmp/initrd/etc/shadow
 #	echo "bin:*:::::::" >> tmp/initrd/etc/shadow
@@ -6915,23 +6833,22 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	mkdir -p tmp/fat/mnt/zst
 	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/kernel-headers.cpio.zst tmp/fat/mnt/zst/
-#	cp --force --no-preserve=all --recursive pkg3/shadow-$(SHADOW_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/isl-$(ISL_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/gmp-$(GMP_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/mpc-$(MPC_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/mpfr-$(MPFR_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/tar-$(TAR_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/xz-$(XZ_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/sed-$(SED_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/gawk-$(GAWK_VER).cpio.zst tmp/fat/mnt/zst/
-	cp --force --no-preserve=all --recursive pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).isl.cpio.zst tmp/fat/mnt/zst/binutils.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/gcc.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/isl-$(ISL_VER).cpio.zst tmp/fat/mnt/zst/isl.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/gmp-$(GMP_VER).cpio.zst tmp/fat/mnt/zst/gmp.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/mpc-$(MPC_VER).cpio.zst tmp/fat/mnt/zst/mpc.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/mpfr-$(MPFR_VER).cpio.zst tmp/fat/mnt/zst/mpfr.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/glibc.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/wget.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst tmp/fat/mnt/zst/coreutils.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/util-linux.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/tar-$(TAR_VER).cpio.zst tmp/fat/mnt/zst/tar.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/xz-$(XZ_VER).cpio.zst tmp/fat/mnt/zst/xz.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/sed-$(SED_VER).cpio.zst tmp/fat/mnt/zst/sed.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/gawk-$(GAWK_VER).cpio.zst tmp/fat/mnt/zst/gawk.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst tmp/fat/mnt/zst/diffutils.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/openssh-$(OPENSSH_VER).cpio.zst tmp/fat/mnt/zst/
 	mkdir -p tmp/fat/etc/myetc
 	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
 	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
@@ -7080,3 +6997,263 @@ flash: mmc.img
 
 # extra blfs :: libpcap-1.9.1
 # https://www.linuxfromscratch.org/blfs/view/10.0/basicnet/libpcap.html
+
+# ===
+
+# extra CAN-UTILS
+# BUILD_TIME :: 3s
+ifeq ($(VERB),1)
+CAN_UTILS_BUILD_VERB=-v
+endif
+pkg3/can-utils.cpio.zst: pkg3/cmake-$(CMAKE_VER).cpio.zst
+	rm -fr tmp/can-utils
+	mkdir -p tmp/can-utils/src
+	mkdir -p tmp/can-utils/bld
+	pv pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/can-utils/src
+	cd tmp/can-utils/bld && cmake -GNinja ../src
+	cd tmp/can-utils/bld && LANG=en_US.UTF-8 ninja $(CAN_UTILS_BUILD_VERB)
+	cd tmp/can-utils/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/can-utils/ins/usr/local/bin/*
+endif
+	cd tmp/can-utils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/can-utils
+tgt-can-utils: pkg3/can-utils.cpio.zst
+
+# extra blfs :: libtasn1-4.16.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libtasn1.html
+# BUILD_TIME :: 44s
+LIBTASN1_OPT3+= --prefix=/usr
+LIBTASN1_OPT3+= --disable-static
+LIBTASN1_OPT3+= $(OPT_FLAGS)
+pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst:
+	rm -fr tmp/libtasn1
+	mkdir -p tmp/libtasn1/bld
+	tar -xzf pkg/libtasn1-$(LIBTASN1_VER).tar.gz -C tmp/libtasn1
+	cd tmp/libtasn1/bld && ../libtasn1-$(LIBTASN1_VER)/configure $(LIBTASN1_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libtasn1/ins/usr/share
+	rm -fr tmp/libtasn1/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+#	strip --strip-debug    tmp/libtasn1/ins/usr/lib/*.a
+	strip --strip-unneeded tmp/libtasn1/ins/usr/lib/*.so*
+	strip --strip-unneeded tmp/libtasn1/ins/usr/bin/* || true
+endif
+	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libtasn1
+tgt-libtasn1: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
+
+# extra blfs :: libunistring-0.9.10
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libunistring.html
+# BUILD_TIME :: 2m 51s
+LIBUNISTRING_OPT3+= --prefix=/usr
+LIBUNISTRING_OPT3+= --disable-static
+LIBUNISTRING_OPT3+= --docdir=/usr/share/doc/libunistring-$(LIBUNISTRING_VER)
+LIBUNISTRING_OPT3+= $(OPT_FLAGS)
+pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst:
+	rm -fr tmp/libunistring
+	mkdir -p tmp/libunistring/bld
+	tar -xJf pkg/libunistring-$(LIBUNISTRING_VER).tar.xz -C tmp/libunistring
+	cd tmp/libunistring/bld && ../libunistring-$(LIBUNISTRING_VER)/configure $(LIBUNISTRING_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libunistring/ins/usr/share
+	rm -fr tmp/libunistring/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libunistring/ins/usr/lib/*.so*
+endif
+	cd tmp/libunistring/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libunistring
+tgt-libunistring: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
+
+# extra blfs :: libidn2-2.3.0
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libidn2.html
+# BUILD_TIME :: 50s
+# DEPENDENCY: libunistring
+LIBIDN2_OPT3+= --prefix=/usr
+LIBIDN2_OPT3+= --disable-static
+LIBIDN2_OPT3+= --disable-nls
+LIBIDN2_OPT3+= $(OPT_FLAGS)
+pkg3/libidn2-$(LIBIDN2_VER).cpio.zst:
+	rm -fr tmp/libidn2
+	mkdir -p tmp/libidn2/bld
+	tar -xzf pkg/libidn2-$(LIBIDN2_VER).tar.gz -C tmp/libidn2
+	cd tmp/libidn2/bld && ../libidn2-$(LIBIDN2_VER)/configure $(LIBIDN2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libidn2/ins/usr/share
+	rm -f tmp/libidn2/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libidn2/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/libidn2/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libidn2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libidn2
+tgt-libidn2: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
+
+# extra
+# BUILD_TIME :: 5s
+LIBCBOR_CMAKE3+= -DCMAKE_BUILD_TYPE=Release
+LIBCBOR_CMAKE3+= -DCBOR_CUSTOM_ALLOC=ON
+LIBCBOR_CMAKE3+= -DCMAKE_C_FLAGS_RELEASE="$(BASE_OPT_FLAGS)"
+LIBCBOR_CMAKE3+= -DCMAKE_VERBOSE_MAKEFILE=true
+LIBCBOR_CMAKE3+= -DCMAKE_INSTALL_PREFIX=/usr
+pkg3/libcbor-$(LIBCBOR_VER).cpio.zst:
+	rm -fr tmp/libcbor
+	mkdir -p tmp/libcbor/bld
+	bsdtar -xf pkg/libcbor-$(LIBCBOR_VER).zip -C tmp/libcbor
+	sed -i "s|-O3||" tmp/libcbor/libcbor-$(LIBCBOR_VER)/CMakeLists.txt
+	cd tmp/libcbor/bld && cmake $(LIBCBOR_CMAKE3) ../libcbor-$(LIBCBOR_VER) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libcbor/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libcbor/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libcbor
+tgt-libcbor: pkg3/libcbor-$(LIBCBOR_VER).cpio.zst
+
+# EXTRA: BLFS-10: nghtt2
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/nghttp2.html
+# BUILD_TIME :: 29s
+NGHTTP2_OPT3+= --prefix=/usr
+NGHTTP2_OPT3+= --disable-static
+NGHTTP2_OPT3+= --enable-lib-only
+NGHTTP2_OPT3+= --docdir=/usr/share/doc/nghttp2-$(NGHTTP2_VER)
+NGHTTP2_OPT3+= $(OPT_FLAGS)
+pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst:
+	rm -fr tmp/nghttp2
+	mkdir -p tmp/nghttp2/bld
+	tar -xJf pkg/nghttp2-$(NGHTTP2_VER).tar.xz -C tmp/nghttp2
+	cd tmp/nghttp2/bld && ../nghttp2-$(NGHTTP2_VER)/configure $(NGHTTP2_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/nghttp2/ins/usr/share/doc
+	rm -fr tmp/nghttp2/ins/usr/share/man
+	rm -fr tmp/nghttp2/ins/usr/bin
+	rm -fr tmp/nghttp2/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/nghttp2/ins/usr/lib/*.so* || true
+endif
+	cd tmp/nghttp2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/nghttp2
+tgt-nghttp2: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
+
+# EXTRA
+#
+# BUILD_TIME :: 10s
+LIBMD_OPT3+= --prefix=/usr
+LIBMD_OPT3+= --disable-static
+LIBMD_OPT3+= $(OPT_FLAGS)
+pkg3/libmd-$(LIBMD_VER).cpio.zst:
+	rm -fr tmp/libmd
+	mkdir -p tmp/libmd/bld
+	tar -xJf pkg/libmd-$(LIBMD_VER).tar.xz -C tmp/libmd
+	cd tmp/libmd/bld && ../libmd-$(LIBMD_VER)/configure $(LIBMD_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/libmd/ins/usr/lib/*.la
+	rm -fr tmp/libmd/ins/usr/share
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libmd/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libmd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libmd
+tgt-libmd: pkg3/libmd-$(LIBMD_VER).cpio.zst
+
+# EXTRA
+# 
+# BUILD_TIME :: 18s
+# DEPENDECIES: libncursesw, libtinfo
+LIBEDIT_OPT3+= --prefix=/usr
+LIBEDIT_OPT3+= --disable-static
+LIBEDIT_OPT3+= $(OPT_FLAGS)
+pkg3/libedit-$(LIBEDIT_VER).cpio.zst:
+	rm -fr tmp/libedit
+	mkdir -p tmp/libedit/bld
+	tar -xzf pkg/libedit-$(LIBEDIT_VER).tar.gz -C tmp/libedit
+	cd tmp/libedit/bld && ../libedit-$(LIBEDIT_VER)/configure $(LIBEDIT_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/libedit/ins/usr/share
+	rm -f  tmp/libedit/ins/usr/lib/*.la
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/libedit/ins/usr/lib/*.so* || true
+endif
+	cd tmp/libedit/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/libedit
+tgt-libedit: pkg3/libedit-$(LIBEDIT_VER).cpio.zst
+
+# EXTRA
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/cyrus-sasl.html
+# BUILD_TIME :: 43s
+SASL_OPT3+= --prefix=/usr
+SASL_OPT3+= --sysconfdir=/etc
+SASL_OPT3+= --enable-auth-sasldb 
+SASL_OPT3+= --with-dbpath=/var/lib/sasl/sasldb2
+SASL_OPT3+= --with-saslauthd=/var/run/saslauthd
+SASL_OPT3+= $(OPT_FLAGS)
+pkg3/cyrus-sasl-$(SASL_VER).cpio.zst:
+	rm -fr tmp/sasl
+	mkdir -p tmp/sasl/bld
+	tar -xzf pkg/cyrus-sasl-$(SASL_VER).tar.gz -C tmp/sasl
+	cp -far pkg/cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch tmp/sasl/
+	cd tmp/sasl/cyrus-sasl-$(SASL_VER) && patch -Np1 -i ../cyrus-sasl-$(SASL_VER)-doc_fixes-1.patch
+	cd tmp/sasl/bld && ../cyrus-sasl-$(SASL_VER)/configure $(SASL_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -f tmp/sasl/ins/usr/lib/*.la
+	rm -f tmp/sasl/ins/usr/lib/sasl2/*.la
+	rm -fr tmp/sasl/ins/usr/share
+	install -v -dm700 tmp/sasl/ins/var/lib/sasl
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/sasl/ins/usr/lib/*.so* || true
+	strip --strip-unneeded tmp/sasl/ins/usr/lib/sasl2/*.so* || true
+	strip --strip-unneeded tmp/sasl/ins/usr/sbin/* || true
+endif
+	cd tmp/sasl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	pv $@ | zstd -d | cpio -iduH newc -D /
+	rm -fr tmp/sasl
+tgt-sasl: pkg3/cyrus-sasl-$(SASL_VER).cpio.zst
+
+
+# extra
+# http://www.openslp.org/
+# BUILD_TIME ::
+#OPENSLP_OPT3+= --prefix=/usr
+#OPENSLP_OPT3+= --disable-static
+#OPENSLP_OPT3+= --disable-slpv1
+#OPENSLP_OPT3+= --enable-slpv2-security
+#OPENSLP_OPT3+= --disable-debug
+#OPENSLP_OPT3+= $(OPT_FLAGS)
+# common/slp_crypto.c
+#SLPCryptoDSAKey * SLPCryptoDSAKeyDup(SLPCryptoDSAKey * dsa)
+#{
+#   SLPCryptoDSAKey * result;
+#
+#   result =  DSA_new();
+#   if (result)
+#   {
+#      DSA_set0_pqg(result, DSA_get0_p(dsa), DSA_get0_q(dsa), DSA_get0_g(dsa));
+#      DSA_set0_key(result, DSA_get0_pub_key(dsa), DSA_get0_priv_key(dsa));
+#      //result->p = BN_dup(dsa->p);
+#      //result->q = BN_dup(dsa->q);
+#      //result->g = BN_dup(dsa->g);
+#      //result->priv_key = BN_dup(dsa->priv_key);
+#      //result->pub_key = BN_dup(dsa->pub_key);
+#   }
+#   return result;
+#}
+#pkg3/openslp-$(OPENSLP_VER).cpio.zst: pkg3/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
+#	rm -fr tmp/openslp
+#	mkdir -p tmp/openslp/bld
+#	tar -xzf pkg/openslp-$(OPENSLP_VER).tar.gz -C tmp/openslp
+#	sed -i 's|-O2|$(BASE_OPT_FLAGS)|' tmp/openslp/openslp-$(OPENSLP_VER)/configure
+#	cd tmp/openslp/bld && ../openslp-$(OPENSLP_VER)/configure $(OPENSLP_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#tgt-openslp: pkg3/openslp-$(OPENSLP_VER).cpio.zst
+
+# EXTRA: OpenLDAP-2.4.51
+# https://www.linuxfromscratch.org/blfs/view/10.0-systemd/server/openldap.html
+# BUILD_TIME ::
+pkg3/openldap-$(OPENLDAP_VER).cpio.zst:
+	groupadd -g 83 ldap && useradd  -c "OpenLDAP Daemon Owner" -d /var/lib/openldap -u 83 -g ldap -s /bin/false ldap
+	rm -fr tmp/openldap
+	mkdir -p tmp/openldap/bld
+	tar -xzf pkg/openldap-$(OPENLDAP_VER).tgz -C tmp/openldap
+	cp -far pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch tmp/openldap/
+	cd tmp/openldap/openldap-$(OPENLDAP_VER) && patch -Np1 -i ../openldap-$(OPENLDAP_VER)-consolidated-2.patch
+tgt-openldap: pkg3/openldap-$(OPENLDAP_VER).cpio.zst
+

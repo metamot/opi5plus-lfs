@@ -27,9 +27,9 @@ ConditionPathExists=/dev/tty0
 # The '-o' option value tells agetty to replace 'login' arguments with an
 # option to preserve environment (-p), followed by '--' for safety, and then
 # the entered username.
-# ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
+ExecStart=-/sbin/agetty -o '-p -- \\u' --noclear %I $TERM
 # ExecStart=-/sbin/agetty -o '-p -- root' --noclear --skip-login - %I $TERM
-ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM
+# ExecStart=-/sbin/agetty --autologin root --noclear %I $TERM
 # ExecStart=-/sbin/agetty --noclear %I $TERM
 # ExecStart=-/lib/systemd/systemd-sulogin-shell rescue
 # ExecStart=-/lib/systemd/systemd-sulogin-shell
