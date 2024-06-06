@@ -6703,6 +6703,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # group
 #	cp -f cfg/etc/group tmp/initrd/etc/
 	cp -f /etc/group tmp/initrd/etc/
+	echo "sshd:x:50:" >> tmp/initrd/etc/group
 #	echo "root:x:0:" > tmp/initrd/etc/group
 #	echo "daemon:x:1:" >> tmp/initrd/etc/group
 #	echo "bin:x:2:" >> tmp/initrd/etc/group
@@ -6732,9 +6733,10 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 # passwd
 #	install -o tester -d tmp/initrd/home/tester
 #	passwd -d tester
-#	passwd -d root
-#	cp -f /etc/passwd tmp/initrd/etc/
-#	cp -f /etc/shadow tmp/initrd/etc/
+	passwd -d root
+	cp -f /etc/passwd tmp/initrd/etc/
+	echo "sshd:x:50:50:sshd PrivSep:/var/lib/sshd:/bin/false" >> tmp/initrd/etc/passwd
+	cp -f /etc/shadow tmp/initrd/etc/
 #	sed -i 's|root:x:0:0:root:/root:/bin/bash|root::0:0:root:/root:/bin/bash|' tmp/initrd/etc/passwd
 ##	echo "root::0:0:root:/root:/abin/sh" > tmp/initrd/etc/passwd
 #	echo "daemon:x:1:1:daemon:/usr/sbin:/abin/false" >> tmp/initrd/etc/passwd
