@@ -6552,6 +6552,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
 	mkdir -p tmp/initrd/usr/share/terminfo/v
 	cp -f /usr/share/terminfo/v/vt100 tmp/initrd/usr/share/terminfo/v/
+	mkdir -p tmp/initrd/usr/share/terminfo/x
+	cp -f /usr/share/terminfo/x/xterm-256color tmp/initrd/usr/share/terminfo/x/
 # --- systemd
 # Targets and Services
 # https://www.freedesktop.org/software/systemd/man/latest/systemd.exec.html
@@ -6670,10 +6672,6 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	mkdir -p tmp/initrd/etc/rc.d
 	mkdir -p tmp/initrd/etc
 	cd tmp/initrd/etc && ln -sf ../proc/self/mounts mtab
-#
-	cp -far cfg/etc/* tmp/initrd/etc/
-#	cp -f cfg/etc/inputrc tmp/initrd/etc/
-#	cp -f cfg/etc/nanorc tmp/initrd/etc/
 #nscd.conf
 #	cp -f cfg/etc/nscd.conf tmp/initrd/etc/
 #	mkdir -p tmp/initrd/run/nscd
@@ -6733,7 +6731,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	passwd -d root
 	groupadd -f lfs
 	useradd -s /bin/bash -g lfs -m -k /dev/null lfs || true
-	passwd -d lfs
+	echo "lfs:1234" | chpasswd
 	cp -f /etc/group tmp/initrd/etc/
 	echo "sshd:x:50:" >> tmp/initrd/etc/group
 	cp -f /etc/passwd tmp/initrd/etc/
@@ -6764,7 +6762,72 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #
 	cp -f /etc/nsswitch.conf tmp/initrd/etc/
 #/etc/fstab: Creating the /etc/fstab File
+	echo "# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>" > tmp/initrd/etc/fstab
+	echo "/dev/nvme0n1p1 /opt ext4 rw,relatime 0 0" >> tmp/initrd/etc/fstab
 #/etc/inputrc: Creating the /etc/inputrc File
+	echo '# /etc/inputrc - global inputrc for libreadline' > tmp/initrd/etc/inputrc
+	echo '# Allow the command prompt to wrap to the next line' >> tmp/initrd/etc/inputrc
+	echo 'set horizontal-scroll-mode Off' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# Enable 8bit input' >> tmp/initrd/etc/inputrc
+	echo 'set meta-flag On' >> tmp/initrd/etc/inputrc
+	echo 'set input-meta On' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# To allow the use of 8bit-characters like the german umlauts, uncomment' >> tmp/initrd/etc/inputrc
+	echo '# the line below. However this makes the meta key not work as a meta key,' >> tmp/initrd/etc/inputrc
+	echo '# which is annoying to those which dont need to type in 8-bit characters.' >> tmp/initrd/etc/inputrc
+	echo '# Turns off 8th bit stripping' >> tmp/initrd/etc/inputrc
+	echo 'set convert-meta Off' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# Keep the 8th bit for display' >> tmp/initrd/etc/inputrc
+	echo 'set output-meta On' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# try to enable the application keypad when it is called.  Some systems' >> tmp/initrd/etc/inputrc
+	echo '# need this to enable the arrow keys.' >> tmp/initrd/etc/inputrc
+	echo '# set enable-keypad on' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# none, visible or audible' >> tmp/initrd/etc/inputrc
+	echo 'set bell-style none' >> tmp/initrd/etc/inputrc
+	echo '# set bell-style visible' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# All of the following map the escape sequence of the value' >> tmp/initrd/etc/inputrc
+	echo '# contained in the 1st argument to the readline specific functions' >> tmp/initrd/etc/inputrc
+	echo '"\eOd": backward-word' >> tmp/initrd/etc/inputrc
+	echo '"\eOc": forward-word' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# FOR LINUX CONSOLE' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# allow the use of the Home/End keys' >> tmp/initrd/etc/inputrc
+	echo '"\e[1~": beginning-of-line' >> tmp/initrd/etc/inputrc
+	echo '"\e[4~": end-of-line' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# alternate mappings for "page up" and "page down" to search the history' >> tmp/initrd/etc/inputrc
+	echo '# "\e[5~": history-search-backward' >> tmp/initrd/etc/inputrc
+	echo '# "\e[6~": history-search-forward' >> tmp/initrd/etc/inputrc
+	echo '"\e[5~": beginning-of-history' >> tmp/initrd/etc/inputrc
+	echo '"\e[6~": end-of-history' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# allow the use of the Delete/Insert keys' >> tmp/initrd/etc/inputrc
+	echo '"\e[3~": delete-char' >> tmp/initrd/etc/inputrc
+	echo '"\e[2~": quoted-insert' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# for xterm' >> tmp/initrd/etc/inputrc
+	echo '"\eOH": beginning-of-line' >> tmp/initrd/etc/inputrc
+	echo '"\eOF": end-of-line' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# for freebsd Konsole' >> tmp/initrd/etc/inputrc
+	echo '"\e[H": beginning-of-line' >> tmp/initrd/etc/inputrc
+	echo '"\e[F": end-of-line' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# mappings for Ctrl-left-arrow and Ctrl-right-arrow for word moving' >> tmp/initrd/etc/inputrc
+	echo '"\e[1;5C": forward-word' >> tmp/initrd/etc/inputrc
+	echo '"\e[1;5D": backward-word' >> tmp/initrd/etc/inputrc
+	echo '"\e[5C": forward-word' >> tmp/initrd/etc/inputrc
+	echo '"\e[5D": backward-word' >> tmp/initrd/etc/inputrc
+	echo '"\e\e[C": forward-word' >> tmp/initrd/etc/inputrc
+	echo '"\e\e[D": backward-word' >> tmp/initrd/etc/inputrc
+	echo '' >> tmp/initrd/etc/inputrc
+	echo '# End /etc/inputrc' >> tmp/initrd/etc/inputrc
 #/etc/ld.so.conf: Configuring the Dynamic Loader
 #/etc/lfs-release: The End
 #/etc/localtime: Configuring Glibc
@@ -6859,12 +6922,15 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/gawk-$(GAWK_VER).cpio.zst tmp/fat/mnt/zst/gawk.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst tmp/fat/mnt/zst/diffutils.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/openssh-$(OPENSSH_VER).cpio.zst tmp/fat/mnt/zst/openssh.cpio.zst
-	mkdir -p tmp/fat/etc/myetc
-	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
-	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
-	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/myetc/mytest.c
-	echo '  return 0;' >> tmp/fat/etc/myetc/mytest.c
-	echo '}' >> tmp/fat/etc/myetc/mytest.c
+	mkdir -p tmp/fat/etc/ssh
+	cp -far cfg/etc/* tmp/fat/etc
+	ssh-keygen -A
+	cp -farv /etc/ssh/*key* tmp/fat/etc/ssh
+#	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
+#	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
+#	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/myetc/mytest.c
+#	echo '  return 0;' >> tmp/fat/etc/myetc/mytest.c
+#	echo '}' >> tmp/fat/etc/myetc/mytest.c
 	cd tmp/fat/etc && find . -print0 | cpio -o0H newc > ../mnt/etc.cpio
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/

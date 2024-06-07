@@ -1,4 +1,0 @@
-# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>
-/dev/nvme0n1p1 /opt ext4 rw,relatime 0 0
-# /swapfile           none           swap    sw          0       0
-
