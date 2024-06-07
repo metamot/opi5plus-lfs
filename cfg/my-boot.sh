@@ -18,4 +18,4 @@ else
    /bin/mkdir -p /mnt/sd
 fi
 /bin/cat /boot/etc.cpio | /bin/cpio -idumH newc --quiet -D /etc
-
+/usr/sbin/ldconfig
