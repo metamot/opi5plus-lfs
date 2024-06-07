@@ -6463,6 +6463,11 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 	cp -far /usr/lib/libnss_myhostname.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_mymachines.so* tmp/initrd/usr/lib/
 	cp -far /usr/lib/libnss_resolve.so* tmp/initrd/usr/lib/
+	cp -f /usr/sbin/ldconfig tmp/initrd/usr/sbin/
+	mkdir -p tmp/initrd/etc/ld.so.conf.d
+	echo '/usr/local/lib' > tmp/initrd/etc/ld.so.conf
+	echo '# Add an include directory' >> tmp/initrd/etc/ld.so.conf
+	echo 'include /etc/ld.so.conf.d/*.conf' >> tmp/initrd/etc/ld.so.conf
 # --- libs
 	cp -far /usr/lib/libreadlin*.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libhistor*.so*  tmp/initrd/usr/lib/
