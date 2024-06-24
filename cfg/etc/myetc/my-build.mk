@@ -1,21 +1,25 @@
 # V=@
+PKG+= wget
 PKG+= kernel-headers
+PKG+= binutils
 PKG+= gcc
 PKG+= isl
 PKG+= gmp
 PKG+= mpc
 PKG+= mpfr
 PKG+= glibc
-PKG+= binutils
-PKG+= wget
 PKG+= coreutils
-PKG+= util-linux
+PKG+= acl
+#PKG+= util-linux
 PKG+= tar
 PKG+= xz
 PKG+= sed
 PKG+= gawk
 PKG+= diffutils
-PKG+= openssh
+PKG+= flex
+PKG+= gzip
+PKG+= patch
+#PKG+= openssh
 all: $(PKG)
 kernel-headers:
 	$(V)cat /boot/zst/kernel-headers.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
@@ -37,6 +41,8 @@ wget:
 	$(V)cat /boot/zst/wget.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 coreutils:
 	$(V)cat /boot/zst/coreutils.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+acl:
+	$(V)cat /boot/zst/acl.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 util-linux:
 	$(V)cat /boot/zst/util-linux.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 tar:
@@ -49,6 +55,12 @@ gawk:
 	$(V)cat /boot/zst/gawk.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 diffutils:
 	$(V)cat /boot/zst/diffutils.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+flex:
+	$(V)cat /boot/zst/flex.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+gzip:
+	$(V)cat /boot/zst/gzip.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
+patch:
+	$(V)cat /boot/zst/patch.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 openssh:
 	$(V)cat /boot/zst/openssh.cpio.zst | zstd -d | cpio -idmH newc --quiet -D / > /dev/null 2>&1
 

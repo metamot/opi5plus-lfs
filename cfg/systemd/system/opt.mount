@@ -1,0 +1,12 @@
+[Unit]
+Description=Mount Opt on NVME
+
+[Mount]
+What=/dev/nvme0n1p1
+Where=/opt
+Type=ext4
+Options=defaults
+
+[Install]
+WantedBy=multi-user.target
+

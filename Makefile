@@ -102,10 +102,10 @@ host-check.txt: host-check.sh
 deps:
 	@echo '================================================================================'
 	@echo 'WARNING3: Here is we will install host build dependicies via "sudo apt install".'
-	@echo '"libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop"'
+	@echo '"libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop cpio"'
 	@echo '================================================================================'
 	@read -p 'Press ENTER if you reads this message and AGREE, or stroke Ctrl-C to cancel...'
-	sudo apt install -y libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop
+	sudo apt install -y libgmp-dev libmpc-dev libmpfr-dev texinfo gawk gettext zstd pv btop cpio
 #	sudo apt install -y btop zstd pv texinfo libisl23 libisl-dev libgmp-dev libmpc-dev libmpfr-dev gawk gettext
 
 longsudo:
@@ -2413,7 +2413,7 @@ pkg3/bzip2-$(BZIP2_VER).cpio.zst: pkg3/zlib-$(ZLIB_VER).cpio.zst
 	mkdir -p tmp/bzip2/ins/usr
 	tar -xzf pkg/bzip2-$(BZIP2_VER).tar.gz -C tmp/bzip2
 	cp -far pkg/bzip2-$(BZIP2_VER)-install_docs-1.patch tmp/bzip2/
-	cd tmp/bzip2/bzip2-$(BZIP2_VER) && patch -Np1 -i ../bzip2-1.0.8-install_docs-1.patch
+	cd tmp/bzip2/bzip2-$(BZIP2_VER) && patch -Np1 -i ../bzip2-$(BZIP2_VER)-install_docs-1.patch
 	sed -i 's@\(ln -s -f \)$$(PREFIX)/bin/@\1@' tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
 	sed -i "s@(PREFIX)/man@(PREFIX)/share/man@g" tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
 	sed -i "s|-O2|$(BASE_OPT_FLAGS)|" tmp/bzip2/bzip2-$(BZIP2_VER)/Makefile
@@ -6543,6 +6543,7 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	cp -f /usr/sbin/swaplabel tmp/initrd/usr/bin/
 	cd tmp/initrd/usr/sbin/ && ln -sf ../bin/kmod depmod && ln -sf ../bin/kmod insmod && ln -sf ../bin/kmod lsmod && ln -sf ../bin/kmod modinfo && ln -sf ../bin/kmod modprobe && ln -sf ../bin/kmod rmmod
 	cp -f /usr/bin/cp tmp/initrd/usr/bin/
+	cp -f /usr/bin/mv tmp/initrd/usr/bin/
 	cp -f /usr/bin/rm tmp/initrd/usr/bin/
 	cp -f /usr/bin/hexdump tmp/initrd/usr/bin/
 	cp -f /usr/sbin/parted tmp/initrd/usr/sbin/
@@ -6594,6 +6595,8 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
 	cd tmp/initrd/usr/lib/systemd/system && ln -sf multi-user.target default.target
 	cd tmp/initrd/etc/systemd/system && ln -sf poweroff.target ctrl-alt-del.target
+#	mkdir -p tmp/initrd/etc/systemd/system/multi-user.target.wants
+#	cd tmp/initrd/etc/systemd/system/multi-user.target.wants && ln -sf ../nvme-opt.mount nvme-opt.mount
 #	cp -f cfg/etc/systemd/system.conf tmp/initrd/etc/systemd
 # === sulogin , shutdown , nscd
 	cp -f /usr/sbin/sulogin tmp/initrd/usr/sbin/
@@ -6767,8 +6770,9 @@ pkg3/boot-initrd.cpio.zst: pkg3/dbus-min.cpio.zst
 #
 	cp -f /etc/nsswitch.conf tmp/initrd/etc/
 #/etc/fstab: Creating the /etc/fstab File
-	echo "# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>" > tmp/initrd/etc/fstab
-	echo "/dev/nvme0n1p1 /opt ext4 rw,relatime 0 0" >> tmp/initrd/etc/fstab
+#	echo "# <file system>     <mount point>  <type>  <options>   <dump>  <fsck>" > tmp/initrd/etc/fstab
+#	echo "/dev/nvme0n1p1 /opt ext4 rw,relatime 0 0" >> tmp/initrd/etc/fstab
+#	echo "/dev/mmcblk0p1 /mnt/sd ext4 auto rw,relatime 0 0" >> tmp/initrd/etc/fstab
 #/etc/inputrc: Creating the /etc/inputrc File
 	echo '# /etc/inputrc - global inputrc for libreadline' > tmp/initrd/etc/inputrc
 	echo '# Allow the command prompt to wrap to the next line' >> tmp/initrd/etc/inputrc
@@ -6909,7 +6913,8 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
 	cp --force --no-preserve=all --recursive /usr/share/myboot/boot-fat/* tmp/fat/mnt
 	mkdir -p tmp/fat/mnt/zst
-	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
+	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/wget.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/kernel-modules.cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/kernel-headers.cpio.zst tmp/fat/mnt/zst/
 	cp --force --no-preserve=all --recursive pkg3/binutils-$(BINUTILS_VER).isl.cpio.zst tmp/fat/mnt/zst/binutils.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/gcc-$(GCC_VER).cpio.zst tmp/fat/mnt/zst/gcc.cpio.zst
@@ -6918,15 +6923,19 @@ pkg3/boot-fat.cpio.zst: pkg3/boot-initrd.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/mpc-$(MPC_VER).cpio.zst tmp/fat/mnt/zst/mpc.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/mpfr-$(MPFR_VER).cpio.zst tmp/fat/mnt/zst/mpfr.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/glibc-$(GLIBC_VER).cpio.zst tmp/fat/mnt/zst/glibc.cpio.zst
-	cp --force --no-preserve=all --recursive pkg3/wget-$(WGET_VER).cpio.zst tmp/fat/mnt/zst/wget.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/coreutils-$(CORE_UTILS_VER).cpio.zst tmp/fat/mnt/zst/coreutils.cpio.zst
-	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/util-linux.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/acl-$(ACL_VER).cpio.zst tmp/fat/mnt/zst/acl.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/attr-$(ATTR_VER).cpio.zst tmp/fat/mnt/zst/attr.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/util-linux-$(UTIL_LINUX_VER).cpio.zst tmp/fat/mnt/zst/util-linux.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/tar-$(TAR_VER).cpio.zst tmp/fat/mnt/zst/tar.cpio.zst
-	cp --force --no-preserve=all --recursive pkg3/xz-$(XZ_VER).cpio.zst tmp/fat/mnt/zst/xz.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/xz-$(XZ_VER).cpio.zst tmp/fat/mnt/zst/xz-utils.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/sed-$(SED_VER).cpio.zst tmp/fat/mnt/zst/sed.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/gawk-$(GAWK_VER).cpio.zst tmp/fat/mnt/zst/gawk.cpio.zst
 	cp --force --no-preserve=all --recursive pkg3/diffutils-$(DIFF_UTILS_VER).cpio.zst tmp/fat/mnt/zst/diffutils.cpio.zst
-	cp --force --no-preserve=all --recursive pkg3/openssh-$(OPENSSH_VER).cpio.zst tmp/fat/mnt/zst/openssh.cpio.zst
+	cp --force --no-preserve=all --recursive pkg3/flex-$(FLEX_VER).cpio.zst tmp/fat/mnt/zst/flex.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/gzip-$(GZIP_VER).cpio.zst tmp/fat/mnt/zst/gzip.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/patch-$(PATCH_VER).cpio.zst tmp/fat/mnt/zst/patch.cpio.zst
+#	cp --force --no-preserve=all --recursive pkg3/openssh-$(OPENSSH_VER).cpio.zst tmp/fat/mnt/zst/openssh.cpio.zst
 	mkdir -p tmp/fat/etc/ssh
 	cp -far cfg/etc/* tmp/fat/etc
 	ssh-keygen -A
