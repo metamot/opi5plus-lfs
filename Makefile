@@ -7227,49 +7227,6 @@ endif
 tgt-nghttp2: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
 
 # EXTRA
-#
-# BUILD_TIME :: 10s
-LIBMD_OPT3+= --prefix=/usr
-LIBMD_OPT3+= --disable-static
-LIBMD_OPT3+= $(OPT_FLAGS)
-pkg3/libmd-$(LIBMD_VER).cpio.zst:
-	rm -fr tmp/libmd
-	mkdir -p tmp/libmd/bld
-	tar -xJf pkg/libmd-$(LIBMD_VER).tar.xz -C tmp/libmd
-	cd tmp/libmd/bld && ../libmd-$(LIBMD_VER)/configure $(LIBMD_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -f tmp/libmd/ins/usr/lib/*.la
-	rm -fr tmp/libmd/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libmd/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libmd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libmd
-tgt-libmd: pkg3/libmd-$(LIBMD_VER).cpio.zst
-
-# EXTRA
-# 
-# BUILD_TIME :: 18s
-# DEPENDECIES: libncursesw, libtinfo
-LIBEDIT_OPT3+= --prefix=/usr
-LIBEDIT_OPT3+= --disable-static
-LIBEDIT_OPT3+= $(OPT_FLAGS)
-pkg3/libedit-$(LIBEDIT_VER).cpio.zst:
-	rm -fr tmp/libedit
-	mkdir -p tmp/libedit/bld
-	tar -xzf pkg/libedit-$(LIBEDIT_VER).tar.gz -C tmp/libedit
-	cd tmp/libedit/bld && ../libedit-$(LIBEDIT_VER)/configure $(LIBEDIT_OPT3) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libedit/ins/usr/share
-	rm -f  tmp/libedit/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libedit/ins/usr/lib/*.so* || true
-endif
-	cd tmp/libedit/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	pv $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/libedit
-tgt-libedit: pkg3/libedit-$(LIBEDIT_VER).cpio.zst
-
-# EXTRA
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/cyrus-sasl.html
 # BUILD_TIME :: 43s
 SASL_OPT3+= --prefix=/usr
