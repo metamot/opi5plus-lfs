@@ -136,7 +136,7 @@ dummy-clean:
 
 clean: dummy-clean
 	rm -fr lfs
-	rm -fr pkg1
+	rm -fr pkg0
 	rm -fr tmp
 	sudo rm -fr lfs-chroot
 
@@ -156,7 +156,7 @@ RK3588_MCPU = cortex-a76.cortex-a55$(RK3588_AFLG)
 RK3588_ARCH = armv8.2-a+lse+rdma+crc+fp16+rcpc+dotprod$(RK3588_AFLG)
 RK3588_FLAGS = -mcpu=$(RK3588_MCPU)
 # OPTIMIZATION FLAG: s 2 3
-BASE_OPT_VAL=s
+BASE_OPT_VAL=3
 BASE_OPT_VALUE= -O$(BASE_OPT_VAL)
 ifeq ($(BASE_OPT_VALUE),-O1)
 $(error BASE_OPT_VALUE = -O1 : is not supported)
@@ -966,7 +966,7 @@ build-host.txt: pkg/config.guess
 # === LFS-10.0-systemd :: 5.4. Linux API Headers :: "make hst-headers"
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/linux-headers.html
 # BUILD_TIME :: 1 m 32s
-pkg1/lfs-kernel-headers.cpio.zst: pkg/orangepi5-linux510.src.cpio.zst build-host.txt
+pkg0/lfs-kernel-headers.cpio.zst: pkg/orangepi5-linux510.src.cpio.zst build-host.txt
 	rm -f tmp
 	rm -fr lfs-chroot
 	mkdir -p lfs-chroot/opt/mysdk/tmp
@@ -980,74 +980,74 @@ pkg1/lfs-kernel-headers.cpio.zst: pkg/orangepi5-linux510.src.cpio.zst build-host
 	sed -i '/make/d' tmp/kernel-headers/kerver.txt
 	cp -f tmp/kernel-headers/kerver.txt .
 	cd tmp/kernel-headers/bld && make V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
-	mkdir -p tmp/kernel-headers/pkg1 && cd tmp/kernel-headers/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mkdir -p pkg1
-	mv -f tmp/kernel-headers/$@ pkg1/
+	mkdir -p tmp/kernel-headers/pkg0 && cd tmp/kernel-headers/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	mkdir -p pkg0
+	mv -f tmp/kernel-headers/$@ pkg0/
 	rm -fr tmp/kernel-headers
 	mkdir -p lfs
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-headers: pkg1/lfs-kernel-headers.cpio.zst
+hst-headers: pkg0/lfs-kernel-headers.cpio.zst
 
 # === LFS-10.0-systemd :: 5.2. Binutils - Pass 1 :: "make hst-binutils1" (deps : Linux Kernel Headers)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/binutils-pass1.html
 # BUILD_TIME :: 1m 45s
-BINUTILS1_OPT1+= --with-sysroot=$(LFS)
-BINUTILS1_OPT1+= --prefix=$(LFS)/tools
-BINUTILS1_OPT1+= --target=$(LFS_TGT)
-BINUTILS1_OPT1+= --disable-nls
-BINUTILS1_OPT1+= --disable-werror
-BINUTILS1_OPT1+= $(OPT_FLAGS)
-BINUTILS1_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz pkg1/lfs-kernel-headers.cpio.zst
+BINUTILS1_OPT0+= --with-sysroot=$(LFS)
+BINUTILS1_OPT0+= --prefix=$(LFS)/tools
+BINUTILS1_OPT0+= --target=$(LFS_TGT)
+BINUTILS1_OPT0+= --disable-nls
+BINUTILS1_OPT0+= --disable-werror
+BINUTILS1_OPT0+= $(OPT_FLAGS)
+BINUTILS1_OPT0+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz pkg0/lfs-kernel-headers.cpio.zst
 	rm -fr tmp/lfs-hst-binutils1
 	mkdir -p tmp/lfs-hst-binutils1/bld
 	tar -xJf $< -C tmp/lfs-hst-binutils1
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS1_OPT1)' && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && ../binutils-$(BINUTILS_VER)/configure $(BINUTILS1_OPT0)' && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils1/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-binutils1/ins$(LFS)/tools/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-binutils1/ins$(LFS)/tools/$(LFS_TGT)/bin/* || true
 	strip --strip-unneeded tmp/lfs-hst-binutils1/ins$(LFS)/tools/bin/* || true
 endif
-	mkdir -p tmp/lfs-hst-binutils1/pkg1
+	mkdir -p tmp/lfs-hst-binutils1/pkg0
 	cd tmp/lfs-hst-binutils1/ins$(LFS) && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../../$@
-	mv -f tmp/lfs-hst-binutils1/$@ pkg1/
+	mv -f tmp/lfs-hst-binutils1/$@ pkg0/
 	rm -fr tmp/lfs-hst-binutils1
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-binutils1: pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst
+hst-binutils1: pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 5.3. GCC - Pass 1 :: "make hst-gcc1" (deps : hst-binutils1)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/gcc-pass1.html
 # BUILD_TIME :: 9m 6s (incremental 12m 15s)
-GCC1_OPT1+= --with-sysroot=$(LFS)
-GCC1_OPT1+= --prefix=$(LFS)/tools
-GCC1_OPT1+= --target=$(LFS_TGT)
-GCC1_OPT1+= --with-glibc-version=2.11
-GCC1_OPT1+= --with-newlib
-GCC1_OPT1+= --without-headers
-GCC1_OPT1+= --enable-initfini-array
-GCC1_OPT1+= --disable-nls
-GCC1_OPT1+= --disable-shared
-GCC1_OPT1+= --disable-multilib
-GCC1_OPT1+= --disable-decimal-float
-GCC1_OPT1+= --disable-threads
-GCC1_OPT1+= --disable-libatomic
-GCC1_OPT1+= --disable-libgomp
-GCC1_OPT1+= --disable-libquadmath
-GCC1_OPT1+= --disable-libssp
-GCC1_OPT1+= --disable-libvtv
-GCC1_OPT1+= --disable-libstdcxx
-GCC1_OPT1+= --enable-languages=c,c++
-GCC1_OPT1+= $(OPT_FLAGS)
-GCC1_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
-GCC1_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst
+GCC1_OPT0+= --with-sysroot=$(LFS)
+GCC1_OPT0+= --prefix=$(LFS)/tools
+GCC1_OPT0+= --target=$(LFS_TGT)
+GCC1_OPT0+= --with-glibc-version=2.11
+GCC1_OPT0+= --with-newlib
+GCC1_OPT0+= --without-headers
+GCC1_OPT0+= --enable-initfini-array
+GCC1_OPT0+= --disable-nls
+GCC1_OPT0+= --disable-shared
+GCC1_OPT0+= --disable-multilib
+GCC1_OPT0+= --disable-decimal-float
+GCC1_OPT0+= --disable-threads
+GCC1_OPT0+= --disable-libatomic
+GCC1_OPT0+= --disable-libgomp
+GCC1_OPT0+= --disable-libquadmath
+GCC1_OPT0+= --disable-libssp
+GCC1_OPT0+= --disable-libvtv
+GCC1_OPT0+= --disable-libstdcxx
+GCC1_OPT0+= --enable-languages=c,c++
+GCC1_OPT0+= $(OPT_FLAGS)
+GCC1_OPT0+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
+GCC1_OPT0+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg0/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst
 	rm -fr tmp/lfs-hst-gcc1
 	mkdir -p tmp/lfs-hst-gcc1
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/lfs-hst-gcc1
 	tar -xJf pkg/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc1/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
-	mkdir -p tmp/lfs-hst-gcc1/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gcc1/bld && ../gcc-$(GCC_VER)/configure $(GCC1_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	mkdir -p tmp/lfs-hst-gcc1/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gcc1/bld && ../gcc-$(GCC_VER)/configure $(GCC1_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	cat tmp/lfs-hst-gcc1/gcc-$(GCC_VER)/gcc/limitx.h tmp/lfs-hst-gcc1/gcc-$(GCC_VER)/gcc/glimits.h tmp/lfs-hst-gcc1/gcc-$(GCC_VER)/gcc/limity.h > tmp/lfs-hst-gcc1/ins$(LFS)/tools/lib/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/include/limits.h
 	rm -fr tmp/lfs-hst-gcc1/ins$(LFS)/tools/share
 	rm -fr tmp/lfs-hst-gcc1/ins$(LFS)/tools/include
@@ -1057,23 +1057,23 @@ ifeq ($(BUILD_STRIP),y)
 	find tmp/lfs-hst-gcc1/ins$(LFS)/tools/lib -type f -name "*.a" -exec strip --strip-debug {} +
 	cd tmp/lfs-hst-gcc1/ins$(LFS)/tools && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-gcc1/pkg1
+	mkdir -p tmp/lfs-hst-gcc1/pkg0
 	cd tmp/lfs-hst-gcc1/ins$(LFS) && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../../$@
-	mv -f tmp/lfs-hst-gcc1/$@ pkg1/
+	mv -f tmp/lfs-hst-gcc1/$@ pkg0/
 	rm -fr tmp/lfs-hst-gcc1
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-gcc1: pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
+hst-gcc1: pkg0/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 5.5. Glibc-2.32 :: "make hst-glibc" (deps : hst-gcc1)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/glibc.html
 # BUILD_TIME :: 5m 46s
-GLIBC_OPT1+= --prefix=/usr
-GLIBC_OPT1+= --host=$(LFS_TGT)
-GLIBC_OPT1+= --enable-kernel=3.2
-GLIBC_OPT1+= --with-headers=$(LFS)/usr/include
-GLIBC_OPT1+= libc_cv_slibdir=/lib
-GLIBC_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glibc-$(GLIBC_VER)-fhs-1.patch pkg1/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
+GLIBC_OPT0+= --prefix=/usr
+GLIBC_OPT0+= --host=$(LFS_TGT)
+GLIBC_OPT0+= --enable-kernel=3.2
+GLIBC_OPT0+= --with-headers=$(LFS)/usr/include
+GLIBC_OPT0+= libc_cv_slibdir=/lib
+GLIBC_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glibc-$(GLIBC_VER)-fhs-1.patch pkg0/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
 	rm -fr tmp/lfs-hst-glibc
 	mkdir -p tmp/lfs-hst-glibc
 	cp -far pkg/glibc-$(GLIBC_VER)-fhs-1.patch tmp/lfs-hst-glibc
@@ -1083,7 +1083,7 @@ pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: pkg/glibc-$(GLIBC_VER).tar.xz pkg/glib
 	sed -i '31 a DIAG_IGNORE_Os_NEEDS_COMMENT (8, "-Wmaybe-uninitialized");' tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/locale/weight.h
 	sed -i '33 a DIAG_POP_NEEDS_COMMENT;' tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/locale/weight.h
 	tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/scripts/config.guess > lfs/tools/build-host.txt
-	mkdir -p tmp/lfs-hst-glibc/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	mkdir -p tmp/lfs-hst-glibc/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 ifeq ($(BUILD_STRIP),y)
 	find tmp/lfs-hst-glibc/ins -type f -name "*.a" -exec strip --strip-debug {} +
 	cd tmp/lfs-hst-glibc/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
@@ -1105,24 +1105,24 @@ endif
 	mv tmp/lfs-hst-glibc/ins/sbin/* tmp/lfs-hst-glibc/ins/usr/sbin/
 	rm -fr tmp/lfs-hst-glibc/ins/sbin
 	cd tmp/lfs-hst-glibc/ins && ln -sf usr/bin bin && ln -sf usr/sbin sbin
-	mkdir -p tmp/lfs-hst-glibc/pkg1
+	mkdir -p tmp/lfs-hst-glibc/pkg0
 	cd tmp/lfs-hst-glibc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-glibc/$@ pkg1/
+	mv -f tmp/lfs-hst-glibc/$@ pkg0/
 	rm -fr tmp/lfs-hst-glibc
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-glibc: pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
+hst-glibc: pkg0/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 5.6. Libstdc++ from GCC-10.2.0, Pass 1 :: "make hst-libcpp1" (deps : hst-glibc)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter05/gcc-libstdc++-pass1.html
 # BUILD_TIME :: 2m 10s
-LIBCPP1_OPT1+= --host=$(LFS_TGT)
-LIBCPP1_OPT1+= --prefix=/usr
-LIBCPP1_OPT1+= --disable-multilib
-LIBCPP1_OPT1+= --disable-nls
-LIBCPP1_OPT1+= --disable-libstdcxx-pch
-LIBCPP1_OPT1+= --with-gxx-include-dir=/tools/$(LFS_TGT)/include/c++/$(GCC_VER)
-LIBCPP1_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-libcpp.pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz pkg1/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
+LIBCPP1_OPT0+= --host=$(LFS_TGT)
+LIBCPP1_OPT0+= --prefix=/usr
+LIBCPP1_OPT0+= --disable-multilib
+LIBCPP1_OPT0+= --disable-nls
+LIBCPP1_OPT0+= --disable-libstdcxx-pch
+LIBCPP1_OPT0+= --with-gxx-include-dir=/tools/$(LFS_TGT)/include/c++/$(GCC_VER)
+LIBCPP1_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-libcpp.pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER).tar.xz pkg/mpfr-$(MPFR_VER).tar.xz pkg/mpc-$(MPC_VER).tar.gz pkg0/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
 	lfs/tools/libexec/gcc/$(LFS_TGT)/$(GCC_VER)/install-tools/mkheaders
 	rm -fr tmp/lfs-hst-libcpp1
 	mkdir -p tmp/lfs-hst-libcpp1
@@ -1131,7 +1131,7 @@ pkg1/lfs-hst-libcpp.pass1.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg/gmp-$(GMP_VER)
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
 	mkdir -p tmp/lfs-hst-libcpp1/bld
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-libcpp1/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure --build=`cat $(shell pwd)/build-host.txt` $(LIBCPP1_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-libcpp1/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure --build=`cat $(shell pwd)/build-host.txt` $(LIBCPP1_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	find tmp/lfs-hst-libcpp1/ins -name \*.la -delete
 ifeq ($(BUILD_STRIP),y)
 	find tmp/lfs-hst-libcpp1/ins -type f -name "*.a" -exec strip --strip-debug {} +
@@ -1140,56 +1140,56 @@ endif
 	mkdir -p tmp/lfs-hst-libcpp1/ins/usr/lib
 	mv tmp/lfs-hst-libcpp1/ins/usr/lib64/* tmp/lfs-hst-libcpp1/ins/usr/lib/
 	rm -fr tmp/lfs-hst-libcpp1/ins/usr/lib64
-	mkdir -p tmp/lfs-hst-libcpp1/pkg1
+	mkdir -p tmp/lfs-hst-libcpp1/pkg0
 	cd tmp/lfs-hst-libcpp1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-libcpp1/$@ pkg1/
+	mv -f tmp/lfs-hst-libcpp1/$@ pkg0/
 	rm -fr tmp/lfs-hst-libcpp1
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-libcpp1: pkg1/lfs-hst-libcpp.pass1.cpio.zst
+hst-libcpp1: pkg0/lfs-hst-libcpp.pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 6.2. M4-1.4.18 :: "make hst-m4" (deps : hst-libcpp1)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/m4.html
 # BUILD_TIME :: 56s
-M4_OPT1+= --prefix=/usr
-M4_OPT1+= --host=$(LFS_TGT)
-M4_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-m4-$(M4_VER).cpio.zst: pkg/m4-$(M4_VER).tar.xz pkg1/lfs-hst-libcpp.pass1.cpio.zst
+M4_OPT0+= --prefix=/usr
+M4_OPT0+= --host=$(LFS_TGT)
+M4_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-m4-$(M4_VER).cpio.zst: pkg/m4-$(M4_VER).tar.xz pkg0/lfs-hst-libcpp.pass1.cpio.zst
 	rm -fr tmp/lfs-hst-m4
 	mkdir -p tmp/lfs-hst-m4
 	tar -xJf $< -C tmp/lfs-hst-m4
 	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/lfs-hst-m4/m4-$(M4_VER)/lib/*.c
 	echo "#define _IO_IN_BACKUP 0x100" >> tmp/lfs-hst-m4/m4-$(M4_VER)/lib/stdio-impl.h
 	mkdir -p tmp/lfs-hst-m4/bld
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-m4/bld && ../m4-$(M4_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(M4_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-m4/bld && ../m4-$(M4_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(M4_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-m4/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-m4/ins/usr/bin/m4
 endif
-	mkdir -p tmp/lfs-hst-m4/pkg1
+	mkdir -p tmp/lfs-hst-m4/pkg0
 	cd tmp/lfs-hst-m4/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-m4/$@ pkg1/
+	mv -f tmp/lfs-hst-m4/$@ pkg0/
 	rm -fr tmp/lfs-hst-m4
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-m4: pkg1/lfs-hst-m4-$(M4_VER).cpio.zst
+hst-m4: pkg0/lfs-hst-m4-$(M4_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.3. Ncurses-6.2 :: "make hst-ncurses" (deps : hst-m4)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/ncurses.html
 # BUILD_TIME :: 2m 30s
-NCURSES_OPT1+= --prefix=/usr
-NCURSES_OPT1+= --host=$(LFS_TGT)
-NCURSES_OPT1+= --mandir=/usr/share/man
-NCURSES_OPT1+= --with-manpage-format=normal
-NCURSES_OPT1+= --without-manpages
-NCURSES_OPT1+= --with-default-terminfo-dir=/usr/share/terminfo
-NCURSES_OPT1+= --with-shared
-NCURSES_OPT1+= --without-debug
-NCURSES_OPT1+= --without-ada
-NCURSES_OPT1+= --without-normal
-NCURSES_OPT1+= --with-termlib
-NCURSES_OPT1+= --with-ticlib
-NCURSES_OPT1+= --enable-widec
-NCURSES_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst: pkg/ncurses-$(NCURSES_VER).tar.gz pkg1/lfs-hst-m4-$(M4_VER).cpio.zst
+NCURSES_OPT0+= --prefix=/usr
+NCURSES_OPT0+= --host=$(LFS_TGT)
+NCURSES_OPT0+= --mandir=/usr/share/man
+NCURSES_OPT0+= --with-manpage-format=normal
+NCURSES_OPT0+= --without-manpages
+NCURSES_OPT0+= --with-default-terminfo-dir=/usr/share/terminfo
+NCURSES_OPT0+= --with-shared
+NCURSES_OPT0+= --without-debug
+NCURSES_OPT0+= --without-ada
+NCURSES_OPT0+= --without-normal
+NCURSES_OPT0+= --with-termlib
+NCURSES_OPT0+= --with-ticlib
+NCURSES_OPT0+= --enable-widec
+NCURSES_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst: pkg/ncurses-$(NCURSES_VER).tar.gz pkg0/lfs-hst-m4-$(M4_VER).cpio.zst
 	rm -fr tmp/lfs-hst-ncurses
 	mkdir -p tmp/lfs-hst-ncurses
 	tar -xzf $< -C tmp/lfs-hst-ncurses
@@ -1198,326 +1198,326 @@ pkg1/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst: pkg/ncurses-$(NCURSES_VER).tar.gz 
 	mkdir -p tmp/lfs-hst-ncurses/bld-tic
 	cd tmp/lfs-hst-ncurses/bld-tic && ../ncurses-$(NCURSES_VER)/configure && make -C include && make -C progs tic
 	mkdir -p tmp/lfs-hst-ncurses/bld
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-ncurses/bld && ../ncurses-$(NCURSES_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(NCURSES_OPT1) && make $(JOBS) V=$(VERB) && make TIC_PATH=`pwd`/../bld-tic/progs/tic LD_LIBRARY_PATH=`pwd`/../bld-tic/lib DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-ncurses/bld && ../ncurses-$(NCURSES_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(NCURSES_OPT0) && make $(JOBS) V=$(VERB) && make TIC_PATH=`pwd`/../bld-tic/progs/tic LD_LIBRARY_PATH=`pwd`/../bld-tic/lib DESTDIR=`pwd`/../ins install'
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-ncurses/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	echo "INPUT(-lncursesw)" > tmp/lfs-hst-ncurses/ins/usr/lib/libncurses.so
-	mkdir -p tmp/lfs-hst-ncurses/pkg1
+	mkdir -p tmp/lfs-hst-ncurses/pkg0
 	cd tmp/lfs-hst-ncurses/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-ncurses/$@ pkg1/
+	mv -f tmp/lfs-hst-ncurses/$@ pkg0/
 	rm -fr tmp/lfs-hst-ncurses
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-ncurses: pkg1/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst
+hst-ncurses: pkg0/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.4. Bash-5.0 :: "make hst-bash" (deps : hst-ncurses)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/bash.html
 # BUILD_TIME :: 1m 26s
-BASH_OPT1+= --prefix=/usr
-BASH_OPT1+= --host=$(LFS_TGT)
-BASH_OPT1+= --without-bash-malloc
-BASH_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-bash-$(BASH_VER).cpio.zst: pkg/bash-$(BASH_VER).tar.gz pkg1/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst
+BASH_OPT0+= --prefix=/usr
+BASH_OPT0+= --host=$(LFS_TGT)
+BASH_OPT0+= --without-bash-malloc
+BASH_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-bash-$(BASH_VER).cpio.zst: pkg/bash-$(BASH_VER).tar.gz pkg0/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst
 	rm -fr tmp/lfs-hst-bash
 	mkdir -p tmp/lfs-hst-bash/bld
 	tar -xzf $< -C tmp/lfs-hst-bash
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-bash/bld && ../bash-$(BASH_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(BASH_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-bash/bld && ../bash-$(BASH_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(BASH_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-bash/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-bash/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	cd tmp/lfs-hst-bash/ins/usr/bin && ln -sf bash sh
-	mkdir -p tmp/lfs-hst-bash/pkg1
+	mkdir -p tmp/lfs-hst-bash/pkg0
 	cd tmp/lfs-hst-bash/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-bash/$@ pkg1/
+	mv -f tmp/lfs-hst-bash/$@ pkg0/
 	rm -fr tmp/lfs-hst-bash
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-bash: pkg1/lfs-hst-bash-$(BASH_VER).cpio.zst
+hst-bash: pkg0/lfs-hst-bash-$(BASH_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.5. Coreutils-8.32 :: "make hst-coreutils" (deps : hst-bash)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/coreutils.html
 # BUILD_TIME :: 2m 28s
-COREUTILS_OPT1+= --prefix=/usr
-COREUTILS_OPT1+= --host=$(LFS_TGT)
-COREUTILS_OPT1+= --enable-install-program=hostname
-COREUTILS_OPT1+= --enable-no-install-program=kill,uptime
-COREUTILS_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst: pkg/coreutils-$(CORE_UTILS_VER).tar.xz pkg1/lfs-hst-bash-$(BASH_VER).cpio.zst
+COREUTILS_OPT0+= --prefix=/usr
+COREUTILS_OPT0+= --host=$(LFS_TGT)
+COREUTILS_OPT0+= --enable-install-program=hostname
+COREUTILS_OPT0+= --enable-no-install-program=kill,uptime
+COREUTILS_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst: pkg/coreutils-$(CORE_UTILS_VER).tar.xz pkg0/lfs-hst-bash-$(BASH_VER).cpio.zst
 	rm -fr tmp/lfs-hst-coreutils
 	mkdir -p tmp/lfs-hst-coreutils/bld
 	tar -xJf $< -C tmp/lfs-hst-coreutils
 	sed -i "s/SYS_getdents/SYS_getdents64/" tmp/lfs-hst-coreutils/coreutils-$(CORE_UTILS_VER)/src/ls.c
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-coreutils/bld && ../coreutils-$(CORE_UTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(COREUTILS_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-coreutils/bld && ../coreutils-$(CORE_UTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(COREUTILS_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-coreutils/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-coreutils/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-coreutils/pkg1
+	mkdir -p tmp/lfs-hst-coreutils/pkg0
 	cd tmp/lfs-hst-coreutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-coreutils/$@ pkg1/
+	mv -f tmp/lfs-hst-coreutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-coreutils
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-coreutils: pkg1/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst
+hst-coreutils: pkg0/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.6. Diffutils-3.7 :: "make hst-diffutils" (deps : hst-coreutils)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/diffutils.html
 # BUILD_TIME :: 56s
-DIFFUTILS_OPT1+= --prefix=/usr
-DIFFUTILS_OPT1+= --host=$(LFS_TGT)
-DIFFUTILS_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg/diffutils-$(DIFF_UTILS_VER).tar.xz pkg1/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst
+DIFFUTILS_OPT0+= --prefix=/usr
+DIFFUTILS_OPT0+= --host=$(LFS_TGT)
+DIFFUTILS_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg/diffutils-$(DIFF_UTILS_VER).tar.xz pkg0/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst
 	rm -fr tmp/lfs-hst-diffutils
 	mkdir -p tmp/lfs-hst-diffutils/bld
 	tar -xJf $< -C tmp/lfs-hst-diffutils
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-diffutils/bld && ../diffutils-$(DIFF_UTILS_VER)/configure $(DIFFUTILS_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-diffutils/bld && ../diffutils-$(DIFF_UTILS_VER)/configure $(DIFFUTILS_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-diffutils/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-diffutils/ins/usr/bin/*
 endif
-	mkdir -p tmp/lfs-hst-diffutils/pkg1
+	mkdir -p tmp/lfs-hst-diffutils/pkg0
 	cd tmp/lfs-hst-diffutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-diffutils/$@ pkg1/
+	mv -f tmp/lfs-hst-diffutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-diffutils
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-diffutils: pkg1/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst
+hst-diffutils: pkg0/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.7. File-5.39 :: "make hst-file" (deps : hst-diffutils)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/file.html
 # BUILD_TIME :: 30s
-FILE_OPT1+= --prefix=/usr
-FILE_OPT1+= --host=$(LFS_TGT)
-FILE_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-file-$(FILE_VER).cpio.zst: pkg/file-$(FILE_VER).tar.gz pkg1/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst
+FILE_OPT0+= --prefix=/usr
+FILE_OPT0+= --host=$(LFS_TGT)
+FILE_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-file-$(FILE_VER).cpio.zst: pkg/file-$(FILE_VER).tar.gz pkg0/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst
 	rm -fr tmp/lfs-hst-file
 	mkdir -p tmp/lfs-hst-file/bld
 	tar -xzf $< -C tmp/lfs-hst-file
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-file/bld && ../file-$(FILE_VER)/configure $(FILE_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-file/bld && ../file-$(FILE_VER)/configure $(FILE_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-file/ins/usr/share/man
 	find tmp/lfs-hst-file/ins -name \*.la -delete
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-file/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-file/pkg1
+	mkdir -p tmp/lfs-hst-file/pkg0
 	cd tmp/lfs-hst-file/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-file/$@ pkg1/
+	mv -f tmp/lfs-hst-file/$@ pkg0/
 	rm -fr tmp/lfs-hst-file
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-file: pkg1/lfs-hst-file-$(FILE_VER).cpio.zst
+hst-file: pkg0/lfs-hst-file-$(FILE_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.8. Findutils-4.7.0 :: "make hst-findutils" (deps : hst-file)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/findutils.html
 # BUILD_TIME :: 1m 30s
-FINDUTILS_OPT1+= --prefix=/usr
-FINDUTILS_OPT1+= --host=$(LFS_TGT)
-FINDUTILS_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst: pkg/findutils-$(FIND_UTILS_VER).tar.xz pkg1/lfs-hst-file-$(FILE_VER).cpio.zst
+FINDUTILS_OPT0+= --prefix=/usr
+FINDUTILS_OPT0+= --host=$(LFS_TGT)
+FINDUTILS_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst: pkg/findutils-$(FIND_UTILS_VER).tar.xz pkg0/lfs-hst-file-$(FILE_VER).cpio.zst
 	rm -fr tmp/lfs-hst-findutils
 	mkdir -p tmp/lfs-hst-findutils/bld
 	tar -xJf $< -C tmp/lfs-hst-findutils
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-findutils/bld && ../findutils-$(FIND_UTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(FINDUTILS_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-findutils/bld && ../findutils-$(FIND_UTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(FINDUTILS_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-findutils/ins/usr/var
 	rm -fr tmp/lfs-hst-findutils/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-findutils/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/lfs-hst-findutils/ins/usr/libexec/*
 endif
-	mkdir -p tmp/lfs-hst-findutils/pkg1
+	mkdir -p tmp/lfs-hst-findutils/pkg0
 	cd tmp/lfs-hst-findutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-findutils/$@ pkg1/
+	mv -f tmp/lfs-hst-findutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-findutils
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-findutils: pkg1/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst
+hst-findutils: pkg0/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.9. Gawk-5.1.0 :: "make hst-gawk" (deps : hst-findutils)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/gawk.html
 # BUILD_TIME :: 59s
-GAWK_OPT1+= --prefix=/usr
-GAWK_OPT1+= --host=$(LFS_TGT)
-GAWK_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-gawk-$(GAWK_VER).cpio.zst: pkg/gawk-$(GAWK_VER).tar.xz pkg1/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst
+GAWK_OPT0+= --prefix=/usr
+GAWK_OPT0+= --host=$(LFS_TGT)
+GAWK_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-gawk-$(GAWK_VER).cpio.zst: pkg/gawk-$(GAWK_VER).tar.xz pkg0/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst
 	rm -fr tmp/lfs-hst-gawk
 	mkdir -p tmp/lfs-hst-gawk/bld
 	tar -xJf $< -C tmp/lfs-hst-gawk
 	sed -i 's/extras//' tmp/lfs-hst-gawk/gawk-$(GAWK_VER)/Makefile.in
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gawk/bld && ../gawk-$(GAWK_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(GAWK_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gawk/bld && ../gawk-$(GAWK_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(GAWK_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-gawk/ins/usr/share/info
 	rm -fr tmp/lfs-hst-gawk/ins/usr/share/locale
 	rm -fr tmp/lfs-hst-gawk/ins/usr/share/man
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-gawk/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-gawk/pkg1
+	mkdir -p tmp/lfs-hst-gawk/pkg0
 	cd tmp/lfs-hst-gawk/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-gawk/$@ pkg1/
+	mv -f tmp/lfs-hst-gawk/$@ pkg0/
 	rm -fr tmp/lfs-hst-gawk
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-gawk: pkg1/lfs-hst-gawk-$(GAWK_VER).cpio.zst
+hst-gawk: pkg0/lfs-hst-gawk-$(GAWK_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.10. Grep-3.4 :: "make hst-grep" (deps : hst-gawk)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/grep.html
 # BUILD_TIME :: 1m 2s
-GREP_OPT1+= --prefix=/usr
-GREP_OPT1+= --host=$(LFS_TGT)
-GREP_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-grep-$(GREP_VER).cpio.zst: pkg/grep-$(GREP_VER).tar.xz pkg1/lfs-hst-gawk-$(GAWK_VER).cpio.zst
+GREP_OPT0+= --prefix=/usr
+GREP_OPT0+= --host=$(LFS_TGT)
+GREP_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-grep-$(GREP_VER).cpio.zst: pkg/grep-$(GREP_VER).tar.xz pkg0/lfs-hst-gawk-$(GAWK_VER).cpio.zst
 	rm -fr tmp/lfs-hst-grep
 	mkdir -p tmp/lfs-hst-grep/bld
 	tar -xJf $< -C tmp/lfs-hst-grep
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-grep/bld && ../grep-$(GREP_VER)/configure $(GREP_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-grep/bld && ../grep-$(GREP_VER)/configure $(GREP_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-grep/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-grep/ins/usr/bin/grep
 endif
-	mkdir -p tmp/lfs-hst-grep/pkg1
+	mkdir -p tmp/lfs-hst-grep/pkg0
 	cd tmp/lfs-hst-grep/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-grep/$@ pkg1/
+	mv -f tmp/lfs-hst-grep/$@ pkg0/
 	rm -fr tmp/lfs-hst-grep
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-grep: pkg1/lfs-hst-grep-$(GREP_VER).cpio.zst
+hst-grep: pkg0/lfs-hst-grep-$(GREP_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.11. Gzip-1.10 :: "make hst-gzip" (deps : hst-grep)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/gzip.html
 # BUILD_TIME :: 38s
-GZIP_OPT1+= --prefix=/usr
-GZIP_OPT1+= --host=$(LFS_TGT)
-GZIP_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-gzip-$(GZIP_VER).cpio.zst: pkg/gzip-$(GZIP_VER).tar.xz pkg1/lfs-hst-grep-$(GREP_VER).cpio.zst
+GZIP_OPT0+= --prefix=/usr
+GZIP_OPT0+= --host=$(LFS_TGT)
+GZIP_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-gzip-$(GZIP_VER).cpio.zst: pkg/gzip-$(GZIP_VER).tar.xz pkg0/lfs-hst-grep-$(GREP_VER).cpio.zst
 	rm -fr tmp/lfs-hst-gzip
 	mkdir -p tmp/lfs-hst-gzip/bld
 	tar -xJf $< -C tmp/lfs-hst-gzip
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gzip/bld && ../gzip-$(GZIP_VER)/configure $(GZIP_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gzip/bld && ../gzip-$(GZIP_VER)/configure $(GZIP_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-gzip/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-gzip/ins/usr/bin/* || true
 endif
-	mkdir -p tmp/lfs-hst-gzip/pkg1
+	mkdir -p tmp/lfs-hst-gzip/pkg0
 	cd tmp/lfs-hst-gzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-gzip/$@ pkg1/
+	mv -f tmp/lfs-hst-gzip/$@ pkg0/
 	rm -fr tmp/lfs-hst-gzip
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-gzip: pkg1/lfs-hst-gzip-$(GZIP_VER).cpio.zst
+hst-gzip: pkg0/lfs-hst-gzip-$(GZIP_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.12. Make-4.3 :: "make hst-make" (deps : hst-gzip)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/make.html
 # BUILD_TIME :: 33s
-MAKE_OPT1+= --prefix=/usr
-MAKE_OPT1+= --without-guile
-MAKE_OPT1+= --host=$(LFS_TGT)
-MAKE_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-make-$(MAKE_VER).cpio.zst: pkg/make-$(MAKE_VER).tar.gz pkg1/lfs-hst-gzip-$(GZIP_VER).cpio.zst
+MAKE_OPT0+= --prefix=/usr
+MAKE_OPT0+= --without-guile
+MAKE_OPT0+= --host=$(LFS_TGT)
+MAKE_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-make-$(MAKE_VER).cpio.zst: pkg/make-$(MAKE_VER).tar.gz pkg0/lfs-hst-gzip-$(GZIP_VER).cpio.zst
 	rm -fr tmp/lfs-hst-make
 	mkdir -p tmp/lfs-hst-make/bld
 	tar -xzf $< -C tmp/lfs-hst-make
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-make/bld && ../make-$(MAKE_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(MAKE_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-make/bld && ../make-$(MAKE_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(MAKE_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-make/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-make/ins/usr/bin/make
 endif
-	mkdir -p tmp/lfs-hst-make/pkg1
+	mkdir -p tmp/lfs-hst-make/pkg0
 	cd tmp/lfs-hst-make/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-make/$@ pkg1/
+	mv -f tmp/lfs-hst-make/$@ pkg0/
 	rm -fr tmp/lfs-hst-make
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-make: pkg1/lfs-hst-make-$(MAKE_VER).cpio.zst
+hst-make: pkg0/lfs-hst-make-$(MAKE_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.13. Patch-2.7.6 :: "make hst-patch" (deps : hst-make)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/patch.html
 # BUILD_TIME :: 1m 10s
-PATCH_OPT1+= --prefix=/usr
-PATCH_OPT1+= --host=$(LFS_TGT)
-PATCH_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-patch-$(PATCH_VER).cpio.zst: pkg/patch-$(PATCH_VER).tar.xz pkg1/lfs-hst-make-$(MAKE_VER).cpio.zst
+PATCH_OPT0+= --prefix=/usr
+PATCH_OPT0+= --host=$(LFS_TGT)
+PATCH_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-patch-$(PATCH_VER).cpio.zst: pkg/patch-$(PATCH_VER).tar.xz pkg0/lfs-hst-make-$(MAKE_VER).cpio.zst
 	rm -fr tmp/lfs-hst-patch
 	mkdir -p tmp/lfs-hst-patch/bld
 	tar -xJf $< -C tmp/lfs-hst-patch
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-patch/bld && ../patch-$(PATCH_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(PATCH_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-patch/bld && ../patch-$(PATCH_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(PATCH_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-patch/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-patch/ins/usr/bin/*
 endif
-	mkdir -p tmp/lfs-hst-patch/pkg1
+	mkdir -p tmp/lfs-hst-patch/pkg0
 	cd tmp/lfs-hst-patch/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-patch/$@ pkg1/
+	mv -f tmp/lfs-hst-patch/$@ pkg0/
 	rm -fr tmp/lfs-hst-patch
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-patch: pkg1/lfs-hst-patch-$(PATCH_VER).cpio.zst
+hst-patch: pkg0/lfs-hst-patch-$(PATCH_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.14. Sed-4.8 :: "make hst-sed" (deps : hst-patch)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/sed.html
 # BUILD_TIME :: 55s
-SED_OPT1+= --prefix=/usr
-SED_OPT1+= --host=$(LFS_TGT)
-SED_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-sed-$(SED_VER).cpio.zst: pkg/sed-$(SED_VER).tar.xz pkg1/lfs-hst-patch-$(PATCH_VER).cpio.zst
+SED_OPT0+= --prefix=/usr
+SED_OPT0+= --host=$(LFS_TGT)
+SED_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-sed-$(SED_VER).cpio.zst: pkg/sed-$(SED_VER).tar.xz pkg0/lfs-hst-patch-$(PATCH_VER).cpio.zst
 	rm -fr tmp/lfs-hst-sed
 	mkdir -p tmp/lfs-hst-sed/bld
 	tar -xJf $< -C tmp/lfs-hst-sed
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-sed/bld && ../sed-$(SED_VER)/configure $(SED_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-sed/bld && ../sed-$(SED_VER)/configure $(SED_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-sed/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-sed/ins/usr/bin/*
 endif
-	mkdir -p tmp/lfs-hst-sed/pkg1
+	mkdir -p tmp/lfs-hst-sed/pkg0
 	cd tmp/lfs-hst-sed/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-sed/$@ pkg1/
+	mv -f tmp/lfs-hst-sed/$@ pkg0/
 	rm -fr tmp/lfs-hst-sed
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-sed: pkg1/lfs-hst-sed-$(SED_VER).cpio.zst
+hst-sed: pkg0/lfs-hst-sed-$(SED_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.15. Tar-1.32 :: "make hst-tar" (deps : hst-sed)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/tar.html
 # BUILD_TIME :: 1m 14s
-TAR_OPT1+= --prefix=/usr
-TAR_OPT1+= --host=$(LFS_TGT)
-TAR_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-tar-$(TAR_VER).cpio.zst: pkg/tar-$(TAR_VER).tar.xz pkg1/lfs-hst-sed-$(SED_VER).cpio.zst
+TAR_OPT0+= --prefix=/usr
+TAR_OPT0+= --host=$(LFS_TGT)
+TAR_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-tar-$(TAR_VER).cpio.zst: pkg/tar-$(TAR_VER).tar.xz pkg0/lfs-hst-sed-$(SED_VER).cpio.zst
 	rm -fr tmp/lfs-hst-tar
 	mkdir -p tmp/lfs-hst-tar/bld
 	tar -xJf $< -C tmp/lfs-hst-tar
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-tar/bld && ../tar-$(TAR_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(TAR_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-tar/bld && ../tar-$(TAR_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(TAR_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-tar/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-tar/ins/usr/bin/*
 	strip --strip-unneeded tmp/lfs-hst-tar/ins/usr/libexec/*
 endif
-	mkdir -p tmp/lfs-hst-tar/pkg1
+	mkdir -p tmp/lfs-hst-tar/pkg0
 	cd tmp/lfs-hst-tar/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-tar/$@ pkg1/
+	mv -f tmp/lfs-hst-tar/$@ pkg0/
 	rm -fr tmp/lfs-hst-tar
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-tar: pkg1/lfs-hst-tar-$(TAR_VER).cpio.zst
+hst-tar: pkg0/lfs-hst-tar-$(TAR_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.16. Xz-5.2.5 :: "make hst-xz" (deps : hst-tar)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/xz.html
 # BUILD_TIME :: 35s
-XZ_OPT1+= --prefix=/usr
-XZ_OPT1+= --host=$(LFS_TGT)
-XZ_OPT1+= --disable-static
-XZ_OPT1+= --docdir=/usr/share/doc/xz-$(XZ_VER)
-XZ_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-xz-$(XZ_VER).cpio.zst: pkg/xz-$(XZ_VER).tar.xz pkg1/lfs-hst-tar-$(TAR_VER).cpio.zst
+XZ_OPT0+= --prefix=/usr
+XZ_OPT0+= --host=$(LFS_TGT)
+XZ_OPT0+= --disable-static
+XZ_OPT0+= --docdir=/usr/share/doc/xz-$(XZ_VER)
+XZ_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-xz-$(XZ_VER).cpio.zst: pkg/xz-$(XZ_VER).tar.xz pkg0/lfs-hst-tar-$(TAR_VER).cpio.zst
 	rm -fr tmp/lfs-hst-xz
 	mkdir -p tmp/lfs-hst-xz/bld
 	tar -xJf $< -C tmp/lfs-hst-xz
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-xz/bld && ../xz-$(XZ_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(XZ_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-xz/bld && ../xz-$(XZ_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(XZ_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-xz/ins/usr/share
 	find tmp/lfs-hst-xz/ins -name \*.la -delete
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-xz/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-xz/pkg1
+	mkdir -p tmp/lfs-hst-xz/pkg0
 	cd tmp/lfs-hst-xz/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-xz/$@ pkg1/
+	mv -f tmp/lfs-hst-xz/$@ pkg0/
 	rm -fr tmp/lfs-hst-xz
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-xz: pkg1/lfs-hst-xz-$(XZ_VER).cpio.zst
+hst-xz: pkg0/lfs-hst-xz-$(XZ_VER).cpio.zst
 
 # === extra :: zstd :: "make hst-zstd" (deps : hst-xz)
 #
 # BUILD_TIME :: 1m 19s
 ZSTD1_L_OPT = CC=$(LFS_TGT)-gcc ZSTD_LIB_MINIFY=1 ZSTD_LIB_DICTBUILDER=0 MOREFLAGS=$(RK3588_FLAGS) prefix=/usr DESTDIR=../../ins
 ZSTD1_P_OPT = CC=$(LFS_TGT)-gcc HAVE_PTHREAD=0 HAVE_THREAD=0 MOREFLAGS=$(RK3588_FLAGS) prefix=/usr DESTDIR=../../ins
-pkg1/lfs-hst-zstd-$(ZSTD_VER).cpio.zst: pkg/zstd-$(ZSTD_VER).tar.gz pkg1/lfs-hst-xz-$(XZ_VER).cpio.zst
+pkg0/lfs-hst-zstd-$(ZSTD_VER).cpio.zst: pkg/zstd-$(ZSTD_VER).tar.gz pkg0/lfs-hst-xz-$(XZ_VER).cpio.zst
 	rm -fr tmp/lfs-hst-zstd
 	mkdir -p tmp/lfs-hst-zstd/bld
 	tar -xzf $< -C tmp/lfs-hst-zstd
@@ -1530,116 +1530,116 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-zstd/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/lfs-hst-zstd/ins/usr/bin/zstd
 endif
-	mkdir -p tmp/lfs-hst-zstd/pkg1
+	mkdir -p tmp/lfs-hst-zstd/pkg0
 	cd tmp/lfs-hst-zstd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-zstd/$@ pkg1/
+	mv -f tmp/lfs-hst-zstd/$@ pkg0/
 	rm -fr tmp/lfs-hst-zstd
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-zstd: pkg1/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
+hst-zstd: pkg0/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
 
 # === extra (BLFS-10) :: cpio :: "make hst-cpio" (deps : hst-zstd)
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cpio.html
 # BUILD_TIME :: 1m 24s
-CPIO_OPT1+= --prefix=/usr
-CPIO_OPT1+= --host=$(LFS_TGT)
-CPIO_OPT1+= --disable-nls
-CPIO_OPT1+= --disable-static
-CPIO_OPT1+= --with-rmt=/usr/libexec/rmt
-CPIO_OPT1+= CFLAGS="$(RK3588_FLAGS) -Os -fcommon"
-pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst: pkg/cpio-$(CPIO_VER).tar.bz2 pkg1/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
+CPIO_OPT0+= --prefix=/usr
+CPIO_OPT0+= --host=$(LFS_TGT)
+CPIO_OPT0+= --disable-nls
+CPIO_OPT0+= --disable-static
+CPIO_OPT0+= --with-rmt=/usr/libexec/rmt
+CPIO_OPT0+= CFLAGS="$(RK3588_FLAGS) -Os -fcommon"
+pkg0/lfs-hst-cpio-$(CPIO_VER).cpio.zst: pkg/cpio-$(CPIO_VER).tar.bz2 pkg0/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
 	rm -fr tmp/lfs-hst-cpio
 	mkdir -p tmp/lfs-hst-cpio/bld
 	tar -xjf $< -C tmp/lfs-hst-cpio
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-cpio/bld && ../cpio-$(CPIO_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(CPIO_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-cpio/bld && ../cpio-$(CPIO_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(CPIO_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-cpio/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-cpio/ins/usr/bin/cpio
 endif
-	mkdir -p tmp/lfs-hst-cpio/pkg1
+	mkdir -p tmp/lfs-hst-cpio/pkg0
 	cd tmp/lfs-hst-cpio/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-cpio/$@ pkg1/
+	mv -f tmp/lfs-hst-cpio/$@ pkg0/
 	rm -fr tmp/lfs-hst-cpio
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-cpio: pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst
+hst-cpio: pkg0/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 
 # === extra :: pv :: "make hst-pv" (deps: hst-cpio)
 # http://www.ivarch.com/programs/pv.shtml
 # https://github.com/icetee/pv
 # BUILD_TIME :: 15s
-PV_OPT1+= --prefix=/usr
-PV_OPT1+= --host=$(LFS_TGT)
-PV_OPT1+= --disable-nls
-PV_OPT1+= --disable-splice
-PV_OPT1+= --disable-ipc
-PV_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-hst-pv-$(PV_VER).cpio.zst: pkg/pv_$(PV_VER).orig.tar.gz pkg1/lfs-hst-cpio-$(CPIO_VER).cpio.zst
+PV_OPT0+= --prefix=/usr
+PV_OPT0+= --host=$(LFS_TGT)
+PV_OPT0+= --disable-nls
+PV_OPT0+= --disable-splice
+PV_OPT0+= --disable-ipc
+PV_OPT0+= $(OPT_FLAGS)
+pkg0/lfs-hst-pv-$(PV_VER).cpio.zst: pkg/pv_$(PV_VER).orig.tar.gz pkg0/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 	rm -fr tmp/lfs-hst-pv
 	mkdir -p tmp/lfs-hst-pv/bld
 	tar -xzf $< -C tmp/lfs-hst-pv
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-pv/bld && ../pv-$(PV_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(PV_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-pv/bld && ../pv-$(PV_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(PV_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-pv/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-pv/ins/usr/bin/pv
 endif
-	mkdir -p tmp/lfs-hst-pv/pkg1
+	mkdir -p tmp/lfs-hst-pv/pkg0
 	cd tmp/lfs-hst-pv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-pv/$@ pkg1/
+	mv -f tmp/lfs-hst-pv/$@ pkg0/
 	rm -fr tmp/lfs-hst-pv
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-pv: pkg1/lfs-hst-pv-$(PV_VER).cpio.zst
+hst-pv: pkg0/lfs-hst-pv-$(PV_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.17. Binutils-2.35 - Pass 2 :: "make hst-binutils2" (deps : hst-pv)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/binutils-pass2.html
 # BUILD_TIME :: 2m 20s
-BINUTILS2_OPT1+= --prefix=/usr
-BINUTILS2_OPT1+= --host=$(LFS_TGT)
-BINUTILS2_OPT1+= --disable-nls
-BINUTILS2_OPT1+= --enable-shared
-BINUTILS2_OPT1+= --disable-werror
-BINUTILS2_OPT1+= --enable-64-bit-bfd
-BINUTILS2_OPT1+= $(OPT_FLAGS)
-BINUTILS2_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
-BINUTILS2_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz pkg1/lfs-hst-pv-$(PV_VER).cpio.zst
+BINUTILS2_OPT0+= --prefix=/usr
+BINUTILS2_OPT0+= --host=$(LFS_TGT)
+BINUTILS2_OPT0+= --disable-nls
+BINUTILS2_OPT0+= --enable-shared
+BINUTILS2_OPT0+= --disable-werror
+BINUTILS2_OPT0+= --enable-64-bit-bfd
+BINUTILS2_OPT0+= $(OPT_FLAGS)
+BINUTILS2_OPT0+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
+BINUTILS2_OPT0+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst: pkg/binutils-$(BINUTILS_VER).tar.xz pkg0/lfs-hst-pv-$(PV_VER).cpio.zst
 	rm -fr tmp/lfs-hst-binutils2
 	mkdir -p tmp/lfs-hst-binutils2/bld
 	tar -xJf $< -C tmp/lfs-hst-binutils2
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils2/bld && ../binutils-$(BINUTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(BINUTILS2_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-binutils2/bld && ../binutils-$(BINUTILS_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(BINUTILS2_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-binutils2/ins/usr/share
 	find tmp/lfs-hst-binutils2/ins/usr/lib -name \*.la -delete
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/lfs-hst-binutils2/ins/usr/lib/*.a
 	cd tmp/lfs-hst-binutils2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	mkdir -p tmp/lfs-hst-binutils2/pkg1
+	mkdir -p tmp/lfs-hst-binutils2/pkg0
 	cd tmp/lfs-hst-binutils2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-binutils2/$@ pkg1/
+	mv -f tmp/lfs-hst-binutils2/$@ pkg0/
 	rm -fr tmp/lfs-hst-binutils2
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-binutils2: pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst
+hst-binutils2: pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst
 
 # === LFS-10.0-systemd :: 6.18. GCC-10.2.0 - Pass 2 :: "make hst-gcc2" (deps : hst-binutils2)
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter06/gcc-pass2.html
 # BUILD_TIME :: 12m 16s
-GCC2_OPT1+= --host=$(LFS_TGT)
-GCC2_OPT1+= --prefix=/usr
-GCC2_OPT1+= CC_FOR_TARGET=$(LFS_TGT)-gcc
-GCC2_OPT1+= --with-build-sysroot=$(LFS)
-GCC2_OPT1+= --enable-initfini-array
-GCC2_OPT1+= --disable-nls
-GCC2_OPT1+= --disable-multilib
-GCC2_OPT1+= --disable-decimal-float
-GCC2_OPT1+= --disable-libatomic
-GCC2_OPT1+= --disable-libgomp
-GCC2_OPT1+= --disable-libquadmath
-GCC2_OPT1+= --disable-libssp
-GCC2_OPT1+= --disable-libvtv
-GCC2_OPT1+= --disable-libstdcxx
-GCC2_OPT1+= --enable-languages=c,c++
-GCC2_OPT1+= $(OPT_FLAGS)
-GCC2_OPT1+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
-GCC2_OPT1+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg1/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst
+GCC2_OPT0+= --host=$(LFS_TGT)
+GCC2_OPT0+= --prefix=/usr
+GCC2_OPT0+= CC_FOR_TARGET=$(LFS_TGT)-gcc
+GCC2_OPT0+= --with-build-sysroot=$(LFS)
+GCC2_OPT0+= --enable-initfini-array
+GCC2_OPT0+= --disable-nls
+GCC2_OPT0+= --disable-multilib
+GCC2_OPT0+= --disable-decimal-float
+GCC2_OPT0+= --disable-libatomic
+GCC2_OPT0+= --disable-libgomp
+GCC2_OPT0+= --disable-libquadmath
+GCC2_OPT0+= --disable-libssp
+GCC2_OPT0+= --disable-libvtv
+GCC2_OPT0+= --disable-libstdcxx
+GCC2_OPT0+= --enable-languages=c,c++
+GCC2_OPT0+= $(OPT_FLAGS)
+GCC2_OPT0+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
+GCC2_OPT0+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
+pkg0/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst
 	rm -fr tmp/lfs-hst-gcc2
 	mkdir -p tmp/lfs-hst-gcc2/bld
 	tar -xJf pkg/gcc-$(GCC_VER).tar.xz -C tmp/lfs-hst-gcc2
@@ -1647,7 +1647,7 @@ pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst: pkg/gcc-$(GCC_VER).tar.xz pkg1/lfs-h
 	tar -xJf pkg/mpfr-$(MPFR_VER).tar.xz -C tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf pkg/mpc-$(MPC_VER).tar.gz -C tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && cd tmp/lfs-hst-gcc2/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
 	cd tmp/lfs-hst-gcc2/bld && mkdir -pv $(LFS_TGT)/libgcc && cd $(LFS_TGT)/libgcc && ln -sfv ../../../gcc-$(GCC_VER)/libgcc/gthr-posix.h gthr-default.h
-	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gcc2/bld && ../gcc-$(GCC_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(GCC2_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
+	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-gcc2/bld && ../gcc-$(GCC_VER)/configure --build=`cat $(shell pwd)/build-host.txt` $(GCC2_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	rm -fr tmp/lfs-hst-gcc2/ins/usr/share
 	find tmp/lfs-hst-gcc2/ins -name \*.la -delete
 	mv tmp/lfs-hst-gcc2/ins/usr/lib64/* tmp/lfs-hst-gcc2/ins/usr/lib/
@@ -1656,19 +1656,19 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-gcc2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 	strip --strip-debug tmp/lfs-hst-gcc2/ins/usr/lib/gcc/$(LFS_TGT)/$(GCC_VER)/*.a
 endif
-	mkdir -p tmp/lfs-hst-gcc2/pkg1
+	mkdir -p tmp/lfs-hst-gcc2/pkg0
 	cd tmp/lfs-hst-gcc2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
-	mv -f tmp/lfs-hst-gcc2/$@ pkg1/
+	mv -f tmp/lfs-hst-gcc2/$@ pkg0/
 	rm -fr tmp/lfs-hst-gcc2
 	pv $@ | zstd -d | cpio -iduH newc -D lfs/	
-hst-gcc2: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
+hst-gcc2: pkg0/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 
 # === LFS-10.0-systemd :: 7.2. Changing Ownership :: (deps : hst-gcc2)
 # === LFS-10.0-systemd :: 7.3. Preparing Virtual Kernel File Systems 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/changingowner.html
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/kernfs.html
 # BUILD TIME :: 13s
-pkg1/lfs-hst-full.cpio.zst: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
+pkg0/lfs-hst-full.cpio.zst: pkg0/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	rm -fr tmp/lfs
 #	mkdir -p tmp
 	cp -far lfs tmp/
@@ -1686,20 +1686,20 @@ pkg1/lfs-hst-full.cpio.zst: pkg1/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	cp -far pkg tmp/lfs/opt/mysdk
 	cp -f *.zst tmp/lfs/opt/mysdk/
 	cp -f Makefile tmp/lfs/opt/mysdk
-	mkdir -p tmp/pkg1
+	mkdir -p tmp/pkg0
 	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
 	mv -f tmp/$@ $@
-	rm -fr tmp/pkg1
+	rm -fr tmp/pkg0
 	sudo rm -fr tmp/lfs
 	rm -fr lfs
-stage1: pkg1/lfs-hst-full.cpio.zst
+stage0: pkg0/lfs-hst-full.cpio.zst
 
-# === TOTAL: STAGE1= HOST BUILD
-# BUILD_TIME :: 50m
+# === TOTAL: STAGE0= HOST BUILD
+# BUILD_TIME :: 45m-50m
 
 # === extra :: Unpack New LFS-ROOTFS (lfs-chroot)
 #
-lfs-chroot/opt/mysdk/Makefile: pkg1/lfs-hst-full.cpio.zst
+lfs-chroot/opt/mysdk/Makefile: pkg0/lfs-hst-full.cpio.zst
 	mkdir -p lfs-chroot
 	pv $< | zstd -d | cpio -iduH newc -D lfs-chroot
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
@@ -2096,9 +2096,6 @@ chroot-util-linux: pkg2/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 # ===
 # This Initial Chroot-Stage (LFS chapter 7) build time :: about 19 minutes
 # ===
-
-# === TOTAL: STAGE1..STAGE2 = build HOST - INITIAL CHROOT
-# BUILD_TIME :: 1h 19m (79m)
 
 # =============================================================================
 # === BASE SYSTEM
