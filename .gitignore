@@ -1,4 +1,5 @@
 host-check.*
+src*
 pkg*
 lfs*
 tmp
