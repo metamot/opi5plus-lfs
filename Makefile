@@ -341,6 +341,10 @@ TAR_VER=1.32
 TCL_VER_BRIEF=8.6
 TCL_VER=$(TCL_VER_BRIEF).10
 TCL_DOC_VER=$(TCL_VER)
+TCL_VER_THREAD_VER=2.8.5
+TCL_VER_ITCL_VER=4.2.0
+TCL_VER_SQLITE_VER=3.30.1.2
+TCL_VER_TDBC_VER=1.1.1
 TEXINFO_VER=6.7
 TIME_ZONE_DATA_VER=2020a
 UNZIP_VER0=60
@@ -782,7 +786,7 @@ src/orangepi5-rkbin-only_rk3588.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/orangepi5-rkbin/git/.git
 endif
-	cd tmp/orangepi5-rkbin/git/rk35 && find rk3588* -print0 | cpio -o0H newc | zstd -z9T9 > ../../orangepi5-rkbin-only_rk3588.cpio.zst
+	cd tmp/orangepi5-rkbin/git/rk35 && find rk3588* -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../orangepi5-rkbin-only_rk3588.cpio.zst
 	mkdir -p src && mv -fv tmp/orangepi5-rkbin/orangepi5-rkbin-only_rk3588.cpio.zst src/
 	rm -fr tmp/orangepi5-rkbin
 	rm -fr tmp/tmp
@@ -795,7 +799,7 @@ src/rockchip-rk35-atf.src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/rockchip-rk35-atf/git/.git
 endif
-	cd tmp/rockchip-rk35-atf/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../rockchip-rk35-atf.src.cpio.zst
+	cd tmp/rockchip-rk35-atf/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../rockchip-rk35-atf.src.cpio.zst
 	mkdir -p src && mv -fv tmp/rockchip-rk35-atf/rockchip-rk35-atf.src.cpio.zst src/
 	rm -fr tmp/rockchip-rk35-atf
 	rm -fr tmp/tmp
@@ -813,7 +817,7 @@ src/uboot-$(UBOOT_VER).src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/uboot/git/.git
 endif
-	cd tmp/uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../uboot-$(UBOOT_VER).src.cpio.zst
+	cd tmp/uboot/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../uboot-$(UBOOT_VER).src.cpio.zst
 	mkdir -p src && mv -fv tmp/uboot/uboot-$(UBOOT_VER).src.cpio.zst src/
 	rm -fr tmp/uboot
 	rm -fr tmp/tmp
@@ -825,7 +829,7 @@ src/orangepi5-uboot.src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/orangepi5-uboot/git/.git
 endif
-	cd tmp/orangepi5-uboot/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-uboot.src.cpio.zst
+	cd tmp/orangepi5-uboot/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../orangepi5-uboot.src.cpio.zst
 	mkdir -p src && mv -fv tmp/orangepi5-uboot/orangepi5-uboot.src.cpio.zst src/
 	rm -fr tmp/orangepi5-uboot
 	rm -fr tmp/tmp
@@ -838,7 +842,7 @@ src/can-utils-$(CAN_UTILS_VER).src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/can-utils/git/.git
 endif
-	cd tmp/can-utils/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../can-utils-$(CAN_UTILS_VER).src.cpio.zst
+	cd tmp/can-utils/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../can-utils-$(CAN_UTILS_VER).src.cpio.zst
 	mkdir -p src && mv -fv tmp/can-utils/can-utils-$(CAN_UTILS_VER).src.cpio.zst src/
 	rm -fr tmp/can-utils
 	rm -fr tmp/tmp
@@ -852,7 +856,7 @@ src/rkdeveloptool.src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/rkdeveloptool/git/.git
 endif
-	cd tmp/rkdeveloptool/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../rkdeveloptool.src.cpio.zst
+	cd tmp/rkdeveloptool/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../rkdeveloptool.src.cpio.zst
 	mkdir -p src && mv -fv tmp/rkdeveloptool/rkdeveloptool.src.cpio.zst src/
 	rm -fr tmp/rkdeveloptool
 	rm -fr tmp/tmp
@@ -864,7 +868,7 @@ src/orangepi5-linux510.src.cpio.zst:
 ifeq ($(GIT_RM),y)
 	rm -fr tmp/orangepi5-linux/git/.git
 endif
-	cd tmp/orangepi5-linux/git && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../orangepi5-linux510.src.cpio.zst
+	cd tmp/orangepi5-linux/git && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../orangepi5-linux510.src.cpio.zst
 	mkdir -p src && mv -fv tmp/orangepi5-linux/orangepi5-linux510.src.cpio.zst src/
 	rm -fr tmp/orangepi5-linux
 	rm -fr tmp/tmp
@@ -873,7 +877,7 @@ src/usb.ids.cpio.zst:
 	rm -fr tmp/usb-ids
 	mkdir -p tmp/usb-ids/dl
 	mkdir -p tmp/usb-ids/src
-	cd tmp/usb-ids/dl && wget http://www.linux-usb.org/usb.ids && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/usb-ids/dl && wget http://www.linux-usb.org/usb.ids && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	cp -f tmp/usb-ids/$@ src/
 	rm -fr tmp/usb-ids
 # --- END OF DOWNLOAD SECTION -------------------------------------------------
@@ -904,7 +908,7 @@ pkg0/lfs-kernel-headers.cpio.zst: src/orangepi5-linux510.src.cpio.zst pkg0/.giti
 	ln -sf lfs-chroot/opt/mysdk/tmp tmp
 	rm -fr tmp/kernel-headers
 	mkdir -p tmp/kernel-headers/src
-	cat $< | zstd -d | cpio -iduH newc -D tmp/kernel-headers/src
+	cat $< | zstd -d | cpio -iduH newc --quiet -D tmp/kernel-headers/src
 	find tmp/kernel-headers/src -name "Makefile" -exec sed -i "s|-O2|$(BASE_OPT_VALUE)|" {} +
 	mkdir -p tmp/kernel-headers/bld
 	cd tmp/kernel-headers/src && make V=$(VERB) O=../bld rockchip_linux_defconfig
@@ -912,12 +916,12 @@ pkg0/lfs-kernel-headers.cpio.zst: src/orangepi5-linux510.src.cpio.zst pkg0/.giti
 	sed -i '/make/d' tmp/kernel-headers/kerver.txt
 	cp -f tmp/kernel-headers/kerver.txt .
 	cd tmp/kernel-headers/bld && make V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
-	mkdir -p tmp/kernel-headers/pkg0 && cd tmp/kernel-headers/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	mkdir -p tmp/kernel-headers/pkg0 && cd tmp/kernel-headers/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 #	mkdir -p pkg0
 	mv -f tmp/kernel-headers/$@ pkg0/
 	rm -fr tmp/kernel-headers
 	mkdir -p lfs-cross
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-headers: pkg0/lfs-kernel-headers.cpio.zst
 
 # === LFS-10.0-systemd :: 5.2. Binutils - Pass 1 :: "make hst-binutils1" (deps : Linux Kernel Headers)
@@ -942,10 +946,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-binutils1/ins$(LFS)/tools/bin/* || true
 endif
 	mkdir -p tmp/lfs-hst-binutils1/pkg0
-	cd tmp/lfs-hst-binutils1/ins$(LFS) && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../../$@
+	cd tmp/lfs-hst-binutils1/ins$(LFS) && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../../$@
 	mv -f tmp/lfs-hst-binutils1/$@ pkg0/
 	rm -fr tmp/lfs-hst-binutils1
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-binutils1: pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 5.3. GCC - Pass 1 :: "make hst-gcc1" (deps : hst-binutils1)
@@ -992,10 +996,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-gcc1/ins$(LFS)/tools && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-gcc1/pkg0
-	cd tmp/lfs-hst-gcc1/ins$(LFS) && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../../$@
+	cd tmp/lfs-hst-gcc1/ins$(LFS) && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../../$@
 	mv -f tmp/lfs-hst-gcc1/$@ pkg0/
 	rm -fr tmp/lfs-hst-gcc1
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-gcc1: pkg0/lfs-hst-gcc-$(GCC_VER).pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 5.5. Glibc-2.32 :: "make hst-glibc" (deps : hst-gcc1)
@@ -1040,10 +1044,10 @@ endif
 	rm -fr tmp/lfs-hst-glibc/ins/sbin
 	cd tmp/lfs-hst-glibc/ins && ln -sf usr/bin bin && ln -sf usr/sbin sbin
 	mkdir -p tmp/lfs-hst-glibc/pkg0
-	cd tmp/lfs-hst-glibc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-glibc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-glibc/$@ pkg0/
 	rm -fr tmp/lfs-hst-glibc
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-glibc: pkg0/lfs-hst-glibc-$(GLIBC_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 5.6. Libstdc++ from GCC-10.2.0, Pass 1 :: "make hst-libcpp1" (deps : hst-glibc)
@@ -1075,10 +1079,10 @@ endif
 	mv tmp/lfs-hst-libcpp1/ins/usr/lib64/* tmp/lfs-hst-libcpp1/ins/usr/lib/
 	rm -fr tmp/lfs-hst-libcpp1/ins/usr/lib64
 	mkdir -p tmp/lfs-hst-libcpp1/pkg0
-	cd tmp/lfs-hst-libcpp1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-libcpp1/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-libcpp1/$@ pkg0/
 	rm -fr tmp/lfs-hst-libcpp1
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-libcpp1: pkg0/lfs-hst-libcpp.pass1.cpio.zst
 
 # === LFS-10.0-systemd :: 6.2. M4-1.4.18 :: "make hst-m4" (deps : hst-libcpp1)
@@ -1100,10 +1104,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-m4/ins/usr/bin/m4
 endif
 	mkdir -p tmp/lfs-hst-m4/pkg0
-	cd tmp/lfs-hst-m4/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-m4/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-m4/$@ pkg0/
 	rm -fr tmp/lfs-hst-m4
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-m4: pkg0/lfs-hst-m4-$(M4_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.3. Ncurses-6.2 :: "make hst-ncurses" (deps : hst-m4)
@@ -1138,10 +1142,10 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	echo "INPUT(-lncursesw)" > tmp/lfs-hst-ncurses/ins/usr/lib/libncurses.so
 	mkdir -p tmp/lfs-hst-ncurses/pkg0
-	cd tmp/lfs-hst-ncurses/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-ncurses/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-ncurses/$@ pkg0/
 	rm -fr tmp/lfs-hst-ncurses
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-ncurses: pkg0/lfs-hst-ncurses-$(NCURSES_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.4. Bash-5.0 :: "make hst-bash" (deps : hst-ncurses)
@@ -1162,10 +1166,10 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	cd tmp/lfs-hst-bash/ins/usr/bin && ln -sf bash sh
 	mkdir -p tmp/lfs-hst-bash/pkg0
-	cd tmp/lfs-hst-bash/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-bash/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-bash/$@ pkg0/
 	rm -fr tmp/lfs-hst-bash
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-bash: pkg0/lfs-hst-bash-$(BASH_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.5. Coreutils-8.32 :: "make hst-coreutils" (deps : hst-bash)
@@ -1187,10 +1191,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-coreutils/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-coreutils/pkg0
-	cd tmp/lfs-hst-coreutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-coreutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-coreutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-coreutils
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-coreutils: pkg0/lfs-hst-coreutils-$(CORE_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.6. Diffutils-3.7 :: "make hst-diffutils" (deps : hst-coreutils)
@@ -1209,10 +1213,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-diffutils/ins/usr/bin/*
 endif
 	mkdir -p tmp/lfs-hst-diffutils/pkg0
-	cd tmp/lfs-hst-diffutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-diffutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-diffutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-diffutils
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-diffutils: pkg0/lfs-hst-diffutils-$(DIFF_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.7. File-5.39 :: "make hst-file" (deps : hst-diffutils)
@@ -1232,10 +1236,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-file/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-file/pkg0
-	cd tmp/lfs-hst-file/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-file/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-file/$@ pkg0/
 	rm -fr tmp/lfs-hst-file
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-file: pkg0/lfs-hst-file-$(FILE_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.8. Findutils-4.7.0 :: "make hst-findutils" (deps : hst-file)
@@ -1256,10 +1260,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-findutils/ins/usr/libexec/*
 endif
 	mkdir -p tmp/lfs-hst-findutils/pkg0
-	cd tmp/lfs-hst-findutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-findutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-findutils/$@ pkg0/
 	rm -fr tmp/lfs-hst-findutils
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-findutils: pkg0/lfs-hst-findutils-$(FIND_UTILS_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.9. Gawk-5.1.0 :: "make hst-gawk" (deps : hst-findutils)
@@ -1281,10 +1285,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-gawk/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-gawk/pkg0
-	cd tmp/lfs-hst-gawk/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-gawk/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-gawk/$@ pkg0/
 	rm -fr tmp/lfs-hst-gawk
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-gawk: pkg0/lfs-hst-gawk-$(GAWK_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.10. Grep-3.4 :: "make hst-grep" (deps : hst-gawk)
@@ -1303,10 +1307,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-grep/ins/usr/bin/grep
 endif
 	mkdir -p tmp/lfs-hst-grep/pkg0
-	cd tmp/lfs-hst-grep/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-grep/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-grep/$@ pkg0/
 	rm -fr tmp/lfs-hst-grep
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-grep: pkg0/lfs-hst-grep-$(GREP_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.11. Gzip-1.10 :: "make hst-gzip" (deps : hst-grep)
@@ -1325,10 +1329,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-gzip/ins/usr/bin/* || true
 endif
 	mkdir -p tmp/lfs-hst-gzip/pkg0
-	cd tmp/lfs-hst-gzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-gzip/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-gzip/$@ pkg0/
 	rm -fr tmp/lfs-hst-gzip
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-gzip: pkg0/lfs-hst-gzip-$(GZIP_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.12. Make-4.3 :: "make hst-make" (deps : hst-gzip)
@@ -1348,10 +1352,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-make/ins/usr/bin/make
 endif
 	mkdir -p tmp/lfs-hst-make/pkg0
-	cd tmp/lfs-hst-make/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-make/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-make/$@ pkg0/
 	rm -fr tmp/lfs-hst-make
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-make: pkg0/lfs-hst-make-$(MAKE_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.13. Patch-2.7.6 :: "make hst-patch" (deps : hst-make)
@@ -1370,10 +1374,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-patch/ins/usr/bin/*
 endif
 	mkdir -p tmp/lfs-hst-patch/pkg0
-	cd tmp/lfs-hst-patch/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-patch/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-patch/$@ pkg0/
 	rm -fr tmp/lfs-hst-patch
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-patch: pkg0/lfs-hst-patch-$(PATCH_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.14. Sed-4.8 :: "make hst-sed" (deps : hst-patch)
@@ -1392,10 +1396,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-sed/ins/usr/bin/*
 endif
 	mkdir -p tmp/lfs-hst-sed/pkg0
-	cd tmp/lfs-hst-sed/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-sed/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-sed/$@ pkg0/
 	rm -fr tmp/lfs-hst-sed
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-sed: pkg0/lfs-hst-sed-$(SED_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.15. Tar-1.32 :: "make hst-tar" (deps : hst-sed)
@@ -1415,10 +1419,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-tar/ins/usr/libexec/*
 endif
 	mkdir -p tmp/lfs-hst-tar/pkg0
-	cd tmp/lfs-hst-tar/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-tar/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-tar/$@ pkg0/
 	rm -fr tmp/lfs-hst-tar
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-tar: pkg0/lfs-hst-tar-$(TAR_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.16. Xz-5.2.5 :: "make hst-xz" (deps : hst-tar)
@@ -1440,10 +1444,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-xz/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-xz/pkg0
-	cd tmp/lfs-hst-xz/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-xz/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-xz/$@ pkg0/
 	rm -fr tmp/lfs-hst-xz
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-xz: pkg0/lfs-hst-xz-$(XZ_VER).cpio.zst
 
 # === extra :: zstd :: "make hst-zstd" (deps : hst-xz)
@@ -1465,10 +1469,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-zstd/ins/usr/bin/zstd
 endif
 	mkdir -p tmp/lfs-hst-zstd/pkg0
-	cd tmp/lfs-hst-zstd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-zstd/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-zstd/$@ pkg0/
 	rm -fr tmp/lfs-hst-zstd
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-zstd: pkg0/lfs-hst-zstd-$(ZSTD_VER).cpio.zst
 
 # === extra (BLFS-10) :: cpio :: "make hst-cpio" (deps : hst-zstd)
@@ -1490,10 +1494,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/lfs-hst-cpio/ins/usr/bin/cpio
 endif
 	mkdir -p tmp/lfs-hst-cpio/pkg0
-	cd tmp/lfs-hst-cpio/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-cpio/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-cpio/$@ pkg0/
 	rm -fr tmp/lfs-hst-cpio
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-cpio: pkg0/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 
 # === extra :: pv :: "make hst-pv" (deps: hst-cpio)
@@ -1516,10 +1520,10 @@ hst-cpio: pkg0/lfs-hst-cpio-$(CPIO_VER).cpio.zst
 #	strip --strip-unneeded tmp/lfs-hst-pv/ins/usr/bin/pv
 #endif
 #	mkdir -p tmp/lfs-hst-pv/pkg0
-#	cd tmp/lfs-hst-pv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+#	cd tmp/lfs-hst-pv/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 #	mv -f tmp/lfs-hst-pv/$@ pkg0/
 #	rm -fr tmp/lfs-hst-pv
-#	pv $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+#	pv $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 #hst-pv: pkg0/lfs-hst-pv-$(PV_VER).cpio.zst
 
 # === LFS-10.0-systemd :: 6.17. Binutils-2.35 - Pass 2 :: "make hst-binutils2" (deps : hst-cpio)
@@ -1547,10 +1551,10 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/lfs-hst-binutils2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
 	mkdir -p tmp/lfs-hst-binutils2/pkg0
-	cd tmp/lfs-hst-binutils2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-binutils2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-binutils2/$@ pkg0/
 	rm -fr tmp/lfs-hst-binutils2
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-binutils2: pkg0/lfs-hst-binutils-$(BINUTILS_VER).pass2.cpio.zst
 
 # === LFS-10.0-systemd :: 6.18. GCC-10.2.0 - Pass 2 :: "make hst-gcc2" (deps : hst-binutils2)
@@ -1593,10 +1597,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/lfs-hst-gcc2/ins/usr/lib/gcc/$(LFS_TGT)/$(GCC_VER)/*.a
 endif
 	mkdir -p tmp/lfs-hst-gcc2/pkg0
-	cd tmp/lfs-hst-gcc2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs-hst-gcc2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/lfs-hst-gcc2/$@ pkg0/
 	rm -fr tmp/lfs-hst-gcc2
-	cat $@ | zstd -d | cpio -iduH newc -D lfs-cross/	
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D lfs-cross/	
 hst-gcc2: pkg0/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 
 # === LFS-10.0-systemd :: 7.2. Changing Ownership :: (deps : hst-gcc2)
@@ -1627,7 +1631,7 @@ pkg0/lfs-hst-full.cpio.zst: pkg0/lfs-hst-gcc-$(GCC_VER).pass2.cpio.zst
 	cp -f *.zst tmp/lfs/opt/mysdk/
 	cp -f Makefile tmp/lfs/opt/mysdk
 	mkdir -p tmp/pkg0
-	cd tmp/lfs && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../$@
+	cd tmp/lfs && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../$@
 	mv -f tmp/$@ $@
 	rm -fr tmp/pkg0
 	sudo rm -fr tmp/lfs
@@ -1642,7 +1646,7 @@ lfs-chroot/opt/mysdk/Makefile: pkg0/lfs-hst-full.cpio.zst
 	sudo rm -fr lfs-chroot
 	mkdir -p lfs-chroot/opt/mysdk/tmp
 #	ln -sfv lfs-chroot/opt/mysdk/tmp tmp
-	cat $< | zstd -d | cpio -iduH newc -D lfs-chroot
+	cat $< | zstd -d | cpio -iduH newc --quiet -D lfs-chroot
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
@@ -1775,9 +1779,9 @@ pkg1/lfs-tgt-initial.cpio.zst:
 	echo 'nogroup:x:99:' >> tmp/initial/ins/etc/group
 	echo 'users:x:999:' >> tmp/initial/ins/etc/group
 	mkdir -p pkg1
-	cd tmp/initial/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/initial/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/initial
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	mknod -m 600 /dev/console c 5 1 || true
 	mknod -m 666 /dev/null c 1 3 || true
 	mkdir -p /boot
@@ -1845,6 +1849,8 @@ pkg1/lfs-tgt-libcpp.pass2.cpio.zst: pkg1/lfs-tgt-initial.cpio.zst
 	tar -xJf src/gmp-$(GMP_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
 	tar -xJf src/mpfr-$(MPFR_VER).tar.xz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf src/mpc-$(MPC_VER).tar.gz -C tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/tgt-gcc-libcpp/gcc-$(GCC_VER)/libstdc++-v3/configure
+	sed -i 's|-O1|$(BASE_OPT_VALUE)|' tmp/tgt-gcc-libcpp/gcc-$(GCC_VER)/libstdc++-v3/configure
 	cd tmp/tgt-gcc-libcpp/gcc-$(GCC_VER) && ln -sf gthr-posix.h libgcc/gthr-default.h
 	cd tmp/tgt-gcc-libcpp/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure $(LIBCPP2_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	mv -v tmp/tgt-gcc-libcpp/ins/usr/lib64/* tmp/tgt-gcc-libcpp/ins/usr/lib/
@@ -1854,38 +1860,38 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/tgt-gcc-libcpp/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/tgt-gcc-libcpp/ins/usr/lib/libstdc++.so.6.0.28
 endif
-	cd tmp/tgt-gcc-libcpp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-gcc-libcpp/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-gcc-libcpp
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-libcpp: pkg1/lfs-tgt-libcpp.pass2.cpio.zst
  
 # LFS-10.0-systemd :: CHROOT :: 7.8. Gettext-0.21
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/gettext.html
 # BUILD_TIME :: 6m 30s
-GETTEXT_OPT1+= --prefix=/usr
-GETTEXT_OPT1+= --disable-shared
-GETTEXT_OPT1+= --disable-nls
-GETTEXT_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst: pkg1/lfs-tgt-libcpp.pass2.cpio.zst
-	rm -fr tmp/tgt-gettext
-	mkdir -p tmp/tgt-gettext
-	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/tgt-gettext
-	mkdir -p tmp/tgt-gettext/bld
-	cd tmp/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/tgt-gettext/ins/usr/share/doc
-	rm -fr tmp/tgt-gettext/ins/usr/share/gettext/projects
-	rm -fr tmp/tgt-gettext/ins/usr/share/info
-	rm -fr tmp/tgt-gettext/ins/usr/share/man
-	rm -fr tmp/tgt-gettext/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-debug tmp/tgt-gettext/ins/usr/lib/*.a
-	strip --strip-unneeded tmp/tgt-gettext/ins/usr/bin/* || true
-	strip --strip-unneeded tmp/tgt-gettext/ins/usr/lib/gettext/* || true
-endif
-	cd tmp/tgt-gettext/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	rm -fr tmp/tgt-gettext
-	cat $@ | zstd -d | cpio -iduH newc -D /
-chroot-gettext: pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
+#GETTEXT_OPT1+= --prefix=/usr
+#GETTEXT_OPT1+= --disable-shared
+#GETTEXT_OPT1+= --disable-nls
+#GETTEXT_OPT1+= $(OPT_FLAGS)
+#pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst: pkg1/lfs-tgt-libcpp.pass2.cpio.zst
+#	rm -fr tmp/tgt-gettext
+#	mkdir -p tmp/tgt-gettext
+#	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/tgt-gettext
+#	mkdir -p tmp/tgt-gettext/bld
+#	cd tmp/tgt-gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT1) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/tgt-gettext/ins/usr/share/doc
+#	rm -fr tmp/tgt-gettext/ins/usr/share/gettext/projects
+#	rm -fr tmp/tgt-gettext/ins/usr/share/info
+#	rm -fr tmp/tgt-gettext/ins/usr/share/man
+#	rm -fr tmp/tgt-gettext/ins/usr/lib/*.la
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-debug tmp/tgt-gettext/ins/usr/lib/*.a
+#	strip --strip-unneeded tmp/tgt-gettext/ins/usr/bin/* || true
+#	strip --strip-unneeded tmp/tgt-gettext/ins/usr/lib/gettext/* || true
+#endif
+#	cd tmp/tgt-gettext/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	rm -fr tmp/tgt-gettext
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#chroot-gettext: pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.9. Bison-3.7.1
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter07/bison.html
@@ -1894,7 +1900,8 @@ BISON_OPT1+= --prefix=/usr
 BISON_OPT1+= --docdir=/usr/share/doc/bison-$(BISON_VER)
 BISON_OPT1+= --disable-nls
 BISON_OPT1+= $(OPT_FLAGS)
-pkg1/lfs-tgt-bison-$(BISON_VER).cpio.zst: pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
+#pkg1/lfs-tgt-bison-$(BISON_VER).cpio.zst: pkg1/lfs-tgt-gettext-$(GETTEXT_VER).cpio.zst
+pkg1/lfs-tgt-bison-$(BISON_VER).cpio.zst: pkg1/lfs-tgt-libcpp.pass2.cpio.zst
 	rm -fr tmp/tgt-bison
 	mkdir -p tmp/tgt-bison
 	tar -xJf src/bison-$(BISON_VER).tar.xz -C tmp/tgt-bison
@@ -1908,9 +1915,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/tgt-bison/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/tgt-bison/ins/usr/bin/bison
 endif
-	cd tmp/tgt-bison/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-bison/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-bison
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-bison: pkg1/lfs-tgt-bison-$(BISON_VER).cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.10. Perl-5.32.0 
@@ -1938,9 +1945,9 @@ ifeq ($(BUILD_STRIP),y)
 	cd tmp/tgt-perl/ins/ && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 	strip --strip-debug tmp/tgt-perl/ins/usr/lib/perl5/$(PERL_VER0)/core_perl/CORE/*.a
 endif
-	cd tmp/tgt-perl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-perl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-perl
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-perl: pkg1/lfs-tgt-perl-$(PERL_VER).cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.11. Python-3.8.5 
@@ -1963,9 +1970,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/tgt-python/ins/usr/bin/python3
 	cd  tmp/tgt-python/ins/usr/lib/ && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/tgt-python/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-python/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-python
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-python: pkg1/lfs-tgt-Python-$(PYTHON_VER).cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.12. Texinfo-6.7 
@@ -1987,9 +1994,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/tgt-texinfo/ins/usr/bin/install-info
 	strip --strip-unneeded tmp/tgt-texinfo/ins/usr/lib/texinfo/*.so
 endif
-	cd tmp/tgt-texinfo/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-texinfo/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-texinfo
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-texinfo: pkg1/lfs-tgt-texinfo-$(TEXINFO_VER).cpio.zst
 
 # LFS-10.0-systemd :: CHROOT :: 7.13. Util-linux-2.36
@@ -2014,6 +2021,7 @@ pkg1/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst: pkg1/lfs-tgt-texinfo-$(TEXIN
 	rm -fr tmp/tgt-util-linux
 	mkdir -p tmp/tgt-util-linux
 	tar -xJf src/util-linux-$(UTIL_LINUX_VER).tar.xz -C tmp/tgt-util-linux
+	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/tgt-util-linux/util-linux-$(UTIL_LINUX_VER)/configure
 	mkdir -p tmp/tgt-util-linux/bld
 	cd tmp/tgt-util-linux/bld && ../util-linux-$(UTIL_LINUX_VER)/configure $(UTIL_LINUX_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/tgt-util-linux/ins/usr/share/doc
@@ -2035,9 +2043,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/tgt-util-linux/ins/usr/bin/*
 	strip --strip-unneeded tmp/tgt-util-linux/ins/usr/sbin/*
 endif
-	cd tmp/tgt-util-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tgt-util-linux/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tgt-util-linux
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 chroot-util-linux: pkg1/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 # ===
 # This Initial Chroot-Stage (LFS chapter 7) build time :: about 19 minutes
@@ -2069,6 +2077,22 @@ pkg2/tcl$(TCL_VER).cpio.zst: pkg1/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	mkdir -p tmp/tcl/bld
 	tar -xzf src/tcl$(TCL_VER)-src.tar.gz -C tmp/tcl
 	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/unix/configure
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/unix/configure.in
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/unix/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/thread$(TCL_VER_THREAD_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/thread$(TCL_VER_THREAD_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/itcl$(TCL_VER_ITCL_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/itcl$(TCL_VER_ITCL_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/sqlite$(TCL_VER_SQLITE_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/sqlite$(TCL_VER_SQLITE_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc$(TCL_VER_TDBC_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbc$(TCL_VER_TDBC_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcpostgres$(TCL_VER_TDBC_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcpostgres$(TCL_VER_TDBC_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcodbc$(TCL_VER_TDBC_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcodbc$(TCL_VER_TDBC_VER)/tclconfig/tcl.m4
+	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcmysql$(TCL_VER_TDBC_VER)/configure
+#	sed -i "s/-O2/$(BASE_OPT_VALUE)/" tmp/tcl/tcl$(TCL_VER)/pkgs/tdbcmysql$(TCL_VER_TDBC_VER)/tclconfig/tcl.m4
 	cd tmp/tcl/bld && ../tcl$(TCL_VER)/unix/configure $(TCL_OPT2) && make $(JOBS) V=$(VERB)
 	sed -i "s|`pwd`/tmp/tcl/bld|/usr/lib|" tmp/tcl/bld/tclConfig.sh
 	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)|/usr/include|" tmp/tcl/bld/tclConfig.sh
@@ -2079,10 +2103,10 @@ pkg2/tcl$(TCL_VER).cpio.zst: pkg1/lfs-tgt-util-linux-$(UTIL_LINUX_VER).cpio.zst
 	sed -i "s|`pwd`/tmp/tcl/bld/pkgs/itcl4.2.0|/usr/lib/itcl4.2.0|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
 	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0/generic|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
 	sed -i "s|`pwd`/tmp/tcl/tcl$(TCL_VER)/pkgs/itcl4.2.0|/usr/include|" tmp/tcl/bld/pkgs/itcl4.2.0/itclConfig.sh
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/tcl/bld && make test 2>&1 | tee ../../../tst/tcl-test.log || true
-# TESTS ARE PASSED, except some with clock. See LFS-note in book "In the test results there are several places associated with clock.test that indicate a failure, but the summary at the end indicates no failures. clock.test passes on a complete LFS system.".
-endif
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/tcl/bld && make test 2>&1 | tee ../../../tst/tcl-test.log || true
+## TESTS ARE PASSED, except some with clock. See LFS-note in book "In the test results there are several places associated with clock.test that indicate a failure, but the summary at the end indicates no failures. clock.test passes on a complete LFS system.".
+#endif
 	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install
 	cd tmp/tcl/bld && make DESTDIR=`pwd`/../ins install-private-headers
 	rm -fr tmp/tcl/ins/usr/share/man
@@ -2093,92 +2117,92 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/tcl/ins/usr/bin/tclsh$(TCL_VER_BRIEF)
 	cd tmp/tcl/ins/usr/lib && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/tcl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/tcl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/tcl
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-tcl: pkg2/tcl$(TCL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.5. Expect-5.45.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/expect.html
 # BUILD_TIME :: 20s
 # BUILD_TIME_WITH_TEST :: 36s
-EXPECT_OPT2+= --prefix=/usr
-EXPECT_OPT2+= --with-tcl=/usr/lib
-EXPECT_OPT2+= --enable-shared
-EXPECT_OPT2+= --mandir=/usr/share/man
-EXPECT_OPT2+= --enable-64bit
-EXPECT_OPT2+= --with-tclinclude=/usr/include
-EXPECT_OPT2+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
-pkg2/expect$(EXPECT_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
-	rm -fr tmp/expect
-	mkdir -p tmp/expect/bld
-	tar -xzf src/expect$(EXPECT_VER).tar.gz -C tmp/expect
-# BEGIN: Workaround error with configure guess "unknown host"
-# https://forums.fedoraforum.org/showthread.php?281575-configure-error-cannot-guess-build-type-you-must-specify-one
-# download new "configure.guess" and "configure.sub" from "http://git.savannah.gnu.org/gitweb/?p=config.git&view=view+git+repository"
-# see above our "make pkg" and replace old inside "tclconfig"-dir.
-# NOTE: config.guess return the name of build-host, as is initial system start builds at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
-	cp -far src/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
-	cp -far src/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
-# END: workaround
-	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
-	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
-	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT2) && make $(JOBS) V=$(VERB)
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/expect/bld && make test 2>&1 | tee ../../../tst/expect-test.log || true
-# TESTS ARE PASSED
-endif
-	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/expect/ins/usr/share
-	cd tmp/expect/ins/usr/lib && ln -svf expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so libexpect$(EXPECT_VER).so
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
-	strip --strip-unneeded tmp/expect/ins/usr/bin/expect
-endif
-	cd tmp/expect/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	rm -fr tmp/expect
-	cat $@ | zstd -d | cpio -iduH newc -D /
-tgt-expect: pkg2/expect$(EXPECT_VER).cpio.zst
+#EXPECT_OPT2+= --prefix=/usr
+#EXPECT_OPT2+= --with-tcl=/usr/lib
+#EXPECT_OPT2+= --enable-shared
+#EXPECT_OPT2+= --mandir=/usr/share/man
+#EXPECT_OPT2+= --enable-64bit
+#EXPECT_OPT2+= --with-tclinclude=/usr/include
+#EXPECT_OPT2+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
+#pkg2/expect$(EXPECT_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
+#	rm -fr tmp/expect
+#	mkdir -p tmp/expect/bld
+#	tar -xzf src/expect$(EXPECT_VER).tar.gz -C tmp/expect
+## BEGIN: Workaround error with configure guess "unknown host"
+## https://forums.fedoraforum.org/showthread.php?281575-configure-error-cannot-guess-build-type-you-must-specify-one
+## download new "configure.guess" and "configure.sub" from "http://git.savannah.gnu.org/gitweb/?p=config.git&view=view+git+repository"
+## see above our "make pkg" and replace old inside "tclconfig"-dir.
+## NOTE: config.guess return the name of build-host, as is initial system start builds at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
+#	cp -far src/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
+#	cp -far src/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
+## END: workaround
+#	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
+#	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
+#	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT2) && make $(JOBS) V=$(VERB)
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/expect/bld && make test 2>&1 | tee ../../../tst/expect-test.log || true
+## TESTS ARE PASSED
+#endif
+#	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/expect/ins/usr/share
+#	cd tmp/expect/ins/usr/lib && ln -svf expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so libexpect$(EXPECT_VER).so
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
+#	strip --strip-unneeded tmp/expect/ins/usr/bin/expect
+#endif
+#	cd tmp/expect/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	rm -fr tmp/expect
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#tgt-expect: pkg2/expect$(EXPECT_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.6. DejaGNU-1.6.2 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/dejagnu.html
 # BUILD_TIME :: 6s
 # BUILD_TIME_WITH_TEST :: 10s
-DEJAGNU_OPT2+= --prefix=/usr
-DEJAGNU_OPT2+= $(OPT_FLAGS)
-pkg2/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg2/expect$(EXPECT_VER).cpio.zst
-	rm -fr tmp/dejagnu
-	mkdir -p tmp/dejagnu/bld
-	tar -xzf src/dejagnu-$(DEJAGNU_VER).tar.gz -C tmp/dejagnu
-	cd tmp/dejagnu/bld && ../dejagnu-$(DEJAGNU_VER)/configure $(DEJAGNU_OPT2)
-	cd tmp/dejagnu/bld && makeinfo --html --no-split -o doc/dejagnu.html ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
-	cd tmp/dejagnu/bld && makeinfo --plaintext       -o doc/dejagnu.txt  ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
-	cd tmp/dejagnu/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/dejagnu/bld && make check 2>&1 | tee ../../../tst/dejagnu-check.log || true
-# TESTS ARE PASSED
-endif
-	rm -fr tmp/dejagnu/ins/usr/share/info
-	rm -fr tmp/dejagnu/ins/usr/share/man
-	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/baseboards/README
-	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/config/README
-	cd tmp/dejagnu/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	rm -fr tmp/dejagnu
-	cat $@ | zstd -d | cpio -iduH newc -D /
-tgt-dejagnu: pkg2/dejagnu-$(DEJAGNU_VER).cpio.zst
+#DEJAGNU_OPT2+= --prefix=/usr
+#DEJAGNU_OPT2+= $(OPT_FLAGS)
+#pkg2/dejagnu-$(DEJAGNU_VER).cpio.zst: pkg2/expect$(EXPECT_VER).cpio.zst
+#	rm -fr tmp/dejagnu
+#	mkdir -p tmp/dejagnu/bld
+#	tar -xzf src/dejagnu-$(DEJAGNU_VER).tar.gz -C tmp/dejagnu
+#	cd tmp/dejagnu/bld && ../dejagnu-$(DEJAGNU_VER)/configure $(DEJAGNU_OPT2)
+#	cd tmp/dejagnu/bld && makeinfo --html --no-split -o doc/dejagnu.html ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
+#	cd tmp/dejagnu/bld && makeinfo --plaintext       -o doc/dejagnu.txt  ../dejagnu-$(DEJAGNU_VER)/doc/dejagnu.texi
+#	cd tmp/dejagnu/bld && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/dejagnu/bld && make check 2>&1 | tee ../../../tst/dejagnu-check.log || true
+## TESTS ARE PASSED
+#endif
+#	rm -fr tmp/dejagnu/ins/usr/share/info
+#	rm -fr tmp/dejagnu/ins/usr/share/man
+#	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/baseboards/README
+#	rm -fr tmp/dejagnu/ins/usr/share/dejagnu/config/README
+#	cd tmp/dejagnu/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	rm -fr tmp/dejagnu
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#tgt-dejagnu: pkg2/dejagnu-$(DEJAGNU_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.7. Iana-Etc-20200821
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/iana-etc.html
 # BUILD_TIME :: 1s
-pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg2/dejagnu-$(DEJAGNU_VER).cpio.zst
+pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
 	rm -fr tmp/iana-etc
 	mkdir -p tmp/iana-etc/ins/etc
 	tar -xzf src/iana-etc-$(IANA_ETC_VER).tar.gz -C tmp/iana-etc
 	cp -far tmp/iana-etc/iana-etc-$(IANA_ETC_VER)/protocols tmp/iana-etc/ins/etc/
 	cp -far tmp/iana-etc/iana-etc-$(IANA_ETC_VER)/services tmp/iana-etc/ins/etc/
-	cd tmp/iana-etc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/iana-etc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/iana-etc
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-iana-etc: pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.8. Glibc-2.32
@@ -2200,7 +2224,9 @@ pkg2/glibc-$(GLIBC_VER).cpio.zst: pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst
 	tar -xJf src/glibc-$(GLIBC_VER).tar.xz -C tmp/glibc
 	cp -far src/glibc-$(GLIBC_VER)-fhs-1.patch tmp/glibc
 	cd tmp/glibc/glibc-$(GLIBC_VER) && patch -Np1 -i ../glibc-$(GLIBC_VER)-fhs-1.patch
-	sed '/test-installation/s@$$(PERL)@echo not running@' -i tmp/glibc/glibc-$(GLIBC_VER)/Makefile	
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/glibc/glibc-$(GLIBC_VER)/Makerules
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/glibc/glibc-$(GLIBC_VER)/Makeconfig
+	sed -i '/test-installation/s@$$(PERL)@echo not running@' tmp/glibc/glibc-$(GLIBC_VER)/Makefile	
 	cd tmp/glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/glibc/ins/usr/share/info
 	cp -far tmp/glibc/ins/sbin/* tmp/glibc/ins/usr/sbin/
@@ -2254,21 +2280,21 @@ endif
 	echo "/opt/lib" >> tmp/glibc/ins/etc/ld.so.conf
 	echo "# Add an include directory" >> tmp/glibc/ins/etc/ld.so.conf
 	echo "include /etc/ld.so.conf.d/*.conf" >> tmp/glibc/ins/etc/ld.so.conf
-	cd tmp/glibc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/glibc/bld && make check 2>&1 | tee ../../../tst/glibc-check.log || true
-#Summary of test results:
-#      1 FAIL
-#   4141 PASS
-#     30 UNSUPPORTED
-#     17 XFAIL
-#      2 XPASS
-# FAIL: io/tst-lchmod
-# https://www.linuxfromscratch.org/~thomas/multilib/chapter08/glibc.html
-# io/tst-lchmod is known to fail in the LFS chroot environment.
-endif
+	cd tmp/glibc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/glibc
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/glibc/bld && make check 2>&1 | tee ../../../tst/glibc-check.log || true
+##Summary of test results:
+##      1 FAIL
+##   4141 PASS
+###     30 UNSUPPORTED
+##     17 XFAIL
+##      2 XPASS
+## FAIL: io/tst-lchmod
+## https://www.linuxfromscratch.org/~thomas/multilib/chapter08/glibc.html
+## io/tst-lchmod is known to fail in the LFS chroot environment.
+#endif
 tgt-glibc: pkg2/glibc-$(GLIBC_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.8.2.2. Adding time zone data 
@@ -2339,12 +2365,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/zlib/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/zlib/ins/usr/lib/*.so
 endif
-	cd tmp/zlib/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/zlib/bld && make check 2>&1 | tee ../../../tst/zlib-check.log || true
-# TEST PASSED!
-endif
+	cd tmp/zlib/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/zlib/bld && make check 2>&1 | tee ../../../tst/zlib-check.log || true
+## TEST PASSED!
+#endif
 	rm -fr tmp/zlib
 tgt-zlib: pkg2/zlib-$(ZLIB_VER).cpio.zst
 
@@ -2377,8 +2403,8 @@ ifeq ($(BUILD_STRIP),y)
 endif
 	rm -f tmp/bzip2/ins/usr/lib/*.a
 # Disable static)))
-	cd tmp/bzip2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/bzip2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/bzip2
 tgt-bzip2: pkg2/bzip2-$(BZIP2_VER).cpio.zst
 
@@ -2406,12 +2432,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/xz/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/xz/ins/usr/bin/* || true
 endif
-	cd tmp/xz/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/xz/bld && make check 2>&1 | tee ../../../tst/xz-check.log || true
-# TEST OK
-endif
+	cd tmp/xz/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/xz/bld && make check 2>&1 | tee ../../../tst/xz-check.log || true
+## TEST OK
+#endif
 	rm -fr tmp/xz
 tgt-xz: pkg2/xz-$(XZ_VER).cpio.zst
 
@@ -2438,12 +2464,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/zstd/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/zstd/ins/usr/lib/*.so*
 endif
-	cd tmp/zstd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/zstd/zstd-$(ZSTD_VER) && make CC=gcc MOREFLAGS=$(RK3588_FLAGS) test 2>&1 | tee ../../../tst/zstd-test.log || true
-# TEST OK
-endif
+	cd tmp/zstd/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/zstd/zstd-$(ZSTD_VER) && make CC=gcc MOREFLAGS=$(RK3588_FLAGS) test 2>&1 | tee ../../../tst/zstd-test.log || true
+## TEST OK
+#endif
 	rm -fr tmp/zstd
 tgt-zstd: pkg2/zstd-$(ZSTD_VER).cpio.zst
 
@@ -2467,13 +2493,13 @@ pkg2/cpio-$(CPIO_VER).cpio.zst: pkg2/zstd-$(ZSTD_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/cpio/ins/usr/bin/*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/cpio/bld && make check 2>&1 | tee ../../../tst/cpio-check.log || true
-# TEST OK
-endif
-	cd tmp/cpio/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/cpio/bld && make check 2>&1 | tee ../../../tst/cpio-check.log || true
+## TEST OK
+#endif
+	cd tmp/cpio/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/cpio
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-cpio: pkg2/cpio-$(CPIO_VER).cpio.zst
 
 # === extra :: pv
@@ -2497,9 +2523,9 @@ tgt-cpio: pkg2/cpio-$(CPIO_VER).cpio.zst
 #	mkdir -p tst && cd tmp/pv/bld && make check 2>&1 | tee ../../../tst/pv-check.log || true
 ## TEST OK
 #endif
-#	cd tmp/pv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	cd tmp/pv/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 #	rm -fr tmp/pv
-#	pv $@ | zstd -d | cpio -iduH newc -D /
+#	pv $@ | zstd -d | cpio -iduH newc --quiet -D /
 #tgt-pv: pkg2/pv-$(PV_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.13. File-5.39 
@@ -2519,13 +2545,13 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/file/ins/usr/bin/file
 	strip --strip-unneeded tmp/file/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/file/bld && make check 2>&1 | tee ../../../tst/file-check.log || true
-# TEST OK
-endif
-	cd tmp/file/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/file/bld && make check 2>&1 | tee ../../../tst/file-check.log || true
+## TEST OK
+#endif
+	cd tmp/file/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/file
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-file: pkg2/file-$(FILE_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.14. Readline-8.0 
@@ -2547,9 +2573,9 @@ pkg2/readline-$(READLINE_VER).cpio.zst: pkg2/file-$(FILE_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/readline/ins/usr/lib/*.so*
 endif
-	cd tmp/readline/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/readline/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/readline
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-readline: pkg2/readline-$(READLINE_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.15. M4-1.4.18 
@@ -2569,13 +2595,13 @@ pkg2/m4-$(M4_VER).cpio.zst: pkg2/readline-$(READLINE_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/m4/ins/usr/bin/m4
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/m4/bld && make check 2>&1 | tee ../../../tst/m4-check.log || true
-# TEST OK
-endif
-	cd tmp/m4/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/m4/bld && make check 2>&1 | tee ../../../tst/m4-check.log || true
+## TEST OK
+#endif
+	cd tmp/m4/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/m4
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-m4: pkg2/m4-$(M4_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.16. Bc-3.1.5 
@@ -2592,13 +2618,13 @@ pkg2/bc-$(BC_VER).cpio.zst: pkg2/m4-$(M4_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/bc/ins/usr/bin/bc
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/bc/bc-$(BC_VER) && make test 2>&1 | tee ../../../tst/bc-test.log || true
-# TEST OK
-endif
-	cd tmp/bc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/bc/bc-$(BC_VER) && make test 2>&1 | tee ../../../tst/bc-test.log || true
+## TEST OK
+#endif
+	cd tmp/bc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/bc
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-bc: pkg2/bc-$(BC_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.17. Flex-2.6.4
@@ -2621,13 +2647,13 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/flex/ins/usr/lib/*.so*
 endif
 	cd tmp/flex/ins/usr/bin && ln -sf flex lex
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/flex/bld && make check 2>&1 | tee ../../../tst/flex-check.log || true
-# TEST OK
-endif
-	cd tmp/flex/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/flex/bld && make check 2>&1 | tee ../../../tst/flex-check.log || true
+## TEST OK
+#endif
+	cd tmp/flex/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/flex
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-flex: pkg2/flex-$(FLEX_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.19. GMP-6.2.0
@@ -2649,15 +2675,15 @@ pkg2/gmp-$(GMP_VER).cpio.zst: pkg2/flex-$(FLEX_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/gmp/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gmp/bld && make check 2>&1 | tee ../../../tst/gmp-check.log || true
-	echo "Must be 197 successul tests. Here is:"
-	awk '/# PASS:/{total+=$$3} ; END{print total}' tst/gmp-check.log
-# TEST OK
-endif
-	cd tmp/gmp/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gmp/bld && make check 2>&1 | tee ../../../tst/gmp-check.log || true
+#	echo "Must be 197 successul tests. Here is:"
+#	awk '/# PASS:/{total+=$$3} ; END{print total}' tst/gmp-check.log
+## TEST OK
+#endif
+	cd tmp/gmp/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/gmp
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-gmp: pkg2/gmp-$(GMP_VER).cpio.zst
 
 # === extra :: ISL build support
@@ -2677,13 +2703,13 @@ pkg2/isl-$(ISL_VER).cpio.zst: pkg2/gmp-$(GMP_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/isl/ins/usr/lib/*.so* || true
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/isl/bld && make check 2>&1 | tee ../../../tst/isl-check.log || true
-# TEST OK
-endif
-	cd tmp/isl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/isl/bld && make check 2>&1 | tee ../../../tst/isl-check.log || true
+## TEST OK
+#endif
+	cd tmp/isl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/isl
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-isl: pkg2/isl-$(ISL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.20. MPFR-4.1.0
@@ -2705,13 +2731,13 @@ pkg2/mpfr-$(MPFR_VER).cpio.zst: pkg2/isl-$(ISL_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/mpfr/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/mpfr/bld && make check 2>&1 | tee ../../../tst/mpfr-check.log || true
-# TEST OK
-endif
-	cd tmp/mpfr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/mpfr/bld && make check 2>&1 | tee ../../../tst/mpfr-check.log || true
+## TEST OK
+#endif
+	cd tmp/mpfr/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/mpfr
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-mpfr: pkg2/mpfr-$(MPFR_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.21. MPC-1.1.0
@@ -2732,13 +2758,13 @@ pkg2/mpc-$(MPC_VER).cpio.zst: pkg2/mpfr-$(MPFR_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/mpc/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/mpc/bld && make check 2>&1 | tee ../../../tst/mpc-check.log || true
-# TEST OK
-endif
-	cd tmp/mpc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/mpc/bld && make check 2>&1 | tee ../../../tst/mpc-check.log || true
+## TEST OK
+#endif
+	cd tmp/mpc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/mpc
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-mpc: pkg2/mpc-$(MPC_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.18. Binutils-2.35 
@@ -2759,6 +2785,7 @@ pkg2/binutils-$(BINUTILS_VER).cpio.zst: pkg2/mpc-$(MPC_VER).cpio.zst
 	rm -fr tmp/binutils
 	mkdir -p tmp/binutils/bld
 	tar -xJf src/binutils-$(BINUTILS_VER).tar.xz -C tmp/binutils
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/binutils/binutils-$(BINUTILS_VER)/ld/Makefile.in
 	expect -c "spawn ls"
 #OK	
 	sed -i '/@\tincremental_copy/d' tmp/binutils/binutils-$(BINUTILS_VER)/gold/testsuite/Makefile.in
@@ -2770,10 +2797,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/binutils/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/binutils/ins/usr/lib/*.so*
 endif
-	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
+	cd tmp/binutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/binutils/bld && make -k check 2>&1 | tee ../../../tst/binutils-check.log || true
 # TEST not passed !
 # FAILS - (A) "--enable-gold".
 # gcctestdir/collect-ld: error: tls_test.o: unsupported TLSLE reloc 549 in shared code
@@ -2791,7 +2818,7 @@ ifeq ($(RUN_TESTS),y)
 # FAIL: Build warn libbar.so
 # FAIL: Run warn with versioned libfoo.so
 # What's the your opinion? Lets go to front and run future, with ignore theese fails? Possibly we can see any problems in a future?
-endif
+#endif
 	rm -fr tmp/binutils
 tgt-binutils: pkg2/binutils-$(BINUTILS_VER).cpio.zst
 
@@ -2815,13 +2842,13 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/attr/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/attr/ins/usr/bin/* || true
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/attr/bld && make check 2>&1 | tee ../../../tst/attr-check.log || true
-# TEST OK
-endif
-	cd tmp/attr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/attr/bld && make check 2>&1 | tee ../../../tst/attr-check.log || true
+## TEST OK
+#endif
+	cd tmp/attr/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/attr
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-attr: pkg2/attr-$(ATTR_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.23. Acl-2.2.53
@@ -2848,9 +2875,9 @@ endif
 #	mkdir -p tst && cd tmp/acl/bld && make check 2>&1 | tee ../../../tst/acl-check.log || true
 # ACL can be tested only with coreutils built with acl support
 #endif
-	cd tmp/acl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/acl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/acl
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-acl: pkg2/acl-$(ACL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.24. Libcap-2.42
@@ -2874,13 +2901,13 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libcap/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/libcap/ins/usr/sbin/*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/libcap/libcap-$(LIBCAP_VER) && make CC=gcc test 2>&1 | tee ../../../tst/libcap-test.log || true
-# TEST OK
-endif
-	cd tmp/libcap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/libcap/libcap-$(LIBCAP_VER) && make CC=gcc test 2>&1 | tee ../../../tst/libcap-test.log || true
+## TEST OK
+#endif
+	cd tmp/libcap/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/libcap
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 tgt-libcap: pkg2/libcap-$(LIBCAP_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.25. Shadow-4.8.1
@@ -2913,8 +2940,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/shadow/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/shadow/ins/usr/sbin/* || true
 endif
-	cd tmp/shadow/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/shadow/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/shadow
 	pwconv
 	grpconv
@@ -2940,6 +2967,15 @@ pkg2/gcc-$(GCC_VER).cpio.zst: pkg2/shadow-$(SHADOW_VER).cpio.zst
 	rm -fr tmp/gcc
 	mkdir -p tmp/gcc/bld
 	tar -xJf src/gcc-$(GCC_VER).tar.xz -C tmp/gcc
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libgcc/Makefile.in
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libstdc++-v3/configure
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libstdc++-v3/configure
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libstdc++-v3/Makefile.in
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libgomp/configure
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libitm/configure
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libatomic/configure
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libstdc++-v3/include/Makefile.in
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/gcc/gcc-$(GCC_VER)/libstdc++-v3/include/Makefile.am
 # https://mysqlonarm.github.io/ARM-LSE-and-MySQL/
 # Resolve '-march=armv8-a+lse' build error:
 # tmp/gcc/gcc-$(GCC_VER)/libatomic/Changelog
@@ -2978,16 +3014,16 @@ endif
 	rm -f tmp/config.guess
 	mkdir -p tmp/gcc/ins/usr/share/gdb/auto-load/usr/lib
 	mv -f tmp/gcc/ins/usr/lib/*gdb.py tmp/gcc/ins/usr/share/gdb/auto-load/usr/lib/
-	cd tmp/gcc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/gcc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 # !!! 'gcc -dumpmachine' at this return return 'aarch64-unknown-linux-gnu'.
 #	rm -fr tmp/gcc/ins/usr/lib/gcc/$$(gcc -dumpmachine)/10.2.0/include-fixed/bits
 #	rm -f tmp/gcc/ins/usr/lib/gcc/$$(gcc -dumpmachine)/10.2.0/include-fixed/README
 #	rm -f tmp/gcc/ins/usr/lib/gcc/$$(gcc -dumpmachine)/10.2.0/install-tools/include/README
-#	cd tmp/gcc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gcc/bld && ulimit -s 32768 && make -k check 2>&1 | tee ../../../tst/gcc-check.log || true
-endif
+#	cd tmp/gcc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gcc/bld && ulimit -s 32768 && make -k check 2>&1 | tee ../../../tst/gcc-check.log || true
+#endif
 	rm -fr tmp/gcc
 #Running /opt/mysdk/tmp/gcc/gcc-10.2.0/gcc/testsuite/gcc.c-torture/execute/execute.exp ...
 #FAIL: gcc.c-torture/execute/alias-2.c   -O1  execution test
@@ -3181,12 +3217,12 @@ pkg2/pkg-config-$(PKG_CONFIG_VER).cpio.zst: pkg2/gcc-$(GCC_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/pkg-config/ins/usr/bin/pkg-config
 endif
-	cd tmp/pkg-config/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/pkg-config/bld && make check 2>&1 | tee ../../../tst/pkg-config-check.log || true
-#All 30 tests passed
-endif
+	cd tmp/pkg-config/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/pkg-config/bld && make check 2>&1 | tee ../../../tst/pkg-config-check.log || true
+##All 30 tests passed
+#endif
 	rm -fr tmp/pkg-config
 tgt-pkg-config: pkg2/pkg-config-$(PKG_CONFIG_VER).cpio.zst
 
@@ -3232,8 +3268,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/ncurses/ins/usr/lib/*.so* || true
 	strip --strip-debug tmp/ncurses/ins/usr/lib/*.a
 endif
-	cd tmp/ncurses/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/ncurses/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/ncurses
 tgt-ncurses: pkg2/ncurses-$(NCURSES_VER).cpio.zst
 
@@ -3254,8 +3290,8 @@ pkg2/sed-$(SED_VER).cpio.zst: pkg2/ncurses-$(NCURSES_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/sed/ins/usr/bin/sed
 endif	
-	cd tmp/sed/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/sed/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	chown -Rv tester tmp/sed/bld
 #	mkdir -p tst && cd tmp/sed/bld && su tester -c "PATH=$$PATH make check"
@@ -3284,13 +3320,14 @@ pkg2/psmisc-$(PSMISC_VER).cpio.zst: pkg2/sed-$(SED_VER).cpio.zst
 	rm -fr tmp/psmisc
 	mkdir -p tmp/psmisc/bld
 	tar -xJf src/psmisc-$(PSMISC_VER).tar.xz -C tmp/psmisc
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/psmisc/psmisc-$(PSMISC_VER)/configure
 	cd tmp/psmisc/bld && ../psmisc-$(PSMISC_VER)/configure $(PSMISC_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/psmisc/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/psmisc/ins/usr/bin/* || true
 endif
-	cd tmp/psmisc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/psmisc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/psmisc
 tgt-psmisc: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 
@@ -3298,32 +3335,32 @@ tgt-psmisc: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gettext.html
 # BUILD_TIME :: 7m 15s
 # BUILD_TIME_WITH_TEST :: 13m 30s
-GETTEXT_OPT2+= --prefix=/usr
-GETTEXT_OPT2+= --disable-static
-GETTEXT_OPT2+= --docdir=/usr/share/doc/gettext-$(GETTEXT_VER)
-GETTEXT_OPT2+= --disable-nls
-GETTEXT_OPT2+= $(OPT_FLAGS)
-pkg2/gettext-$(GETTEXT_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
-	rm -fr tmp/gettext
-	mkdir -p tmp/gettext/bld
-	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/gettext
-	cd tmp/gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/gettext/ins/usr/share/doc
-	rm -fr tmp/gettext/ins/usr/share/info
-	rm -fr tmp/gettext/ins/usr/share/man
-	rm -fr tmp/gettext/ins/usr/share/gettext/projects
-	rm -f  tmp/gettext/ins/usr/share/gettext/ABOUT-NLS
-	rm -fr tmp/gettext/ins/usr/lib/*.la
-	chmod -v 0755 tmp/gettext/ins/usr/lib/preloadable_libintl.so
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/gettext/ins/usr/bin/* || true
-	strip --strip-unneeded tmp/gettext/ins/usr/lib/gettext/* || true
-	strip --strip-unneeded tmp/gettext/ins/usr/lib/*.so*
-endif
-	cd tmp/gettext/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gettext/bld && make check 2>&1 | tee ../../../tst/gettext-check.log || true
+#GETTEXT_OPT2+= --prefix=/usr
+#GETTEXT_OPT2+= --disable-static
+#GETTEXT_OPT2+= --docdir=/usr/share/doc/gettext-$(GETTEXT_VER)
+#GETTEXT_OPT2+= --disable-nls
+#GETTEXT_OPT2+= $(OPT_FLAGS)
+#pkg2/gettext-$(GETTEXT_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
+#	rm -fr tmp/gettext
+#	mkdir -p tmp/gettext/bld
+#	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/gettext
+#	cd tmp/gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/gettext/ins/usr/share/doc
+#	rm -fr tmp/gettext/ins/usr/share/info
+#	rm -fr tmp/gettext/ins/usr/share/man
+#	rm -fr tmp/gettext/ins/usr/share/gettext/projects
+#	rm -f  tmp/gettext/ins/usr/share/gettext/ABOUT-NLS
+#	rm -fr tmp/gettext/ins/usr/lib/*.la
+#	chmod -v 0755 tmp/gettext/ins/usr/lib/preloadable_libintl.so
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/gettext/ins/usr/bin/* || true
+#	strip --strip-unneeded tmp/gettext/ins/usr/lib/gettext/* || true
+#	strip --strip-unneeded tmp/gettext/ins/usr/lib/*.so*
+#endif
+#	cd tmp/gettext/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gettext/bld && make check 2>&1 | tee ../../../tst/gettext-check.log || true
 #============================================================================
 #Testsuite summary for gettext-tools 0.21
 #============================================================================
@@ -3335,9 +3372,9 @@ ifeq ($(RUN_TESTS),y)
 ## XPASS: 0
 ## ERROR: 0
 #============================================================================
-endif
-	rm -fr tmp/gettext
-tgt-gettext: pkg2/gettext-$(GETTEXT_VER).cpio.zst
+#endif
+#	rm -fr tmp/gettext
+#tgt-gettext: pkg2/gettext-$(GETTEXT_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.32. Bison-3.7.1
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bison.html
@@ -3346,7 +3383,7 @@ tgt-gettext: pkg2/gettext-$(GETTEXT_VER).cpio.zst
 BISON_OPT2+= --prefix=/usr
 BISON_OPT2+= --disable-nls
 BISON_OPT2+= $(OPT_FLAGS)
-pkg2/bison-$(BISON_VER).cpio.zst: pkg2/gettext-$(GETTEXT_VER).cpio.zst
+pkg2/bison-$(BISON_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 	rm -fr tmp/bison
 	mkdir -p tmp/bison/bld
 	tar -xJf src/bison-$(BISON_VER).tar.xz -C tmp/bison
@@ -3360,13 +3397,13 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/bison/ins/usr/lib/liby.a
 	strip --strip-unneeded tmp/bison/ins/usr/bin/* || true
 endif
-	cd tmp/bison/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/bison/bld && make check 2>&1 | tee ../../../tst/bison-check.log || true
-# 617 tests were successful.
-# 43 tests were skipped.
-endif
+	cd tmp/bison/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/bison/bld && make check 2>&1 | tee ../../../tst/bison-check.log || true
+## 617 tests were successful.
+## 43 tests were skipped.
+#endif
 	rm -fr tmp/bison
 tgt-bison: pkg2/bison-$(BISON_VER).cpio.zst
 
@@ -3386,10 +3423,10 @@ pkg2/grep-$(GREP_VER).cpio.zst: pkg2/bison-$(BISON_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/grep/ins/usr/bin/grep
 endif
-	cd tmp/grep/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/grep/bld && make check 2>&1 | tee ../../../tst/grep-check.log || true
+	cd tmp/grep/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/grep/bld && make check 2>&1 | tee ../../../tst/grep-check.log || true
 #============================================================================
 ## TOTAL: 185
 ## PASS:  163
@@ -3399,7 +3436,7 @@ ifeq ($(RUN_TESTS),y)
 ## XPASS: 0
 ## ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/grep
 tgt-grep: pkg2/grep-$(GREP_VER).cpio.zst
 
@@ -3424,8 +3461,8 @@ pkg2/bash-$(BASH_VER).cpio.zst: pkg2/grep-$(GREP_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/bash/ins/usr && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/bash/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/bash/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	chown -Rv tester tmp/bash/bld
 #	mkdir -p tst && cd tmp/bash/bld && su tester -c "PATH=$$PATH make tests < $$(tty)"
@@ -3459,10 +3496,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/libtool/ins/usr/lib/*.a
 	strip --strip-unneeded tmp/libtool/ins/usr/lib/*.so*
 endif
-	cd tmp/libtool/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/libtool/bld && make TESTSUITEFLAGS=$(JOBS) check 2>&1 | tee ../../../tst/libtool-check.log || true
+	cd tmp/libtool/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/libtool/bld && make TESTSUITEFLAGS=$(JOBS) check 2>&1 | tee ../../../tst/libtool-check.log || true
 #126: linking libltdl without autotools               FAILED (standalone.at:85)
 #125: installable libltdl                             FAILED (standalone.at:67)
 #124: compiling copied libltdl                        FAILED (standalone.at:50)
@@ -3472,7 +3509,7 @@ ifeq ($(RUN_TESTS),y)
 #65 failed (60 expected failures).
 #31 tests were skipped.
 # LFS-Note: "Five tests are known to fail in the LFS build environment due to a circular dependency, but all tests pass if rechecked after automake is installed."
-endif
+#endif
 	rm -fr tmp/libtool
 tgt-libtool: pkg2/libtool-$(LIBTOOL_VER).cpio.zst
 
@@ -3497,12 +3534,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/gdbm/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/gdbm/ins/usr/bin/*
 endif
-	cd tmp/gdbm/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gdbm/bld && make check 2>&1 | tee ../../../tst/gdbm-check.log || true
+	cd tmp/gdbm/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gdbm/bld && make check 2>&1 | tee ../../../tst/gdbm-check.log || true
 # All 30 tests were successful.
-endif
+#endif
 	rm -fr tmp/gdbm
 tgt-gdbm: pkg2/gdbm-$(GDBM_VER).cpio.zst
 
@@ -3522,12 +3559,12 @@ pkg2/gperf-$(GPERF_VER).cpio.zst: pkg2/gdbm-$(GDBM_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/gperf/ins/usr/bin/gperf
 endif
-	cd tmp/gperf/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gperf/bld && make -j1 check 2>&1 | tee ../../../tst/gperf-check.log || true
-# TEST OK
-endif
+	cd tmp/gperf/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gperf/bld && make -j1 check 2>&1 | tee ../../../tst/gperf-check.log || true
+## TEST OK
+#endif
 	rm -fr tmp/gperf
 tgt-gperf: pkg2/gperf-$(GPERF_VER).cpio.zst
 
@@ -3550,10 +3587,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/expat/ins/usr/bin/xmlwf
 	strip --strip-unneeded tmp/expat/ins/usr/lib/*.so*
 endif
-	cd tmp/expat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/expat/bld && make check 2>&1 | tee ../../../tst/expat-check.log || true
+	cd tmp/expat/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/expat/bld && make check 2>&1 | tee ../../../tst/expat-check.log || true
 # ============================================================================
 # Testsuite summary for expat 2.5.0
 # ============================================================================
@@ -3565,7 +3602,7 @@ ifeq ($(RUN_TESTS),y)
 # # XPASS: 0
 # # ERROR: 0
 # ============================================================================
-endif
+#endif
 	rm -fr tmp/expat
 tgt-expat: pkg2/expat-$(EXPAT_VER).cpio.zst
 
@@ -3594,10 +3631,10 @@ pkg2/inetutils-$(INET_UTILS_VER).cpio.zst: pkg2/expat-$(EXPAT_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/inetutils/ins/usr/bin/* || true
 endif
-	cd tmp/inetutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/inetutils/bld && make check 2>&1 | tee ../../../tst/inetutils-check.log || true
+	cd tmp/inetutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/inetutils/bld && make check 2>&1 | tee ../../../tst/inetutils-check.log || true
 # ============================================================================
 # Testsuite summary for GNU inetutils 1.9.4
 # ============================================================================
@@ -3609,7 +3646,7 @@ ifeq ($(RUN_TESTS),y)
 # # XPASS: 0
 # # ERROR: 0
 # ============================================================================
-endif
+#endif
 	rm -fr tmp/inetutils
 tgt-inetutils: pkg2/inetutils-$(INET_UTILS_VER).cpio.zst
 
@@ -3641,10 +3678,10 @@ pkg2/perl-$(PERL_VER).cpio.zst: pkg2/inetutils-$(INET_UTILS_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/perl/ins/usr && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/perl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	export BUILD_ZLIB=False && export BUILD_BZIP2=0 && cd tmp/perl/perl-$(PERL_VER) && make test -j1
+	cd tmp/perl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	export BUILD_ZLIB=False && export BUILD_BZIP2=0 && cd tmp/perl/perl-$(PERL_VER) && make test -j1
 # ^^^ It cant runs under make invocation(( I has't any ideas about it. Both types of invocation from make-file via sh -c 'make test' or directly "make test" both are not working.
 # PERL TEST, NOW, WAS INVOKED FROM COMMAND LINE DIRECTLY FROM CHROOT!!!
 # bash # cd /opt/mysdk
@@ -3676,7 +3713,7 @@ ifeq ($(RUN_TESTS),y)
 #Elapsed: 1452 sec
 #u=17.85  s=9.40  cu=948.21  cs=169.97  scripts=2554  tests=1220476
 #make: *** [makefile:799: test] Error 1
-endif
+#endif
 	rm -fr tmp/perl
 tgt-perl: pkg2/perl-$(PERL_VER).cpio.zst
 
@@ -3693,14 +3730,14 @@ pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst: pkg2/perl-$(PERL_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/XML-Parser/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif	
-	cd tmp/XML-Parser/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/XML-Parser/XML-Parser-$(XML_PARSER_VER) && make test 2>&1 | tee ../../../tst/XML-Parser-test.log || true
+	cd tmp/XML-Parser/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/XML-Parser/XML-Parser-$(XML_PARSER_VER) && make test 2>&1 | tee ../../../tst/XML-Parser-test.log || true
 #All tests successful.
 #Files=15, Tests=140,  1 wallclock secs ( 0.11 usr  0.05 sys +  1.08 cusr  0.23 csys =  1.47 CPU)
 #Result: PASS
-endif
+#endif
 	rm -fr tmp/XML-Parser
 tgt-xml-parser: pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst
 
@@ -3708,19 +3745,18 @@ tgt-xml-parser: pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/intltool.html
 # BUILD_TIME :: 3s
 # BUILD_TIME_WITH_TEST :: 7s
-INTLTOOL_OPT2+= --prefix=/usr
-#INTLTOOL_OPT2+= $(OPT_FLAGS)
-pkg2/intltool-$(INTL_TOOL_VER).cpio.zst: pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst
-	rm -fr tmp/intltool
-	mkdir -p tmp/intltool/bld
-	tar -xzf src/intltool-$(INTL_TOOL_VER).tar.gz -C tmp/intltool
-	sed -i 's:\\\$${:\\\$$\\{:' tmp/intltool/intltool-$(INTL_TOOL_VER)/intltool-update.in
-	cd tmp/intltool/bld && ../intltool-$(INTL_TOOL_VER)/configure $(INTLTOOL_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/intltool/ins/usr/share/man
-	cd tmp/intltool/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/intltool/bld && make check 2>&1 | tee ../../../tst/intltool-check.log || true
+#INTLTOOL_OPT2+= --prefix=/usr
+#pkg2/intltool-$(INTL_TOOL_VER).cpio.zst: pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst
+#	rm -fr tmp/intltool
+#	mkdir -p tmp/intltool/bld
+#	tar -xzf src/intltool-$(INTL_TOOL_VER).tar.gz -C tmp/intltool
+#	sed -i 's:\\\$${:\\\$$\\{:' tmp/intltool/intltool-$(INTL_TOOL_VER)/intltool-update.in
+#	cd tmp/intltool/bld && ../intltool-$(INTL_TOOL_VER)/configure $(INTLTOOL_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/intltool/ins/usr/share/man
+#	cd tmp/intltool/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/intltool/bld && make check 2>&1 | tee ../../../tst/intltool-check.log || true
 #============================================================================
 #Testsuite summary for intltool 0.51.0
 #============================================================================
@@ -3732,9 +3768,9 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
-	rm -fr tmp/intltool
-tgt-intltool: pkg2/intltool-$(INTL_TOOL_VER).cpio.zst
+#endif
+#	rm -fr tmp/intltool
+#tgt-intltool: pkg2/intltool-$(INTL_TOOL_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.43. Autoconf-2.69
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/autoconf.html
@@ -3742,7 +3778,7 @@ tgt-intltool: pkg2/intltool-$(INTL_TOOL_VER).cpio.zst
 # BUILD_TIME_WITH_TEST :: 22m 51s
 AUTOCONF_OPT2+= --prefix=/usr
 #AUTOCONF_OPT2+= $(OPT_FLAGS)
-pkg2/autoconf-$(AUTOCONF_VER).cpio.zst: pkg2/intltool-$(INTL_TOOL_VER).cpio.zst
+pkg2/autoconf-$(AUTOCONF_VER).cpio.zst: pkg2/XML-Parser-$(XML_PARSER_VER).cpio.zst
 	rm -fr tmp/autoconf
 	mkdir -p tmp/autoconf/bld
 	tar -xJf src/autoconf-$(AUTOCONF_VER).tar.xz -C tmp/autoconf
@@ -3751,15 +3787,15 @@ pkg2/autoconf-$(AUTOCONF_VER).cpio.zst: pkg2/intltool-$(INTL_TOOL_VER).cpio.zst
 	rm -fr tmp/autoconf/ins/usr/share/info
 	rm -fr tmp/autoconf/ins/usr/share/man
 	rm -f  tmp/autoconf/ins/usr/share/autoconf/INSTALL
-	cd tmp/autoconf/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/autoconf/bld && make check 2>&1 | tee ../../../tst/autoconf-check.log || true
+	cd tmp/autoconf/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/autoconf/bld && make check 2>&1 | tee ../../../tst/autoconf-check.log || true
 # LFS: "The test suite is currently broken by bash-5 and libtool-2.4.3."
 # ERROR: 450 tests were run,
 # 137 failed (4 expected failures).
 # 53 tests were skipped.
-endif
+#endif
 	rm -fr tmp/autoconf
 tgt-autoconf: pkg2/autoconf-$(AUTOCONF_VER).cpio.zst
 
@@ -3782,10 +3818,10 @@ pkg2/automake-$(AUTOMAKE_VER).cpio.zst: pkg2/autoconf-$(AUTOCONF_VER).cpio.zst
 # aclocal is empty
 	rm -f  tmp/automake/ins/usr/share/automake-$(AUTOMAKE_VER0)/COPYING
 	rm -f  tmp/automake/ins/usr/share/automake-$(AUTOMAKE_VER0)/INSTALL
-	cd tmp/automake/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/automake/bld && make $(JOBS) check 2>&1 | tee ../../../tst/automake-check.log || true
+	cd tmp/automake/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/automake/bld && make $(JOBS) check 2>&1 | tee ../../../tst/automake-check.log || true
 # ============================================================================
 # Testsuite summary for GNU Automake 1.16.2
 # ============================================================================
@@ -3797,7 +3833,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 # ============================================================================
-endif
+#endif
 	rm -fr tmp/automake
 tgt-automake: pkg2/automake-$(AUTOMAKE_VER).cpio.zst
 
@@ -3824,8 +3860,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/kmod/ins/usr/bin/kmod
 	strip --strip-unneeded tmp/kmod/ins/usr/lib/*.so*
 endif
-	cd tmp/kmod/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/kmod/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/kmod
 tgt-kmod: pkg2/kmod-$(KMOD_VER).cpio.zst
 
@@ -3858,13 +3894,13 @@ endif
 	rm -f tmp/elfutils/ins-libelf/usr/lib/*.a
 	mkdir -p tmp/elfutils/ins-libelf/usr/lib/pkgconfig
 	install -vm644 tmp/elfutils/bld/config/libelf.pc tmp/elfutils/ins-libelf/usr/lib/pkgconfig
-	cd tmp/elfutils/ins-full && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg2/elfutils-$(ELF_UTILS_VER).full.cpio.zst
-	cd tmp/elfutils/ins-libelf && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst
-#	cat pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst | zstd -d | cpio -iduH newc -D /
-	cat pkg2/elfutils-$(ELF_UTILS_VER).full.cpio.zst | zstd -d | cpio -iduH newc -D /
+	cd tmp/elfutils/ins-full && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../pkg2/elfutils-$(ELF_UTILS_VER).full.cpio.zst
+	cd tmp/elfutils/ins-libelf && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst
+#	cat pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst | zstd -d | cpio -iduH newc --quiet -D /
+	cat pkg2/elfutils-$(ELF_UTILS_VER).full.cpio.zst | zstd -d | cpio -iduH newc --quiet -D /
 # ^^ here is your choose. 'FULL of elfutils' or 'ONLY libelf'
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/elfutils/bld && make check 2>&1 | tee ../../../tst/elfutils-check.log || true
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/elfutils/bld && make check 2>&1 | tee ../../../tst/elfutils-check.log || true
 #FAIL: run-strip-reloc.sh
 #FAIL: run-strip-strmerge.sh
 #FAIL: run-readelf-self.sh
@@ -3884,7 +3920,7 @@ ifeq ($(RUN_TESTS),y)
 # FAIL:  9
 # XPASS: 0
 # ERROR: 0
-endif
+#endif
 	rm -fr tmp/elfutils
 tgt-elfutils: pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.zst
 
@@ -3905,17 +3941,17 @@ pkg2/libffi-$(LIBFFI_VER).cpio.zst: pkg2/elfutils-$(ELF_UTILS_VER).libelf.cpio.z
 	mv -f tmp/libffi/ins/usr/lib64/* tmp/libffi/ins/usr/lib
 	rm -fr tmp/libffi/ins/usr/lib64
 	rm -f  tmp/libffi/ins/usr/lib/*.la
-	cd tmp/libffi/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libffi/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libffi/ins/usr/lib/*.so*
 endif
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/libffi/bld && make check 2>&1 | tee ../../../tst/libffi-check.log || true
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/libffi/bld && make check 2>&1 | tee ../../../tst/libffi-check.log || true
 #		=== libffi Summary ===
 # of expected passes		1554
 # Looks like OK!
-endif
+#endif
 	rm -fr tmp/libffi
 tgt-libffi: pkg2/libffi-$(LIBFFI_VER).cpio.zst
 
@@ -3942,10 +3978,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-debug tmp/openssl/ins/usr/lib/*.a || true
 	cd tmp/openssl/ins/usr/lib && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/openssl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/openssl/bld && make test 2>&1 | tee ../../../tst/openssl-test.log || true
+	cd tmp/openssl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/openssl/bld && make test 2>&1 | tee ../../../tst/openssl-test.log || true
 #../../openssl-1.1.1g/test/recipes/80-test_cms.t ...................... 
 #Dubious, test returned 5 (wstat 1280, 0x500)
 #Failed 5/6 subtests 
@@ -3962,7 +3998,7 @@ ifeq ($(RUN_TESTS),y)
 #  Non-zero exit status: 1
 #Files=155, Tests=1468, 225 wallclock secs ( 6.18 usr  0.65 sys + 177.19 cusr 58.49 csys = 242.51 CPU)
 #Result: FAIL
-endif
+#endif
 	rm -fr tmp/openssl
 tgt-openssl: pkg2/openssl-$(OPEN_SSL_VER).cpio.zst
 
@@ -3980,6 +4016,7 @@ pkg2/Python-$(PYTHON_VER).cpio.zst: pkg2/openssl-$(OPEN_SSL_VER).cpio.zst
 	rm -fr tmp/python
 	mkdir -p tmp/python/bld
 	tar -xJf src/Python-$(PYTHON_VER).tar.xz -C tmp/python
+	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/python/Python-$(PYTHON_VER)/configure
 	cd tmp/python/bld && ../Python-$(PYTHON_VER)/configure $(PYTHON_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 	rm -fr tmp/python/ins/usr/share
 	chmod -v 755 tmp/python/ins/usr/lib/libpython$(PYTHON_VER0).so
@@ -3990,11 +4027,11 @@ pkg2/Python-$(PYTHON_VER).cpio.zst: pkg2/openssl-$(OPEN_SSL_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/python/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/python/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/python/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #PKG+=pkg/python-$(PYTHON_DOC_VER)-docs-html.tar.bz2
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/python/bld && make test 2>&1 | tee ../../../tst/python-test.log || true
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/python/bld && make test 2>&1 | tee ../../../tst/python-test.log || true
 # == Tests result: FAILURE ==
 # 398 tests OK.
 # 5 tests failed:
@@ -4112,7 +4149,7 @@ ifeq ($(RUN_TESTS),y)
 #    test_xml_etree_c
 # Total duration: 4 min 15 sec
 # Tests result: FAILURE then FAILURE
-endif
+#endif
 	rm -fr tmp/python
 tgt-python: pkg2/Python-$(PYTHON_VER).cpio.zst
 
@@ -4133,10 +4170,10 @@ pkg2/re2c-$(RE2C_VER).cpio.zst: pkg2/Python-$(PYTHON_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/re2c/ins/usr/bin/*
 endif
-	cd tmp/re2c/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/re2c/bld && make check 2>&1 | tee ../../../tst/re2c-check.log || true
+	cd tmp/re2c/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/re2c/bld && make check 2>&1 | tee ../../../tst/re2c-check.log || true
 #============================================================================
 #Testsuite summary for re2c 3.1
 #============================================================================
@@ -4148,7 +4185,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/re2c
 tgt-re2c: pkg2/re2c-$(RE2C_VER).cpio.zst
 
@@ -4180,14 +4217,14 @@ pkg2/ninja-$(NINJA_VER).cpio.zst: pkg2/re2c-$(RE2C_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/ninja/ins/usr/bin/ninja
 endif
-	cd tmp/ninja/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	cd tmp/ninja/ninja-$(NINJA_VER) && ./ninja ninja_test && ./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
+	cd tmp/ninja/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	cd tmp/ninja/ninja-$(NINJA_VER) && ./ninja ninja_test && ./ninja_test --gtest_filter=-SubprocessTest.SetWithLots
 # [19/19] LINK ninja_test
 # [341/341] ElideMiddle.ElideInTheMiddle
 # passed
-endif
+#endif
 	rm -fr tmp/ninja
 tgt-ninja: pkg2/ninja-$(NINJA_VER).cpio.zst
 
@@ -4202,8 +4239,8 @@ pkg2/meson-$(MESON_VER).cpio.zst: pkg2/ninja-$(NINJA_VER).cpio.zst
 	rm -fr tmp/meson/meson-$(MESON_VER)/OUT/usr/share/man
 	mkdir -p tmp/meson/ins
 	cp -far tmp/meson/meson-$(MESON_VER)/OUT/usr tmp/meson/ins/
-	cd tmp/meson/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/meson/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/meson
 tgt-meson: pkg2/meson-$(MESON_VER).cpio.zst
 
@@ -4235,8 +4272,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/coreutils/ins/usr/libexec/coreutils/libstdbuf.so
 	strip --strip-unneeded tmp/coreutils/ins/usr/bin/* || true
 endif
-	cd tmp/coreutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/coreutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	cd tmp/coreutils/bld && make NON_ROOT_USERNAME=tester check-root || true
 #	echo "dummy:x:102:tester" >> /etc/group
@@ -4275,25 +4312,25 @@ tgt-coreutils: pkg2/coreutils-$(CORE_UTILS_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/check.html
 # BUILD_TIME :: 25s
 # BUILD_TIME_WITH_TEST :: 6m 45s
-CHECK_OPT2+= --prefix=/usr
-CHECK_OPT2+= --disable-static
-CHECK_OPT2+= $(OPT_FLAGS)
-pkg2/check-$(CHECK_VER).cpio.zst: pkg2/coreutils-$(CORE_UTILS_VER).cpio.zst
-	rm -fr tmp/check
-	mkdir -p tmp/check/bld
-	tar -xzf src/check-$(CHECK_VER).tar.gz -C tmp/check
-	cd tmp/check/bld && ../check-$(CHECK_VER)/configure $(CHECK_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/check/ins/usr/share/doc
-	rm -fr tmp/check/ins/usr/share/info
-	rm -fr tmp/check/ins/usr/share/man
-	rm -f  tmp/check/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/check/ins/usr/lib/*.so*
-endif
-	cd tmp/check/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/check/check-$(CHECK_VER) && ./configure $(CHECK_OPT3) && make $(JOBS) V=$(VERB) && make check 2>&1 | tee ../../../tst/check-check.log || true
+#CHECK_OPT2+= --prefix=/usr
+#CHECK_OPT2+= --disable-static
+#CHECK_OPT2+= $(OPT_FLAGS)
+#pkg2/check-$(CHECK_VER).cpio.zst: pkg2/coreutils-$(CORE_UTILS_VER).cpio.zst
+#	rm -fr tmp/check
+#	mkdir -p tmp/check/bld
+#	tar -xzf src/check-$(CHECK_VER).tar.gz -C tmp/check
+#	cd tmp/check/bld && ../check-$(CHECK_VER)/configure $(CHECK_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/check/ins/usr/share/doc
+#	rm -fr tmp/check/ins/usr/share/info
+#	rm -fr tmp/check/ins/usr/share/man
+#	rm -f  tmp/check/ins/usr/lib/*.la
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/check/ins/usr/lib/*.so*
+#endif
+#	cd tmp/check/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/check/check-$(CHECK_VER) && ./configure $(CHECK_OPT3) && make $(JOBS) V=$(VERB) && make check 2>&1 | tee ../../../tst/check-check.log || true
 # TOTAL: 1
 # PASS:  1
 ## make  check-TESTS
@@ -4313,9 +4350,9 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
-	rm -fr tmp/check
-tgt-check: pkg2/check-$(CHECK_VER).cpio.zst
+#endif
+#	rm -fr tmp/check
+#tgt-check: pkg2/check-$(CHECK_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.54. Diffutils-3.7
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/diffutils.html
@@ -4324,7 +4361,7 @@ tgt-check: pkg2/check-$(CHECK_VER).cpio.zst
 DIFFUTILS_OPT2+= --prefix=/usr
 DIFFUTILS_OPT2+= --disable-nls
 DIFFUTILS_OPT2+= $(OPT_FLAGS)
-pkg2/diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg2/check-$(CHECK_VER).cpio.zst
+pkg2/diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg2/coreutils-$(CORE_UTILS_VER).cpio.zst
 	rm -fr tmp/diffutils
 	mkdir -p tmp/diffutils/bld
 	tar -xJf src/diffutils-$(DIFF_UTILS_VER).tar.xz -C tmp/diffutils
@@ -4333,10 +4370,10 @@ pkg2/diffutils-$(DIFF_UTILS_VER).cpio.zst: pkg2/check-$(CHECK_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/diffutils/ins/usr/bin/*
 endif
-	cd tmp/diffutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/diffutils/bld && make check 2>&1 | tee ../../../tst/diffutils-check.log || true
+	cd tmp/diffutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/diffutils/bld && make check 2>&1 | tee ../../../tst/diffutils-check.log || true
 #============================================================================
 #Testsuite summary for GNU diffutils 3.7
 #============================================================================
@@ -4347,7 +4384,7 @@ ifeq ($(RUN_TESTS),y)
 # FAIL:  0
 # XPASS: 0
 # ERROR: 0
-endif
+#endif
 	rm -fr tmp/diffutils
 tgt-diffutils: pkg2/diffutils-$(DIFF_UTILS_VER).cpio.zst
 
@@ -4371,12 +4408,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/gawk/ins/usr/lib/gawk/*
 	strip --strip-unneeded tmp/gawk/ins/usr/bin/*
 endif
-	cd tmp/gawk/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gawk/bld && make check 2>&1 | tee ../../../tst/gawk-check.log || true
+	cd tmp/gawk/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gawk/bld && make check 2>&1 | tee ../../../tst/gawk-check.log || true
 # ALL TESTS PASSED
-endif
+#endif
 	rm -fr tmp/gawk
 tgt-gawk: pkg2/gawk-$(GAWK_VER).cpio.zst
 
@@ -4398,8 +4435,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/findutils/ins/usr/libexec/frcode
 	strip --strip-unneeded tmp/findutils/ins/usr/bin/* || true
 endif
-	cd tmp/findutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/findutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	mkdir -p tst && cd tmp/findutils/bld && chown -Rv tester . && su tester -c "PATH=$$PATH make check"
 #============================================================================
@@ -4420,30 +4457,28 @@ tgt-findutils: pkg2/findutils-$(FIND_UTILS_VER).cpio.zst
 # LFS-10.0-systemd :: 8.57. Groff-1.22.4
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/groff.html
 # BUILD_TIME :: 2m 7s
-GROFF_PREP_OPT2+= PAGE=A4
-GROFF_OPT2+= --prefix=/usr
-GROFF_OPT2+= $(OPT_FLAGS)
-pkg2/groff-$(GROFF_VER).cpio.zst: pkg2/findutils-$(FIND_UTILS_VER).cpio.zst
-	rm -fr tmp/groff
-	mkdir -p tmp/groff/bld
-	tar -xzf src/groff-$(GROFF_VER).tar.gz -C tmp/groff
-	cd tmp/groff/bld && $(GROFF_PREP_OPT2) ../groff-$(GROFF_VER)/configure $(GROFF_OPT2) && make -j1 V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/groff/ins/usr/share/doc
-	rm -fr tmp/groff/ins/usr/share/info
-	rm -fr tmp/groff/ins/usr/share/man
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/groff/ins/usr/bin/* || true
-endif
-	cd tmp/groff/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/groff
-tgt-groff: pkg2/groff-$(GROFF_VER).cpio.zst
+#GROFF_PREP_OPT2+= PAGE=A4
+#GROFF_OPT2+= --prefix=/usr
+#GROFF_OPT2+= $(OPT_FLAGS)
+#pkg2/groff-$(GROFF_VER).cpio.zst: pkg2/findutils-$(FIND_UTILS_VER).cpio.zst
+#	rm -fr tmp/groff
+#	mkdir -p tmp/groff/bld
+#	tar -xzf src/groff-$(GROFF_VER).tar.gz -C tmp/groff
+#	cd tmp/groff/bld && $(GROFF_PREP_OPT2) ../groff-$(GROFF_VER)/configure $(GROFF_OPT2) && make -j1 V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/groff/ins/usr/share/doc
+#	rm -fr tmp/groff/ins/usr/share/info
+#	rm -fr tmp/groff/ins/usr/share/man
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/groff/ins/usr/bin/* || true
+#endif
+#	cd tmp/groff/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/groff
+#tgt-groff: pkg2/groff-$(GROFF_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.58. GRUB-2.04
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/grub.html
-# N/A , N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A, N/A
-# U-BOOT is used as bootloader.
-# Skip this stage.
+# N/A
 
 # LFS-10.0-systemd :: 8.59. Less-551
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/less.html
@@ -4451,7 +4486,7 @@ tgt-groff: pkg2/groff-$(GROFF_VER).cpio.zst
 LESS_OPT2+= --prefix=/usr
 LESS_OPT2+= --sysconfdir=/etc
 LESS_OPT2+= $(OPT_FLAGS)
-pkg2/less-$(LESS_VER).cpio.zst: pkg2/groff-$(GROFF_VER).cpio.zst
+pkg2/less-$(LESS_VER).cpio.zst: pkg2/findutils-$(FIND_UTILS_VER).cpio.zst
 	rm -fr tmp/less
 	mkdir -p tmp/less/bld
 	tar -xzf src/less-$(LESS_VER).tar.gz -C tmp/less
@@ -4460,8 +4495,8 @@ pkg2/less-$(LESS_VER).cpio.zst: pkg2/groff-$(GROFF_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/less/ins/usr/bin/* || true
 endif
-	cd tmp/less/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/less/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/less
 tgt-less: pkg2/less-$(LESS_VER).cpio.zst
 
@@ -4480,10 +4515,10 @@ pkg2/gzip-$(GZIP_VER).cpio.zst: pkg2/less-$(LESS_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/gzip/ins/usr/bin/* || true
 endif
-	cd tmp/gzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/gzip/bld && make check 2>&1 | tee ../../../tst/gzip-check.log || true
+	cd tmp/gzip/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/gzip/bld && make check 2>&1 | tee ../../../tst/gzip-check.log || true
 #============================================================================
 #Testsuite summary for gzip 1.10
 #============================================================================
@@ -4495,7 +4530,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/gzip
 tgt-gzip: pkg2/gzip-$(GZIP_VER).cpio.zst
 
@@ -4513,8 +4548,8 @@ pkg2/which-$(WHICH_VER).cpio.zst: pkg2/gzip-$(GZIP_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/which/ins/usr/bin/which
 endif
-	cd tmp/which/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/which/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/which
 # -------------------
 # "Which" alternative
@@ -4525,8 +4560,8 @@ pkg2/which.cpio.zst: pkg2/gzip-$(GZIP_VER).cpio.zst
 	echo 'type -pa "$$@" | head -n 1 ; exit $${PIPESTATUS[0]}' >> tmp/which/ins/usr/bin/which
 	chmod -v 755 tmp/which/ins/usr/bin/which
 	chown -v root:root tmp/which/ins/usr/bin/which
-	cd tmp/which/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/which/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/which
 tgt-which: pkg2/which.cpio.zst
 
@@ -4534,26 +4569,26 @@ tgt-which: pkg2/which.cpio.zst
 # https://www.linuxfromscratch.org/blfs/view/10.0/general/sharutils.html
 # BUILD_TIME :: 1m 29s
 # BUILD_TIME_WITH_TEST :: 1m 43s
-SHARUTILS_OPT2+= --prefix=/usr
-SHARUTILS_OPT2+= --disable-nls
-SHARUTILS_OPT2+= $(OPT_FLAGS)
-pkg2/sharutils-$(SHARUTILS_VER).cpio.zst: pkg2/which.cpio.zst
-	rm -fr tmp/sharutils
-	mkdir -p tmp/sharutils/bld
-	tar -xJf src/sharutils-$(SHARUTILS_VER).tar.xz -C tmp/sharutils
-	sed -i 's/BUFSIZ/rw_base_size/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/unshar.c
-	sed -i '/program_name/s/^/extern /' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/*opts.h
-	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/*.c
-	echo "#define _IO_IN_BACKUP 0x100" >> tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/stdio-impl.h
-	cd tmp/sharutils/bld && ../sharutils-$(SHARUTILS_VER)/configure $(SHARUTILS_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/sharutils/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/sharutils/ins/usr/bin/*
-endif
-	cd tmp/sharutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/sharutils/bld && make check 2>&1 | tee ../../../tst/sharutils-check.log || true
+#SHARUTILS_OPT2+= --prefix=/usr
+#SHARUTILS_OPT2+= --disable-nls
+#SHARUTILS_OPT2+= $(OPT_FLAGS)
+#pkg2/sharutils-$(SHARUTILS_VER).cpio.zst: pkg2/which.cpio.zst
+#	rm -fr tmp/sharutils
+#	mkdir -p tmp/sharutils/bld
+#	tar -xJf src/sharutils-$(SHARUTILS_VER).tar.xz -C tmp/sharutils
+#	sed -i 's/BUFSIZ/rw_base_size/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/unshar.c
+#	sed -i '/program_name/s/^/extern /' tmp/sharutils/sharutils-$(SHARUTILS_VER)/src/*opts.h
+#	sed -i 's/IO_ftrylockfile/IO_EOF_SEEN/' tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/*.c
+#	echo "#define _IO_IN_BACKUP 0x100" >> tmp/sharutils/sharutils-$(SHARUTILS_VER)/lib/stdio-impl.h
+#	cd tmp/sharutils/bld && ../sharutils-$(SHARUTILS_VER)/configure $(SHARUTILS_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/sharutils/ins/usr/share
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/sharutils/ins/usr/bin/*
+#endif
+#	cd tmp/sharutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/sharutils/bld && make check 2>&1 | tee ../../../tst/sharutils-check.log || true
 #============================================================================
 #Testsuite summary for GNU sharutils 4.15.2
 #============================================================================
@@ -4565,9 +4600,9 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
-	rm -fr tmp/sharutils
-tgt-sharutils: pkg2/sharutils-$(SHARUTILS_VER).cpio.zst
+#endif
+#	rm -fr tmp/sharutils
+#tgt-sharutils: pkg2/sharutils-$(SHARUTILS_VER).cpio.zst
 
 # extra blfs :: Berkeley DB-5.3.28
 # https://www.linuxfromscratch.org/blfs/view/10.0/server/db.html
@@ -4580,7 +4615,8 @@ DB_BERKELEY_OPT2+= --enable-cxx
 DB_BERKELEY_OPT2+= --enable-tcl
 DB_BERKELEY_OPT2+= --with-tcl=/usr/lib
 DB_BERKELEY_OPT2+= $(OPT_FLAGS)
-pkg2/db-$(DB_BERKELEY_VER).cpio.zst: pkg2/sharutils-$(SHARUTILS_VER).cpio.zst
+#pkg2/db-$(DB_BERKELEY_VER).cpio.zst: pkg2/sharutils-$(SHARUTILS_VER).cpio.zst
+pkg2/db-$(DB_BERKELEY_VER).cpio.zst: pkg2/which.cpio.zst
 	rm -fr tmp/db
 	mkdir -p tmp/db/bld
 	tar -xzf src/db-$(DB_BERKELEY_VER).tar.gz -C tmp/db
@@ -4594,8 +4630,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/db/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/db/ins/usr/lib/*.so*
 endif
-	cd tmp/db/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/db/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/db
 tgt-db: pkg2/db-$(DB_BERKELEY_VER).cpio.zst
 
@@ -4614,8 +4650,8 @@ pkg2/libmnl-$(LIBMNL_VER).cpio.zst: pkg2/db-$(DB_BERKELEY_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libmnl/ins/usr/lib/*.so*
 endif
-	cd tmp/libmnl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libmnl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libmnl
 tgt-libmnl: pkg2/libmnl-$(LIBMNL_VER).cpio.zst
 
@@ -4642,8 +4678,8 @@ pkg2/iproute2-$(IP_ROUTE2_VER).cpio.zst: pkg2/libmnl-$(LIBMNL_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/iproute2/ins/usr/sbin/* || true
 endif
-	cd tmp/iproute2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/iproute2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/iproute2
 tgt-iproute2: pkg2/iproute2-$(IP_ROUTE2_VER).cpio.zst
 
@@ -4666,6 +4702,11 @@ pkg2/kbd-$(KBD_VER).cpio.zst: pkg2/iproute2-$(IP_ROUTE2_VER).cpio.zst
 	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/m4/libtool.m4
 	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure.ac
 	sed -i 's|-O2|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure.ac
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/configure
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/m4/ax_code_coverage.m4
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/tests/libtswrap/Makefile.in
+	sed -i 's|-O0|$(BASE_OPT_VALUE)|' tmp/kbd/kbd-$(KBD_VER)/tests/libtswrap/Makefile.am
 	cd tmp/kbd/bld && ../kbd-$(KBD_VER)/configure $(KBD_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 # warning: remember to run 'libtool --finish /usr/lib'
 # This's because DESTDIR install. It's not a problem.
@@ -4674,13 +4715,13 @@ pkg2/kbd-$(KBD_VER).cpio.zst: pkg2/iproute2-$(IP_ROUTE2_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/kbd/ins/usr/bin/* || true
 endif
-	cd tmp/kbd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/kbd/bld && make check 2>&1 | tee ../../../tst/kbd-check.log || true
+	cd tmp/kbd/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/kbd/bld && make check 2>&1 | tee ../../../tst/kbd-check.log || true
 # 36 tests were successful.
 # 4 tests were skipped.
-endif
+#endif
 	rm -fr tmp/kbd
 tgt-kbd: pkg2/kbd-$(KBD_VER).cpio.zst
 
@@ -4700,10 +4741,10 @@ pkg2/libpipeline-$(LIBPIPILINE_VER).cpio.zst: pkg2/kbd-$(KBD_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libpipeline/ins/usr/lib/*.so*
 endif
-	cd tmp/libpipeline/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/libpipeline/bld && make check 2>&1 | tee ../../../tst/libpipeline-check.log || true
+	cd tmp/libpipeline/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/libpipeline/bld && make check 2>&1 | tee ../../../tst/libpipeline-check.log || true
 #============================================================================
 #Testsuite summary for libpipeline 1.5.3
 #============================================================================
@@ -4715,7 +4756,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/libpipeline
 tgt-libpipeline: pkg2/libpipeline-$(LIBPIPILINE_VER).cpio.zst
 
@@ -4735,12 +4776,12 @@ pkg2/make-$(MAKE_VER).cpio.zst: pkg2/libpipeline-$(LIBPIPILINE_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/make/ins/usr/bin/make
 endif
-	cd tmp/make/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/make/bld && make check 2>&1 | tee ../../../tst/make-check.log || true
+	cd tmp/make/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/make/bld && make check 2>&1 | tee ../../../tst/make-check.log || true
 # 690 Tests in 125 Categories Complete ... No Failures :-)
-endif
+#endif
 	rm -fr tmp/make
 tgt-make: pkg2/make-$(MAKE_VER).cpio.zst
 
@@ -4759,10 +4800,10 @@ pkg2/patch-$(PATCH_VER).cpio.zst: pkg2/make-$(MAKE_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/patch/ins/usr/bin/patch
 endif
-	cd tmp/patch/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/patch/bld && make check 2>&1 | tee ../../../tst/patch-check.log || true
+	cd tmp/patch/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/patch/bld && make check 2>&1 | tee ../../../tst/patch-check.log || true
 #============================================================================
 #Testsuite summary for GNU patch 2.7.6
 #============================================================================
@@ -4774,7 +4815,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/patch
 tgt-patch: pkg2/patch-$(PATCH_VER).cpio.zst
 
@@ -4803,15 +4844,15 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/tar/ins/usr/libexec/rmt
 	strip --strip-unneeded tmp/tar/ins/usr/bin/tar
 endif
-	cd tmp/tar/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/tar/bld && make check 2>&1 | tee ../../../tst/tar-check.log || true
+	cd tmp/tar/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/tar/bld && make check 2>&1 | tee ../../../tst/tar-check.log || true
 # 223: capabilities: binary store/restore              FAILED (capabs_raw01.at:28)
 # ERROR: 215 tests were run,
 # 1 failed unexpectedly.
 # 19 tests were skipped.
-endif
+#endif
 	rm -fr tmp/tar
 tgt-tar: pkg2/tar-$(TAR_VER).cpio.zst
 
@@ -4835,12 +4876,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/texinfo/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/texinfo/ins/usr/lib/texinfo/*.so*
 endif
-	cd tmp/texinfo/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/texinfo/bld && make check 2>&1 | tee ../../../tst/texinfo-check.log || true
+	cd tmp/texinfo/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/texinfo/bld && make check 2>&1 | tee ../../../tst/texinfo-check.log || true
 # TEST OK
-endif
+#endif
 	rm -fr tmp/texinfo
 tgt-texinfo: pkg2/texinfo-$(TEXINFO_VER).cpio.zst
 
@@ -4879,8 +4920,8 @@ pkg2/nano-$(NANO_VER).cpio.zst: pkg2/texinfo-$(TEXINFO_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/nano/ins/usr/bin/nano
 endif
-	cd tmp/nano/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/nano/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/nano
 tgt-nano: pkg2/nano-$(NANO_VER).cpio.zst
 
@@ -4944,8 +4985,8 @@ pkg2/systemd-$(SYSTEMD_VER).cpio.zst: pkg2/nano-$(NANO_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	cd tmp/systemd/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/systemd/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/systemd/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/systemd
 	touch /etc/environment
 	rm -fv /usr/bin/xsltproc
@@ -4982,8 +5023,8 @@ endif
 	sed -i 's:/var/run:/run:' tmp/dbus/ins/usr/lib/systemd/system/dbus.socket
 	mv -f tmp/dbus/ins/var/run tmp/dbus/ins/
 	cd tmp/dbus/ins/var/lib/dbus && ln -sf /etc/machine-id machine-id
-	cd tmp/dbus/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/dbus/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/dbus
 tgt-dbus: pkg2/dbus-$(DBUS_VER).cpio.zst
 
@@ -5014,10 +5055,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/procps-ng/ins/usr/sbin/* || true
 	strip --strip-unneeded tmp/procps-ng/ins/usr/lib/*.so*
 endif
-	cd tmp/procps-ng/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/procps-ng/bld && make check 2>&1 | tee ../../../tst/procps-ng-check.log || true
+	cd tmp/procps-ng/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/procps-ng/bld && make check 2>&1 | tee ../../../tst/procps-ng-check.log || true
 #============================================================================
 #Testsuite summary for procps-ng 3.3.16
 #============================================================================
@@ -5029,7 +5070,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/procps-ng
 tgt-procps-ng: pkg2/procps-ng-$(PROCPS_VER).cpio.zst
 
@@ -5075,8 +5116,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/util-linux/ins/usr/sbin/* || true
 	strip --strip-unneeded tmp/util-linux/ins/usr/lib/*.so*
 endif
-	cd tmp/util-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/util-linux/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	chown -Rv tester tmp/util-linux/bld
 #	mkdir -p tst && cd tmp/util-linux/bld && su tester -c "make -k check"
@@ -5120,12 +5161,12 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/e2fsprogs/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/e2fsprogs/ins/usr/lib/e2initrd_helper
 endif
-	cd tmp/e2fsprogs/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/e2fsprogs/bld && make check 2>&1 | tee ../../../tst/e2fsprogs-check.log || true
+	cd tmp/e2fsprogs/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/e2fsprogs/bld && make check 2>&1 | tee ../../../tst/e2fsprogs-check.log || true
 # 357 tests succeeded	0 tests failed
-endif
+#endif
 	rm -fr tmp/e2fsprogs
 tgt-e2fsprogs: pkg2/e2fsprogs-$(E2FSPROGS_VER).cpio.zst
 
@@ -5146,31 +5187,31 @@ pkg2/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst: pkg2/e2fsprogs-$(E2FSPROGS_VER).cp
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/dosfstools/ins/usr/sbin/* || true
 endif
-	cd tmp/dosfstools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/dosfstools/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/dosfstools
 tgt-dosfstools: pkg2/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
 
 # extra :: microcom-2023.09.0
 #
 # BUILD_TIME :: 14s
-MICROCOM_OPT2+= --prefix=/usr
-MICROCOM_OPT2+= --enable-can
-MICROCOM_OPT2+= $(OPT_FLAGS)
-pkg2/microcom-$(MICROCOM_VER).cpio.zst: pkg2/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
-	rm -fr tmp/microcom
-	mkdir -p tmp/microcom/bld
-	tar -xzf src/microcom-$(MICROCOM_VER).tar.gz -C tmp/microcom
-	cd tmp/microcom/microcom-$(MICROCOM_VER) && autoreconf -i
-	cd tmp/microcom/bld && ../microcom-$(MICROCOM_VER)/configure $(MICROCOM_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/microcom/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/microcom/ins/usr/bin/microcom
-endif
-	cd tmp/microcom/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/microcom
-tgt-microcom: pkg2/microcom-$(MICROCOM_VER).cpio.zst
+#MICROCOM_OPT2+= --prefix=/usr
+#MICROCOM_OPT2+= --enable-can
+#MICROCOM_OPT2+= $(OPT_FLAGS)
+#pkg2/microcom-$(MICROCOM_VER).cpio.zst: pkg2/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
+#	rm -fr tmp/microcom
+#	mkdir -p tmp/microcom/bld
+#	tar -xzf src/microcom-$(MICROCOM_VER).tar.gz -C tmp/microcom
+#	cd tmp/microcom/microcom-$(MICROCOM_VER) && autoreconf -i
+#	cd tmp/microcom/bld && ../microcom-$(MICROCOM_VER)/configure $(MICROCOM_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/microcom/ins/usr/share
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/microcom/ins/usr/bin/microcom
+#endif
+#	cd tmp/microcom/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/microcom
+#tgt-microcom: pkg2/microcom-$(MICROCOM_VER).cpio.zst
 
 # extra BLFS-10.0-systemd :: PCRE-8.44
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/pcre.html
@@ -5186,7 +5227,7 @@ PCRE_OPT2+= --enable-pcregrep-libbz2
 PCRE_OPT2+= --enable-pcretest-libreadline
 PCRE_OPT2+= --disable-static
 PCRE_OPT2+= $(OPT_FLAGS)
-pkg2/pcre-$(PCRE_VER).cpio.zst: pkg2/microcom-$(MICROCOM_VER).cpio.zst
+pkg2/pcre-$(PCRE_VER).cpio.zst: pkg2/dosfstools-$(DOS_FS_TOOLS_VER).cpio.zst
 	rm -fr tmp/pcre
 	mkdir -p tmp/pcre/bld
 	tar -xzf src/pcre-$(PCRE_VER).tar.gz -C tmp/pcre
@@ -5197,10 +5238,10 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/pcre/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/pcre/ins/usr/lib/*.so*
 endif
-	cd tmp/pcre/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/pcre/bld && make check 2>&1 | tee ../../../tst/pcre-check.log || true
+	cd tmp/pcre/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/pcre/bld && make check 2>&1 | tee ../../../tst/pcre-check.log || true
 #============================================================================
 #Testsuite summary for PCRE 8.44
 #============================================================================
@@ -5212,29 +5253,29 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/pcre
 tgt-pcre: pkg2/pcre-$(PCRE_VER).cpio.zst
 
 # extra BLFS-10.0-systemd :: Zip-3.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/zip.html
 # BUILD_TIME :: 8s
-pkg2/zip$(ZIP_VER0).cpio.zst: pkg2/pcre-$(PCRE_VER).cpio.zst
-	rm -fr tmp/zip
-	mkdir -p tmp/zip
-	tar -xzf src/zip$(ZIP_VER0).tar.gz -C tmp/zip
-	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/zip/zip$(ZIP_VER0)/unix/configure
-	cd tmp/zip/zip$(ZIP_VER0) && make $(JOBS) -f unix/Makefile generic_gcc
-	mkdir -p tmp/zip/ins/usr
-	cd tmp/zip/zip$(ZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
-	rm -fr tmp/zip/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/zip/ins/usr/bin/* || true
-endif
-	cd tmp/zip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/zip
-tgt-zip: pkg2/zip$(ZIP_VER0).cpio.zst
+#pkg2/zip$(ZIP_VER0).cpio.zst: pkg2/pcre-$(PCRE_VER).cpio.zst
+#	rm -fr tmp/zip
+#	mkdir -p tmp/zip
+#	tar -xzf src/zip$(ZIP_VER0).tar.gz -C tmp/zip
+#	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/zip/zip$(ZIP_VER0)/unix/configure
+#	cd tmp/zip/zip$(ZIP_VER0) && make $(JOBS) -f unix/Makefile generic_gcc
+#	mkdir -p tmp/zip/ins/usr
+#	cd tmp/zip/zip$(ZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
+#	rm -fr tmp/zip/ins/usr/share
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/zip/ins/usr/bin/* || true
+#endif
+#	cd tmp/zip/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/zip
+#tgt-zip: pkg2/zip$(ZIP_VER0).cpio.zst
 
 # extra BLFS-10.0-systemd :: UnZip-6.0
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/unzip.html
@@ -5243,24 +5284,24 @@ tgt-zip: pkg2/zip$(ZIP_VER0).cpio.zst
 # Workaround1: Uze WinZip under Wine. -- Looks like terrific! (sarcasm)
 # Workaround2: Use 'bsdtar -xf' (from libarchive) for unpack zip-files with convmv-fixing
 # Workaround3: Use this UnZip and hope that filenames has no non-latin characters.
-pkg2/unzip$(UNZIP_VER0).cpio.zst: pkg2/zip$(ZIP_VER0).cpio.zst
-	rm -fr tmp/unzip
-	mkdir -p tmp/unzip
-	tar -xzf src/unzip$(UNZIP_VER0).tar.gz -C tmp/unzip
-	cp -f src/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch tmp/unzip/
-	cd tmp/unzip/unzip$(UNZIP_VER0) && patch -Np1 -i ../unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
-	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/unzip/unzip$(UNZIP_VER0)/unix/configure
-	cd tmp/unzip/unzip$(UNZIP_VER0) && make $(JOBS) -f unix/Makefile generic
-	mkdir -p tmp/unzip/ins/usr
-	cd tmp/unzip/unzip$(UNZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
-	rm -fr tmp/unzip/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/unzip/ins/usr/bin/* || true
-endif
-	cd tmp/unzip/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/unzip
-tgt-unzip: pkg2/unzip$(UNZIP_VER0).cpio.zst
+#pkg2/unzip$(UNZIP_VER0).cpio.zst: pkg2/zip$(ZIP_VER0).cpio.zst
+#	rm -fr tmp/unzip
+#	mkdir -p tmp/unzip
+#	tar -xzf src/unzip$(UNZIP_VER0).tar.gz -C tmp/unzip
+#	cp -f src/unzip-$(UNZIP_VER)-consolidated_fixes-1.patch tmp/unzip/
+#	cd tmp/unzip/unzip$(UNZIP_VER0) && patch -Np1 -i ../unzip-$(UNZIP_VER)-consolidated_fixes-1.patch
+#	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/unzip/unzip$(UNZIP_VER0)/unix/configure
+#	cd tmp/unzip/unzip$(UNZIP_VER0) && make $(JOBS) -f unix/Makefile generic
+#	mkdir -p tmp/unzip/ins/usr
+#	cd tmp/unzip/unzip$(UNZIP_VER0) && make prefix=../ins/usr MANDIR=../ins/usr/share/man/man1 -f unix/Makefile install
+#	rm -fr tmp/unzip/ins/usr/share
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/unzip/ins/usr/bin/* || true
+#endif
+#	cd tmp/unzip/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/unzip
+#tgt-unzip: pkg2/unzip$(UNZIP_VER0).cpio.zst
 
 # EXTRA: this pkg reccommended on UnZip LFS-page
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/unzip.html
@@ -5268,44 +5309,43 @@ tgt-unzip: pkg2/unzip$(UNZIP_VER0).cpio.zst
 #### The following is an example for the zh_CN.UTF-8 locale:
 #### convmv -f cp936 -t utf-8 -r --nosmart --notest </path/to/unzipped/files>
 # BUILD_TIME :: 0s
-pkg2/convmv-$(CONVMV_VER).cpio.zst: pkg2/unzip$(UNZIP_VER0).cpio.zst
-	rm -fr tmp/convmv
-	mkdir -p tmp/convmv
-	tar -xzf src/convmv-$(CONVMV_VER).tar.gz -C tmp/convmv
-# Why? Makefile? -- Looks like terrific! (sarcasm) -- for man pages of course
-	mkdir -p tmp/convmv/ins/usr/bin
-	cp -f tmp/convmv/convmv-$(CONVMV_VER)/convmv tmp/convmv/ins/usr/bin
-	chown root:root tmp/convmv/ins/usr/bin/convmv
+#pkg2/convmv-$(CONVMV_VER).cpio.zst: pkg2/unzip$(UNZIP_VER0).cpio.zst
+#	rm -fr tmp/convmv
+#	mkdir -p tmp/convmv
+#	tar -xzf src/convmv-$(CONVMV_VER).tar.gz -C tmp/convmv
+#	mkdir -p tmp/convmv/ins/usr/bin
+#	cp -f tmp/convmv/convmv-$(CONVMV_VER)/convmv tmp/convmv/ins/usr/bin
+#	chown root:root tmp/convmv/ins/usr/bin/convmv
 # Target is the single PERL file!
-	cd tmp/convmv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/convmv
-tgt-convmv: pkg2/convmv-$(CONVMV_VER).cpio.zst
+#	cd tmp/convmv/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/convmv
+#tgt-convmv: pkg2/convmv-$(CONVMV_VER).cpio.zst
 
 # extra BLFS-10.0-systemd :: libarchive-3.4.3
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/libarchive.html
 # BUILD_TIME :: 1m 21s
 # BUILD_TIME_WITH_TEST :: 
-LIBARCHIVE_OPT2+= --prefix=/usr
-LIBARCHIVE_OPT2+= --disable-static
-LIBARCHIVE_OPT2+= $(OPT_FLAGS)
-pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst: pkg2/convmv-$(CONVMV_VER).cpio.zst
-	rm -fr tmp/libarchive
-	mkdir -p tmp/libarchive/bld
-	tar -xJf src/libarchive-$(LIBARCHIVE_VER).tar.xz -C tmp/libarchive
-	cp -f src/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch tmp/libarchive
-	cd tmp/libarchive/libarchive-$(LIBARCHIVE_VER) && patch -Np1 -i ../libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
-	cd tmp/libarchive/bld && ../libarchive-$(LIBARCHIVE_VER)/configure $(LIBARCHIVE_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/libarchive/ins/usr/share
-	rm -f  tmp/libarchive/ins/usr/lib/*.la
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/libarchive/ins/usr/bin/* || true
-	strip --strip-unneeded tmp/libarchive/ins/usr/lib/*.so*
-endif
-	cd tmp/libarchive/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/libarchive/bld && LC_ALL=C make check 2>&1 | tee ../../../tst/libarchive-check.log || true
+#LIBARCHIVE_OPT2+= --prefix=/usr
+#LIBARCHIVE_OPT2+= --disable-static
+#LIBARCHIVE_OPT2+= $(OPT_FLAGS)
+#pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst: pkg2/convmv-$(CONVMV_VER).cpio.zst
+#	rm -fr tmp/libarchive
+#	mkdir -p tmp/libarchive/bld
+#	tar -xJf src/libarchive-$(LIBARCHIVE_VER).tar.xz -C tmp/libarchive
+#	cp -f src/libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch tmp/libarchive
+#	cd tmp/libarchive/libarchive-$(LIBARCHIVE_VER) && patch -Np1 -i ../libarchive-$(LIBARCHIVE_VER)-testsuite_fix-1.patch
+#	cd tmp/libarchive/bld && ../libarchive-$(LIBARCHIVE_VER)/configure $(LIBARCHIVE_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/libarchive/ins/usr/share
+#	rm -f  tmp/libarchive/ins/usr/lib/*.la
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/libarchive/ins/usr/bin/* || true
+#	strip --strip-unneeded tmp/libarchive/ins/usr/lib/*.so*
+#endif
+#	cd tmp/libarchive/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/libarchive/bld && LC_ALL=C make check 2>&1 | tee ../../../tst/libarchive-check.log || true
 #============================================================================
 #Testsuite summary for libarchive 3.4.3
 #============================================================================
@@ -5317,9 +5357,9 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
-	rm -fr tmp/libarchive
-tgt-libarchive: pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst
+#endif
+#	rm -fr tmp/libarchive
+#tgt-libarchive: pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst
 
 # extra BLFS-10.0-systemd :: SWIG-4.0.2
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/swig.html
@@ -5328,7 +5368,7 @@ tgt-libarchive: pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst
 SWIG_OPT2+= --prefix=/usr
 SWIG_OPT2+= --without-maximum-compile-warnings
 SWIG_OPT2+= $(OPT_FLAGS)
-pkg2/swig-$(SWIG_VER).cpio.zst: pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst
+pkg2/swig-$(SWIG_VER).cpio.zst: pkg2/pcre-$(PCRE_VER).cpio.zst
 	rm -fr tmp/swig
 	mkdir -p tmp/swig/bld
 	tar -xzf src/swig-$(SWIG_VER).tar.gz -C tmp/swig
@@ -5336,15 +5376,15 @@ pkg2/swig-$(SWIG_VER).cpio.zst: pkg2/libarchive-$(LIBARCHIVE_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/swig/ins/usr/bin/* || true
 endif
-	cd tmp/swig/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE= || true
+	cd tmp/swig/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	cd tmp/swig/bld && PY3=1 make -k check TCL_INCLUDE= || true
 #make[3]: Leaving directory '/opt/mysdk/tmp/swig/bld/Examples/test-suite/python'
 #make[2]: Target 'check' not remade because of errors.
 #make[2]: Leaving directory '/opt/mysdk/tmp/swig/bld/Examples/test-suite/python'
 #make[1]: *** [Makefile:241: check-python-test-suite] Error 1
-endif
+#endif
 	rm -fr tmp/swig
 tgt-swig: pkg2/swig-$(SWIG_VER).cpio.zst
 
@@ -5370,10 +5410,10 @@ pkg2/popt-$(POPT_VER).cpio.zst: pkg2/swig-$(SWIG_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/popt/ins/usr/lib/*.so*
 endif
-	cd tmp/popt/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/popt/bld && make check 2>&1 | tee ../../../tst/popt-check.log || true
+	cd tmp/popt/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/popt/bld && make check 2>&1 | tee ../../../tst/popt-check.log || true
 #============================================================================
 #Testsuite summary for popt 1.18
 #============================================================================
@@ -5385,7 +5425,7 @@ ifeq ($(RUN_TESTS),y)
 # XPASS: 0
 # ERROR: 0
 #============================================================================
-endif
+#endif
 	rm -fr tmp/popt
 tgt-popt: pkg2/popt-$(POPT_VER).cpio.zst
 
@@ -5408,14 +5448,14 @@ pkg2/rsync-$(RSYNC_VER).cpio.zst: pkg2/popt-$(POPT_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/rsync/ins/usr/bin/rsync
 endif
-	cd tmp/rsync/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-ifeq ($(RUN_TESTS),y)
-	mkdir -p tst && cd tmp/rsync/bld && make check 2>&1 | tee ../../../tst/rsync-check.log || true
+	cd tmp/rsync/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#ifeq ($(RUN_TESTS),y)
+#	mkdir -p tst && cd tmp/rsync/bld && make check 2>&1 | tee ../../../tst/rsync-check.log || true
 #----- overall results:
 #      40 passed
 #      2 skipped
-endif
+#endif
 	rm -fr tmp/rsync
 tgt-rsync: pkg2/rsync-$(RSYNC_VER).cpio.zst
 
@@ -5439,8 +5479,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/parted/ins/usr/sbin/*
 	strip --strip-unneeded tmp/parted/ins/usr/lib/*.so*
 endif
-	cd tmp/parted/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/parted/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/parted
 tgt-parted: pkg2/parted-$(PARTED_VER).cpio.zst
 
@@ -5462,7 +5502,7 @@ pkg2/ldd.cpio.zst: pkg2/parted-$(PARTED_VER).cpio.zst
 	echo 'LD_TRACE_LOADED_OBJECTS=1 /lib/ld-linux* "$$file"' >> tmp/ldd/ldd
 	echo 'done' >> tmp/ldd/ldd
 	chmod ugo+x tmp/ldd/ldd
-	cd tmp/ldd && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	cd tmp/ldd && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../$@
 	rm -fr tmp/ldd
 tgt-ldd: pkg2/ldd.cpio.zst
 
@@ -5492,8 +5532,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/dtc/ins/usr/lib/*.so*
 	strip --strip-debug tmp/dtc/ins/usr/lib/*.a
 endif
-	cd tmp/dtc/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/dtc/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	cp -far tmp/dtc/ins/usr/lib/*.so* /usr/lib/
 	cp -far tmp/dtc/ins/usr/bin/dtc /usr/bin/
 	rm -fr tmp/dtc
@@ -5516,8 +5556,8 @@ pkg2/wget-$(WGET_VER).cpio.zst: pkg2/dtc-$(DTC_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/wget/ins/usr/bin/wget
 endif
-	cd tmp/wget/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/wget/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/wget
 tgt-wget: pkg2/wget-$(WGET_VER).cpio.zst
 
@@ -5537,8 +5577,8 @@ pkg2/libusb-$(LIBUSB_VER).cpio.zst: pkg2/wget-$(WGET_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libusb/ins/usr/lib/*.so*
 endif
-	cd tmp/libusb/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libusb/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libusb
 tgt-libusb: pkg2/libusb-$(LIBUSB_VER).cpio.zst
 
@@ -5556,9 +5596,9 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/usbutils/ins/usr/bin/* || true
 endif
 	install -dm755 tmp/usbutils/ins/usr/share/hwdata/
-	cat src/usb.ids.cpio.zst | zstd -d | cpio -iduH newc -D tmp/usbutils/ins/usr/share/hwdata/
-	cd tmp/usbutils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cat src/usb.ids.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/usbutils/ins/usr/share/hwdata/
+	cd tmp/usbutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/usbutils
 tgt-usb-utils: pkg2/usbutils-$(USB_UTILS_VER).cpio.zst
 
@@ -5578,47 +5618,47 @@ pkg2/libuv-$(LIBUV_VER).cpio.zst: pkg2/usbutils-$(USB_UTILS_VER).cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libuv/ins/usr/lib/*.so*
 endif
-	cd tmp/libuv/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libuv/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libuv
-tgt-libuv: pkg3/libuv-$(LIBUV_VER).cpio.zst
+tgt-libuv: pkg2/libuv-$(LIBUV_VER).cpio.zst
 
 # extra blfs :: CMake-3.18.1
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/general/cmake.html
 # BUILD_TIME :: 6m 13s
-CMAKE_BOPT2+= --prefix=/usr
-CMAKE_BOPT2+= --system-libs
-CMAKE_BOPT2+= --mandir=/share/man
-CMAKE_BOPT2+= --no-system-jsoncpp
-CMAKE_BOPT2+= --no-system-librhash
-CMAKE_BOPT2+= --docdir=/share/doc/cmake-$(CMAKE_VER)
-CMAKE_BOPT2+= --no-system-curl
-CMAKE_BOPT2+= --no-system-nghttp2
-CMAKE_BOPT2+= --parallel=$(JOB)
-CMAKE_BOPT2+= --verbose
-pkg2/cmake-$(CMAKE_VER).cpio.zst: pkg2/libuv-$(LIBUV_VER).cpio.zst
-	rm -fr tmp/cmake
-	mkdir -p tmp/cmake
-	tar -xzf src/cmake-$(CMAKE_VER).tar.gz -C tmp/cmake
-	sed -i '/"lib64"/s/64//' tmp/cmake/cmake-$(CMAKE_VER)/Modules/GNUInstallDirs.cmake
-	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/cmake/cmake-$(CMAKE_VER)/Modules/Compiler/GNU.cmake
-	cd tmp/cmake/cmake-$(CMAKE_VER) && ./bootstrap $(CMAKE_BOPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/cmake/ins/usr/share/doc
-	rm -fr tmp/cmake/ins/usr/share/emacs
-	rm -fr tmp/cmake/ins/usr/share/vim
-	rm -fr tmp/cmake/ins/usr/share/cmake-$(CMAKE_VER0)/Help
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/cmake/ins/usr/bin/*
-endif
-	cd tmp/cmake/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/cmake
-tgt-cmake: pkg2/cmake-$(CMAKE_VER).cpio.zst
+#CMAKE_BOPT2+= --prefix=/usr
+#CMAKE_BOPT2+= --system-libs
+#CMAKE_BOPT2+= --mandir=/share/man
+#CMAKE_BOPT2+= --no-system-jsoncpp
+#CMAKE_BOPT2+= --no-system-librhash
+#CMAKE_BOPT2+= --docdir=/share/doc/cmake-$(CMAKE_VER)
+#CMAKE_BOPT2+= --no-system-curl
+#CMAKE_BOPT2+= --no-system-nghttp2
+#CMAKE_BOPT2+= --parallel=$(JOB)
+#CMAKE_BOPT2+= --verbose
+#pkg2/cmake-$(CMAKE_VER).cpio.zst: pkg2/libuv-$(LIBUV_VER).cpio.zst
+#	rm -fr tmp/cmake
+#	mkdir -p tmp/cmake
+#	tar -xzf src/cmake-$(CMAKE_VER).tar.gz -C tmp/cmake
+#	sed -i '/"lib64"/s/64//' tmp/cmake/cmake-$(CMAKE_VER)/Modules/GNUInstallDirs.cmake
+#	sed -i 's|-O3|$(BASE_OPT_FLAGS)|' tmp/cmake/cmake-$(CMAKE_VER)/Modules/Compiler/GNU.cmake
+#	cd tmp/cmake/cmake-$(CMAKE_VER) && ./bootstrap $(CMAKE_BOPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/cmake/ins/usr/share/doc
+#	rm -fr tmp/cmake/ins/usr/share/emacs
+#	rm -fr tmp/cmake/ins/usr/share/vim
+#	rm -fr tmp/cmake/ins/usr/share/cmake-$(CMAKE_VER0)/Help
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/cmake/ins/usr/bin/*
+#endif
+#	cd tmp/cmake/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/cmake
+#tgt-cmake: pkg2/cmake-$(CMAKE_VER).cpio.zst
 
 # extra blfs :: Net-tools-CVS_20101030
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/basicnet/net-tools.html
 # BUILD_TIME :: 3s
-pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst: pkg2/cmake-$(CMAKE_VER).cpio.zst
+pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst: pkg2/libuv-$(LIBUV_VER).cpio.zst
 	rm -fr tmp/net-tools
 	mkdir -p tmp/net-tools
 	tar -xzf src/net-tools-CVS_$(NET_TOOLS_VER).tar.gz -C tmp/net-tools
@@ -5636,34 +5676,34 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/net-tools/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/net-tools/ins/usr/sbin/* || true
 endif
-	cd tmp/net-tools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/net-tools/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/net-tools
 tgt-net-tools: pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
 
 # extra :: OpenSSH-8.3p1
 # https://www.linuxfromscratch.org/blfs/view/10.0-systemd/postlfs/openssh.html
 # BUILD_TIME :: 1m 28s
-OPENSSH_OPT2+= --prefix=/usr
-OPENSSH_OPT2+= --sysconfdir=/etc/ssh
-OPENSSH_OPT2+= --with-md5-passwords
-OPENSSH_OPT2+= --with-privsep-path=/var/lib/sshd
-OPENSSH_OPT2+= $(OPT_FLAGS)
-pkg2/openssh-$(OPENSSH_VER).cpio.zst: pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
-	rm -fr tmp/openssh
-	mkdir -p tmp/openssh/bld
-	tar -xzf src/openssh-$(OPENSSH_VER).tar.gz -C tmp/openssh
-	cd tmp/openssh/bld && ../openssh-$(OPENSSH_VER)/configure $(OPENSSH_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-	rm -fr tmp/openssh/ins/usr/share
-ifeq ($(BUILD_STRIP),y)
-	strip --strip-unneeded tmp/openssh/ins/usr/bin/* || true
-	strip --strip-unneeded tmp/openssh/ins/usr/sbin/* || true
-	strip --strip-unneeded tmp/openssh/ins/usr/libexec/* || true
-endif
-	cd tmp/openssh/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
-	rm -fr tmp/openssh
-tgt-openssh: pkg2/openssh-$(OPENSSH_VER).cpio.zst
+#OPENSSH_OPT2+= --prefix=/usr
+#OPENSSH_OPT2+= --sysconfdir=/etc/ssh
+#OPENSSH_OPT2+= --with-md5-passwords
+#OPENSSH_OPT2+= --with-privsep-path=/var/lib/sshd
+#OPENSSH_OPT2+= $(OPT_FLAGS)
+#pkg2/openssh-$(OPENSSH_VER).cpio.zst: pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
+#	rm -fr tmp/openssh
+#	mkdir -p tmp/openssh/bld
+#	tar -xzf src/openssh-$(OPENSSH_VER).tar.gz -C tmp/openssh
+#	cd tmp/openssh/bld && ../openssh-$(OPENSSH_VER)/configure $(OPENSSH_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+#	rm -fr tmp/openssh/ins/usr/share
+#ifeq ($(BUILD_STRIP),y)
+#	strip --strip-unneeded tmp/openssh/ins/usr/bin/* || true
+#	strip --strip-unneeded tmp/openssh/ins/usr/sbin/* || true
+#	strip --strip-unneeded tmp/openssh/ins/usr/libexec/* || true
+#endif
+#	cd tmp/openssh/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+#	rm -fr tmp/openssh
+#tgt-openssh: pkg2/openssh-$(OPENSSH_VER).cpio.zst
 # OpenSSH has been configured with the following options:
 #                      User binaries: /usr/bin
 #                    System binaries: /usr/sbin
@@ -5705,28 +5745,28 @@ tgt-openssh: pkg2/openssh-$(OPENSSH_VER).cpio.zst
 # RKDEVELOPTOOL
 # https://github.com/PJK/libcbor
 # BUILD_TIME :: 10s
-pkg2/rkdeveloptool.cpio.zst: pkg2/openssh-$(OPENSSH_VER).cpio.zst
+pkg2/rkdeveloptool.cpio.zst: pkg2/net-tools-CVS_$(NET_TOOLS_VER).cpio.zst
 	rm -fr tmp/rkdeveloptool
 	mkdir -p tmp/rkdeveloptool/src
 	mkdir -p tmp/rkdeveloptool/bld
-	cat src/rkdeveloptool.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rkdeveloptool/src
+	cat src/rkdeveloptool.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/rkdeveloptool/src
 	cd tmp/rkdeveloptool/src && autoreconf -i
 	cd tmp/rkdeveloptool/bld && ../src/configure --prefix=/usr CXXFLAGS="$(BASE_OPT_FLAGS)" && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/rkdeveloptool/ins/usr/bin/*
 endif
-	cd tmp/rkdeveloptool/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/rkdeveloptool/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/rkdeveloptool
 tgt-rkdeveloptool: pkg2/rkdeveloptool.cpio.zst
 
 # UBOOT-TOOLS(mkimage)
 # BUILD_TIME :: 25s
 pkg2/uboot-tools.cpio.zst: pkg2/rkdeveloptool.cpio.zst
-	cat pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
+	cat pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/uboot-tools
 	mkdir -p tmp/uboot-tools/uboot-$(UBOOT_VER)
-	cat src/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-tools/uboot-$(UBOOT_VER)
+	cat src/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot-tools/uboot-$(UBOOT_VER)
 	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-tools/uboot-$(UBOOT_VER)/Makefile
 	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot-tools/uboot-$(UBOOT_VER)/arch/arm/Makefile
 	mkdir -p tmp/uboot-tools/bld
@@ -5749,8 +5789,8 @@ pkg2/uboot-tools.cpio.zst: pkg2/rkdeveloptool.cpio.zst
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/uboot-tools/ins/usr/bin/*
 endif
-	cd tmp/uboot-tools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/uboot-tools/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	mkdir -p /usr/bin && cp -f tmp/uboot-tools/ins/usr/bin/mkimage /usr/bin/
 	rm -fr tmp/uboot-tools
 tgt-uboot-tools: pkg2/uboot-tools.cpio.zst
@@ -5761,7 +5801,7 @@ pkg2/kernel.5.10.110.xunlong.cpio.zst: pkg2/uboot-tools.cpio.zst
 	rm -fr tmp/opi5-linux
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
-	cat src/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
+	cat src/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/opi5-linux/src
 #	find tmp/opi5-linux/src -name "Makefile" -exec sed -i "s/-O2/$(BASE_OPT_FLAGS)/" {} +
 #	find tmp/opi5-linux/src -name "Makefile.config" -exec sed -i "s/-O2/$(BASE_OPT_FLAGS)/" {} +
 	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
@@ -5841,8 +5881,8 @@ pkg2/kernel.5.10.110.xunlong.cpio.zst: pkg2/uboot-tools.cpio.zst
 	rm -fv tmp/opi5-linux/ins/usr/lib/modules/`cat tmp/opi5-linux/kerver.txt`/source
 	cd tmp/opi5-linux/bld && make LOCALVERSION= V=$(VERB) INSTALL_HDR_PATH=../ins/usr headers_install
 	cp -f tmp/opi5-linux/kerver.txt .
-	cd tmp/opi5-linux/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/opi5-linux/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/opi5-linux
 tgt-linux-kernel: pkg2/kernel.5.10.110.xunlong.cpio.zst
 
@@ -5850,7 +5890,7 @@ tgt-linux-config:
 	rm -fr tmp/opi5-linux
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
-	cat src/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/opi5-linux/src
+	cat src/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/opi5-linux/src
 	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
 	sed -i "s/-I\$$(BCMDHD_ROOT)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rkwifi\/bcmdhd\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/Makefile
 	sed -i "s/-I\$$(src)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rtl8852be\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rtl8852be/Makefile
@@ -5922,20 +5962,20 @@ tgt-linux-config:
 pkg2/kernel-headers.cpio.zst: pkg2/kernel.5.10.110.xunlong.cpio.zst
 	rm -fr tmp/kernel
 	mkdir -p tmp/kernel
-	cat $< | zstd -d | cpio -iduH newc -D tmp/kernel
+	cat $< | zstd -d | cpio -iduH newc --quiet -D tmp/kernel
 	rm -fr tmp/kernel/usr/lib
 	rm -fr tmp/kernel/usr/share
-	cd tmp/kernel && find . -print0 | cpio -o0H newc | zstd -z4T9 > ../../$@
+	cd tmp/kernel && find . -print0 | cpio -o0H newc --quiet | zstd -z4T9 > ../../$@
 	rm -fr tmp/kernel
 tgt-headers: pkg2/kernel-headers.cpio.zst
 
 pkg2/kernel-modules.cpio.zst: pkg2/kernel.5.10.110.xunlong.cpio.zst pkg2/kernel-headers.cpio.zst
 	rm -fr tmp/kernel
 	mkdir -p tmp/kernel
-	cat $< | zstd -d | cpio -iduH newc -D tmp/kernel
+	cat $< | zstd -d | cpio -iduH newc --quiet -D tmp/kernel
 	rm -fr tmp/kernel/usr/include
 	rm -fr tmp/kernel/usr/share
-	cd tmp/kernel && find . -print0 | cpio -o0H newc | zstd -z4T9 > ../../$@
+	cd tmp/kernel && find . -print0 | cpio -o0H newc --quiet | zstd -z4T9 > ../../$@
 	rm -fr tmp/kernel
 tgt-modules: pkg2/kernel-modules.cpio.zst
 
@@ -5944,18 +5984,18 @@ tgt-modules: pkg2/kernel-modules.cpio.zst
 pkg2/rk3588-bootstrap.cpio.zst: pkg2/kernel-modules.cpio.zst
 	rm -fr tmp/rk3588-bootstrap
 	mkdir -p tmp/rk3588-bootstrap/bins
-	cat src/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/bins
+	cat src/orangepi5-rkbin-only_rk3588.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/rk3588-bootstrap/bins
 	mkdir -p tmp/rk3588-bootstrap/ins
 	cp -f tmp/rk3588-bootstrap/bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin tmp/rk3588-bootstrap/ins/
 	cp -f tmp/rk3588-bootstrap/bins/rk3588_bl31_v1.28.elf tmp/rk3588-bootstrap/ins/
 	cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin tmp/rk3588-bootstrap/ins/
 	mkdir -p tmp/rk3588-bootstrap/atf-src
-	cat src/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/rk3588-bootstrap/atf-src
+	cat src/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/rk3588-bootstrap/atf-src
 	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
 	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
 	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
 	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
-	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	mkdir -p /usr/share/myboot && cp -f tmp/rk3588-bootstrap/bins/rk3588_spl_loader_v1.08.111.bin /usr/share/myboot/usb-loader.bin
 	rm -fr tmp/rk3588-bootstrap
 tgt-rk3588-bootstrap: pkg2/rk3588-bootstrap.cpio.zst
@@ -5986,23 +6026,23 @@ tgt-rk3588-bootstrap: pkg2/rk3588-bootstrap.cpio.zst
 # UBOOT -- OFFICIAL
 # BUILD_TIME :: 56s
 pkg2/uboot-$(UBOOT_VER).cpio.zst: pkg2/rk3588-bootstrap.cpio.zst
-	cat pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc -D /
+	cat pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/uboot
 	mkdir -p tmp/uboot/uboot-$(UBOOT_VER)
-	cat src/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/uboot-$(UBOOT_VER)
+	cat src/uboot-$(UBOOT_VER).src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot/uboot-$(UBOOT_VER)
 	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/Makefile
 	sed -i "s/-march=armv8-a+crc/$(RK3588_FLAGS)/" tmp/uboot/uboot-$(UBOOT_VER)/arch/arm/Makefile
 	sed -i 's|#define BOOT_TARGETS	"mmc1 mmc0 nvme scsi usb pxe dhcp spi"|#define BOOT_TARGETS "mmc1 mmc0"|' tmp/uboot/uboot-$(UBOOT_VER)/include/configs/rockchip-common.h
 	mkdir -p tmp/uboot/bld
 	mkdir -p tmp/uboot/bins
-	cat pkg2/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot/bins
+	cat pkg2/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot/bins
 	cd tmp/uboot/uboot-$(UBOOT_VER) && make V=$(VERB) O=../bld orangepi-5-plus-rk3588_defconfig
 	sed -i "s/CONFIG_BOOTDELAY=2/CONFIG_BOOTDELAY=5/" tmp/uboot/bld/.config
 	cd tmp/uboot/bld && make V=$(VERB) $(JOBS) ROCKCHIP_TPL=../bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin BL31=../bins/bl31.elf
 	mkdir -p tmp/uboot/ins/usr/share/myboot
 	cp -f tmp/uboot/bld/u-boot-rockchip.bin tmp/uboot/ins/usr/share/myboot/
-	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/uboot/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	mkdir -p /usr/share/myboot && cp -f tmp/uboot/ins/usr/share/myboot/* /usr/share/myboot/
 	rm -fr tmp/uboot
 tgt-uboot-new: pkg2/uboot-$(UBOOT_VER).cpio.zst
@@ -6037,8 +6077,8 @@ ifeq ($(BUILD_STRIP),y)
 	find tmp/python2/ins -type f -name "*.a" -exec strip --strip-debug {} +
 	cd tmp/python2/ins && strip --strip-unneeded $$(find . -type f -exec file {} + | grep ELF | cut -d: -f1)
 endif
-	cd tmp/python2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/python2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/python2
 tgt-python2: pkg2/python2-$(PYTHON2_VER).cpio.zst
 
@@ -6047,7 +6087,7 @@ tgt-python2: pkg2/python2-$(PYTHON2_VER).cpio.zst
 pkg2/uboot-xunlong.cpio.zst: pkg2/python2-$(PYTHON2_VER).cpio.zst
 	rm -fr tmp/uboot-xunlong
 	mkdir -p tmp/uboot-xunlong/src
-	cat src/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+	cat src/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot-xunlong/src
 	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
 	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
 	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
@@ -6064,7 +6104,7 @@ pkg2/uboot-xunlong.cpio.zst: pkg2/python2-$(PYTHON2_VER).cpio.zst
 	cp -f cfg/uboot_opi5plus_my_defconfig tmp/uboot-xunlong/src/configs/
 	cd tmp/uboot-xunlong/src && make V=$(VERB) O=../bld uboot_opi5plus_my_defconfig
 	mkdir -p tmp/uboot-xunlong/bins
-	cat pkg2/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/bins
+	cat pkg2/rk3588-bootstrap.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot-xunlong/bins
 	cd tmp/uboot-xunlong/bld && make V=$(VERB) $(JOBS) spl/u-boot-spl.bin BL31=../bins/bl31.elf u-boot.dtb u-boot.itb
 	cd tmp/uboot-xunlong && bld/tools/mkimage -n rk3588 -T rksd -d "bins/rk3588_ddr_lp4_2112MHz_lp5_2736MHz_v1.08.bin:bld/spl/u-boot-spl.bin" uboot-head.bin
 	dd of=tmp/uboot-xunlong/u-boot-xunlong.bin if=/dev/zero bs=1M count=8
@@ -6075,15 +6115,15 @@ pkg2/uboot-xunlong.cpio.zst: pkg2/python2-$(PYTHON2_VER).cpio.zst
 	cp -f tmp/uboot-xunlong/uboot-head.bin tmp/uboot-xunlong/ins/usr/share/myboot/
 	cp -f tmp/uboot-xunlong/bld/u-boot.itb tmp/uboot-xunlong/ins/usr/share/myboot/
 	cp -f tmp/uboot-xunlong/u-boot-xunlong.bin tmp/uboot-xunlong/ins/usr/share/myboot/
-	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/uboot-xunlong/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/uboot-xunlong
 tgt-uboot-old: pkg2/uboot-xunlong.cpio.zst
 
 uboot-cfg:
 	rm -fr tmp/uboot-xunlong
 	mkdir -p tmp/uboot-xunlong/src
-	cat src/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/uboot-xunlong/src
+	cat src/orangepi5-uboot.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/uboot-xunlong/src
 	sed -i "s/-march=armv8-a+nosimd/$(RK3588_FLAGS)/" tmp/uboot-xunlong/src/arch/arm/Makefile
 	sed -i "s/-O2/$(BASE_OPT_FLAGS)/" tmp/uboot-xunlong/src/Makefile
 	sed -i "s/CONFIG_BOOTDELAY=3/CONFIG_BOOTDELAY=0/" tmp/uboot-xunlong/src/configs/orangepi_5_defconfig
@@ -6179,8 +6219,8 @@ pkg2/boot-scr.cpio.zst: pkg2/uboot-xunlong.cpio.zst
 	echo 'rootdev=UUID=0b9501f8-db3c-4b33-940a-7fce0931dc2c' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
 	echo 'fdtfile=rockchip/rk3588-orangepi-5-plus.dtb' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
 	echo 'overlays=can0-m0 can1-m0' >> tmp/boot-scr/ins/usr/share/myboot/boot-fat/orangepiEnv.txt
-	cd tmp/boot-scr/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/boot-scr/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/boot-scr
 tgt-boot-scr: pkg2/boot-scr.cpio.zst
 
@@ -6193,7 +6233,7 @@ pkg2/issue.cpio.zst: pkg2/boot-scr.cpio.zst
 	chmod ugo+x tmp/issue/issue.sh
 	cd tmp/issue && ./issue.sh
 	rm -f tmp/issue/issue.sh
-	cd tmp/issue && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	cd tmp/issue && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../$@
 	rm -fr tmp/issue
 tgt-issue: pkg2/issue.cpio.zst
 
@@ -6204,7 +6244,7 @@ pkg2/dbus-min.cpio.zst: pkg2/issue.cpio.zst
 	cat pkg2/dbus-1.12.20.cpio.zst | zstd -d | cpio -idumH newc -D tmp/dbus
 	rm -fr tmp/dbus/usr/include
 #	rm -fr tmp/dbus/usr/lib/systemd
-	cd tmp/dbus && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
+	cd tmp/dbus && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../$@
 	rm -fr tmp/dbus
 
 # systemd ExecStart= , what is 'minus' means? I.e. ExecStart=-/bin/bash
@@ -6304,7 +6344,7 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 	cp -far /usr/lib/libcrypt.so*  tmp/initrd/usr/lib/
 	cp -far /usr/lib/libpcre.so*  tmp/initrd/usr/lib/
 # --- apps
-	cat pkg2/ldd.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/usr/bin
+	cat pkg2/ldd.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/initrd/usr/bin
 	cp -f /usr/bin/bash tmp/initrd/usr/bin/
 	cd tmp/initrd/bin && ln -sf bash sh
 	cp -f /usr/bin/dmesg tmp/initrd/usr/bin/
@@ -6446,7 +6486,7 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 	cp -far tmp/shadow/usr/* tmp/initrd/usr/
 	rm -fr tmp/shadow
 # === dbus
-	cat pkg2/dbus-min.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd
+	cat pkg2/dbus-min.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/initrd
 # ===
 	mkdir -p      tmp/initrd/boot
 	mkdir -p      tmp/initrd/opt
@@ -6493,7 +6533,7 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 	cp -f /usr/bin/date tmp/initrd/usr/bin/
 	cp -f /usr/sbin/hwclock tmp/initrd/usr/sbin/
 # issue
-	cat pkg2/issue.cpio.zst | zstd -d | cpio -iduH newc -D tmp/initrd/etc
+	cat pkg2/issue.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/initrd/etc
 # (1) /etc/environment
 	touch tmp/initrd/etc/environment
 # (2) /etc/profile
@@ -6699,8 +6739,8 @@ endif
 #	rm -fr tmp/initrd
 	mkdir -p tmp/initrd_ins/usr/share/myboot/boot-fat
 	mv -f tmp/uInitrd tmp/initrd_ins/usr/share/myboot/boot-fat/
-	cd tmp/initrd_ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/initrd_ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/initrd_ins
 tgt-rd: pkg2/boot-initrd.cpio.zst
 
@@ -6746,11 +6786,11 @@ pkg2/boot-fat.cpio.zst: pkg2/boot-initrd.cpio.zst
 #	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/myetc/mytest.c
 #	echo '  return 0;' >> tmp/fat/etc/myetc/mytest.c
 #	echo '}' >> tmp/fat/etc/myetc/mytest.c
-	cd tmp/fat/etc && find . -print0 | cpio -o0H newc > ../mnt/etc.cpio
+	cd tmp/fat/etc && find . -print0 | cpio -o0H newc --quiet > ../mnt/etc.cpio
 	umount tmp/fat/mnt
 	mv -f tmp/fat/mmc-fat.bin tmp/fat/ins/usr/share/myboot/
-	cd tmp/fat/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/fat/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/fat
 tgt-fat: pkg2/boot-fat.cpio.zst
 
@@ -6841,15 +6881,15 @@ flash: mmc.img
 #	mkdir -p tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/pyelftools-$(PYELFTOOLS_VER)-py$(PYTHON_VER0).egg
 ##	cp -f /usr/lib/python$(PYTHON_VER0)/site-packages/easy-install.pth tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
 #	cp -far /usr/lib/python$(PYTHON_VER0)/site-packages/pyelftools-$(PYELFTOOLS_VER)-py$(PYTHON_VER0).egg tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
-#	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-#	cat $@ | zstd -d | cpio -iduH newc -D /
+#	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #pkg3/pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst:
 ##	pip3 install pyelftools
 #	rm -fr tmp/pyelftools
 #	mkdir -p tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages
 #	cp -far /usr/lib/python3.8/site-packages/elftools tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
 #	cp -far /usr/lib/python3.8/site-packages/pyelftools-$(PYELFTOOLS_VER).dist-info tmp/pyelftools/ins/usr/lib/python$(PYTHON_VER0)/site-packages/
-#	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
+#	cd tmp/pyelftools/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 ## backward pack from rfs
 #tgt-pyelftools: pkg3/pyelftools-$(PYELFTOOLS_VER).pip3.cpio.zst
 
@@ -6900,15 +6940,15 @@ pkg3/can-utils.cpio.zst: pkg3/cmake-$(CMAKE_VER).cpio.zst
 	rm -fr tmp/can-utils
 	mkdir -p tmp/can-utils/src
 	mkdir -p tmp/can-utils/bld
-	cat pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst | zstd -d | cpio -iduH newc -D tmp/can-utils/src
+	cat pkg/can-utils-$(CAN_UTILS_VER).src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/can-utils/src
 	cd tmp/can-utils/bld && cmake -GNinja ../src
 	cd tmp/can-utils/bld && LANG=en_US.UTF-8 ninja $(CAN_UTILS_BUILD_VERB)
 	cd tmp/can-utils/bld && LANG=en_US.UTF-8 DESTDIR=`pwd`/../ins ninja install
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/can-utils/ins/usr/local/bin/*
 endif
-	cd tmp/can-utils/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/can-utils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/can-utils
 tgt-can-utils: pkg3/can-utils.cpio.zst
 
@@ -6930,8 +6970,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libtasn1/ins/usr/lib/*.so*
 	strip --strip-unneeded tmp/libtasn1/ins/usr/bin/* || true
 endif
-	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libtasn1/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libtasn1
 tgt-libtasn1: pkg3/libtasn1-$(LIBTASN1_VER).cpio.zst
 
@@ -6952,8 +6992,8 @@ pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst:
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libunistring/ins/usr/lib/*.so*
 endif
-	cd tmp/libunistring/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libunistring/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libunistring
 tgt-libunistring: pkg3/libunistring-$(LIBUNISTRING_VER).cpio.zst
 
@@ -6976,8 +7016,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libidn2/ins/usr/bin/* || true
 	strip --strip-unneeded tmp/libidn2/ins/usr/lib/*.so* || true
 endif
-	cd tmp/libidn2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libidn2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libidn2
 tgt-libidn2: pkg3/libidn2-$(LIBIDN2_VER).cpio.zst
 
@@ -6997,8 +7037,8 @@ pkg3/libcbor-$(LIBCBOR_VER).cpio.zst:
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/libcbor/ins/usr/lib/*.so* || true
 endif
-	cd tmp/libcbor/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/libcbor/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/libcbor
 tgt-libcbor: pkg3/libcbor-$(LIBCBOR_VER).cpio.zst
 
@@ -7022,8 +7062,8 @@ pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst:
 ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/nghttp2/ins/usr/lib/*.so* || true
 endif
-	cd tmp/nghttp2/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/nghttp2/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/nghttp2
 tgt-nghttp2: pkg3/nghttp2-$(NGHTTP2_VER).cpio.zst
 
@@ -7052,8 +7092,8 @@ ifeq ($(BUILD_STRIP),y)
 	strip --strip-unneeded tmp/sasl/ins/usr/lib/sasl2/*.so* || true
 	strip --strip-unneeded tmp/sasl/ins/usr/sbin/* || true
 endif
-	cd tmp/sasl/ins && find . -print0 | cpio -o0H newc | zstd -z9T9 > ../../../$@
-	cat $@ | zstd -d | cpio -iduH newc -D /
+	cd tmp/sasl/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 	rm -fr tmp/sasl
 tgt-sasl: pkg3/cyrus-sasl-$(SASL_VER).cpio.zst
 
@@ -7104,4 +7144,3 @@ pkg3/openldap-$(OPENLDAP_VER).cpio.zst:
 	cp -far pkg/openldap-$(OPENLDAP_VER)-consolidated-2.patch tmp/openldap/
 	cd tmp/openldap/openldap-$(OPENLDAP_VER) && patch -Np1 -i ../openldap-$(OPENLDAP_VER)-consolidated-2.patch
 tgt-openldap: pkg3/openldap-$(OPENLDAP_VER).cpio.zst
-
