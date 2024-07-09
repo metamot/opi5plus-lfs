@@ -1021,6 +1021,8 @@ pkg0/lfs-hst-glibc-$(GLIBC_VER).cpio.zst: src/glibc-$(GLIBC_VER).tar.xz src/glib
 	sed -i '31 a DIAG_IGNORE_Os_NEEDS_COMMENT (8, "-Wmaybe-uninitialized");' tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/locale/weight.h
 	sed -i '33 a DIAG_POP_NEEDS_COMMENT;' tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/locale/weight.h
 	tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/scripts/config.guess > lfs-cross/tools/build-host.txt
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/Makerules
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/lfs-hst-glibc/glibc-$(GLIBC_VER)/Makeconfig
 	mkdir -p tmp/lfs-hst-glibc/bld && sh -c '$(PRE_CMD) && cd tmp/lfs-hst-glibc/bld && ../glibc-$(GLIBC_VER)/configure $(GLIBC_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 ifeq ($(BUILD_STRIP),y)
 	find tmp/lfs-hst-glibc/ins -type f -name "*.a" -exec strip --strip-debug {} +
@@ -1068,6 +1070,7 @@ pkg0/lfs-hst-libcpp.pass1.cpio.zst: src/gcc-$(GCC_VER).tar.xz src/gmp-$(GMP_VER)
 	tar -xJf src/gmp-$(GMP_VER).tar.xz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v gmp-$(GMP_VER) gmp
 	tar -xJf src/mpfr-$(MPFR_VER).tar.xz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v mpfr-$(MPFR_VER) mpfr
 	tar -xzf src/mpc-$(MPC_VER).tar.gz -C tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && cd tmp/lfs-hst-libcpp1/gcc-$(GCC_VER) && mv -v mpc-$(MPC_VER) mpc
+	sed -i 's|-O1|$(BASE_OPT_VALUE)|' tmp/lfs-hst-libcpp1/gcc-$(GCC_VER)/libstdc++-v3/configure
 	mkdir -p tmp/lfs-hst-libcpp1/bld
 	sh -c '$(PRE_CMD) && cd tmp/lfs-hst-libcpp1/bld && ../gcc-$(GCC_VER)/libstdc++-v3/configure --build=`cat $(shell pwd)/build-host.txt` $(LIBCPP1_OPT0) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install'
 	find tmp/lfs-hst-libcpp1/ins -name \*.la -delete
@@ -1650,8 +1653,8 @@ lfs-chroot/opt/mysdk/Makefile: pkg0/lfs-hst-full.cpio.zst
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
-	echo 'make -C /opt/mysdk mmc.img' >> $@
-#	echo 'make -C /opt/mysdk tgt-uboot-tools' >> $@
+#	echo 'make -C /opt/mysdk mmc.img' >> $@
+	echo 'make -C /opt/mysdk tgt-uboot-tools' >> $@
 	chmod ugo+x $@
 #lfs-chroot/opt/mysdk/chroot2.sh: lfs-chroot/opt/mysdk/mmc.img
 #	mkdir -p lfs-chroot/opt/mysdk
@@ -2126,43 +2129,43 @@ tgt-tcl: pkg2/tcl$(TCL_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/expect.html
 # BUILD_TIME :: 20s
 # BUILD_TIME_WITH_TEST :: 36s
-#EXPECT_OPT2+= --prefix=/usr
-#EXPECT_OPT2+= --with-tcl=/usr/lib
-#EXPECT_OPT2+= --enable-shared
-#EXPECT_OPT2+= --mandir=/usr/share/man
-#EXPECT_OPT2+= --enable-64bit
-#EXPECT_OPT2+= --with-tclinclude=/usr/include
-#EXPECT_OPT2+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
-#pkg2/expect$(EXPECT_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
-#	rm -fr tmp/expect
-#	mkdir -p tmp/expect/bld
-#	tar -xzf src/expect$(EXPECT_VER).tar.gz -C tmp/expect
+EXPECT_OPT2+= --prefix=/usr
+EXPECT_OPT2+= --with-tcl=/usr/lib
+EXPECT_OPT2+= --enable-shared
+EXPECT_OPT2+= --mandir=/usr/share/man
+EXPECT_OPT2+= --enable-64bit
+EXPECT_OPT2+= --with-tclinclude=/usr/include
+EXPECT_OPT2+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
+pkg2/expect$(EXPECT_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
+	rm -fr tmp/expect
+	mkdir -p tmp/expect/bld
+	tar -xzf src/expect$(EXPECT_VER).tar.gz -C tmp/expect
 ## BEGIN: Workaround error with configure guess "unknown host"
 ## https://forums.fedoraforum.org/showthread.php?281575-configure-error-cannot-guess-build-type-you-must-specify-one
 ## download new "configure.guess" and "configure.sub" from "http://git.savannah.gnu.org/gitweb/?p=config.git&view=view+git+repository"
 ## see above our "make pkg" and replace old inside "tclconfig"-dir.
 ## NOTE: config.guess return the name of build-host, as is initial system start builds at first stages, i.e. "aarch64-unknown-linux-gnu" for Debian11 initial build-host
-#	cp -far src/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
-#	cp -far src/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
+	cp -far src/config.guess tmp/expect/expect$(EXPECT_VER)/tclconfig/
+	cp -far src/config.sub tmp/expect/expect$(EXPECT_VER)/tclconfig/
 ## END: workaround
-#	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
-#	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
-#	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT2) && make $(JOBS) V=$(VERB)
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/configure
+	sed -i "s|-O2|$(BASE_OPT_VALUE)|" tmp/expect/expect$(EXPECT_VER)/testsuite/configure
+	cd tmp/expect/bld && ../expect$(EXPECT_VER)/configure $(EXPECT_OPT2) && make $(JOBS) V=$(VERB)
 #ifeq ($(RUN_TESTS),y)
 #	mkdir -p tst && cd tmp/expect/bld && make test 2>&1 | tee ../../../tst/expect-test.log || true
 ## TESTS ARE PASSED
 #endif
-#	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
-#	rm -fr tmp/expect/ins/usr/share
-#	cd tmp/expect/ins/usr/lib && ln -svf expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so libexpect$(EXPECT_VER).so
-#ifeq ($(BUILD_STRIP),y)
-#	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
-#	strip --strip-unneeded tmp/expect/ins/usr/bin/expect
-#endif
-#	cd tmp/expect/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
-#	rm -fr tmp/expect
-#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
-#tgt-expect: pkg2/expect$(EXPECT_VER).cpio.zst
+	cd tmp/expect/bld && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/expect/ins/usr/share
+	cd tmp/expect/ins/usr/lib && ln -svf expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so libexpect$(EXPECT_VER).so
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/expect/ins/usr/lib/expect$(EXPECT_VER)/libexpect$(EXPECT_VER).so
+	strip --strip-unneeded tmp/expect/ins/usr/bin/expect
+endif
+	cd tmp/expect/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	rm -fr tmp/expect
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+tgt-expect: pkg2/expect$(EXPECT_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.6. DejaGNU-1.6.2 
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/dejagnu.html
@@ -2194,7 +2197,7 @@ tgt-tcl: pkg2/tcl$(TCL_VER).cpio.zst
 # LFS-10.0-systemd :: 8.7. Iana-Etc-20200821
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/iana-etc.html
 # BUILD_TIME :: 1s
-pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg2/tcl$(TCL_VER).cpio.zst
+pkg2/iana-etc-$(IANA_ETC_VER).cpio.zst: pkg2/expect$(EXPECT_VER).cpio.zst
 	rm -fr tmp/iana-etc
 	mkdir -p tmp/iana-etc/ins/etc
 	tar -xzf src/iana-etc-$(IANA_ETC_VER).tar.gz -C tmp/iana-etc
