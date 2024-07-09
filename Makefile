@@ -3338,30 +3338,30 @@ tgt-psmisc: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/gettext.html
 # BUILD_TIME :: 7m 15s
 # BUILD_TIME_WITH_TEST :: 13m 30s
-#GETTEXT_OPT2+= --prefix=/usr
-#GETTEXT_OPT2+= --disable-static
-#GETTEXT_OPT2+= --docdir=/usr/share/doc/gettext-$(GETTEXT_VER)
-#GETTEXT_OPT2+= --disable-nls
-#GETTEXT_OPT2+= $(OPT_FLAGS)
-#pkg2/gettext-$(GETTEXT_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
-#	rm -fr tmp/gettext
-#	mkdir -p tmp/gettext/bld
-#	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/gettext
-#	cd tmp/gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
-#	rm -fr tmp/gettext/ins/usr/share/doc
-#	rm -fr tmp/gettext/ins/usr/share/info
-#	rm -fr tmp/gettext/ins/usr/share/man
-#	rm -fr tmp/gettext/ins/usr/share/gettext/projects
-#	rm -f  tmp/gettext/ins/usr/share/gettext/ABOUT-NLS
-#	rm -fr tmp/gettext/ins/usr/lib/*.la
-#	chmod -v 0755 tmp/gettext/ins/usr/lib/preloadable_libintl.so
-#ifeq ($(BUILD_STRIP),y)
-#	strip --strip-unneeded tmp/gettext/ins/usr/bin/* || true
-#	strip --strip-unneeded tmp/gettext/ins/usr/lib/gettext/* || true
-#	strip --strip-unneeded tmp/gettext/ins/usr/lib/*.so*
-#endif
-#	cd tmp/gettext/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
-#	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
+GETTEXT_OPT2+= --prefix=/usr
+GETTEXT_OPT2+= --disable-static
+GETTEXT_OPT2+= --docdir=/usr/share/doc/gettext-$(GETTEXT_VER)
+GETTEXT_OPT2+= --disable-nls
+GETTEXT_OPT2+= $(OPT_FLAGS)
+pkg2/gettext-$(GETTEXT_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
+	rm -fr tmp/gettext
+	mkdir -p tmp/gettext/bld
+	tar -xJf src/gettext-$(GETTEXT_VER).tar.xz -C tmp/gettext
+	cd tmp/gettext/bld && ../gettext-$(GETTEXT_VER)/configure $(GETTEXT_OPT2) && make $(JOBS) V=$(VERB) && make DESTDIR=`pwd`/../ins install
+	rm -fr tmp/gettext/ins/usr/share/doc
+	rm -fr tmp/gettext/ins/usr/share/info
+	rm -fr tmp/gettext/ins/usr/share/man
+	rm -fr tmp/gettext/ins/usr/share/gettext/projects
+	rm -f  tmp/gettext/ins/usr/share/gettext/ABOUT-NLS
+	rm -fr tmp/gettext/ins/usr/lib/*.la
+	chmod -v 0755 tmp/gettext/ins/usr/lib/preloadable_libintl.so
+ifeq ($(BUILD_STRIP),y)
+	strip --strip-unneeded tmp/gettext/ins/usr/bin/* || true
+	strip --strip-unneeded tmp/gettext/ins/usr/lib/gettext/* || true
+	strip --strip-unneeded tmp/gettext/ins/usr/lib/*.so*
+endif
+	cd tmp/gettext/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
+	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #ifeq ($(RUN_TESTS),y)
 #	mkdir -p tst && cd tmp/gettext/bld && make check 2>&1 | tee ../../../tst/gettext-check.log || true
 #============================================================================
@@ -3376,8 +3376,8 @@ tgt-psmisc: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 ## ERROR: 0
 #============================================================================
 #endif
-#	rm -fr tmp/gettext
-#tgt-gettext: pkg2/gettext-$(GETTEXT_VER).cpio.zst
+	rm -fr tmp/gettext
+tgt-gettext: pkg2/gettext-$(GETTEXT_VER).cpio.zst
 
 # LFS-10.0-systemd :: 8.32. Bison-3.7.1
 # https://www.linuxfromscratch.org/lfs/view/10.0-systemd/chapter08/bison.html
@@ -3386,7 +3386,7 @@ tgt-psmisc: pkg2/psmisc-$(PSMISC_VER).cpio.zst
 BISON_OPT2+= --prefix=/usr
 BISON_OPT2+= --disable-nls
 BISON_OPT2+= $(OPT_FLAGS)
-pkg2/bison-$(BISON_VER).cpio.zst: pkg2/psmisc-$(PSMISC_VER).cpio.zst
+pkg2/bison-$(BISON_VER).cpio.zst: pkg2/gettext-$(GETTEXT_VER).cpio.zst
 	rm -fr tmp/bison
 	mkdir -p tmp/bison/bld
 	tar -xJf src/bison-$(BISON_VER).tar.xz -C tmp/bison
