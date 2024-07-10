@@ -1653,8 +1653,8 @@ lfs-chroot/opt/mysdk/Makefile: pkg0/lfs-hst-full.cpio.zst
 lfs-chroot/opt/mysdk/chroot1.sh: lfs-chroot/opt/mysdk/Makefile
 	mkdir -p lfs-chroot/opt/mysdk
 	echo '#!/bin/bash' > $@
-#	echo 'make -C /opt/mysdk mmc.img' >> $@
-	echo 'make -C /opt/mysdk tgt-uboot-tools' >> $@
+	echo 'make -C /opt/mysdk mmc.img' >> $@
+#	echo 'make -C /opt/mysdk tgt-uboot-tools' >> $@
 	chmod ugo+x $@
 #lfs-chroot/opt/mysdk/chroot2.sh: lfs-chroot/opt/mysdk/mmc.img
 #	mkdir -p lfs-chroot/opt/mysdk
@@ -5805,7 +5805,8 @@ pkg2/kernel.5.10.110.xunlong.cpio.zst: pkg2/uboot-tools.cpio.zst
 	mkdir -p tmp/opi5-linux/src
 	mkdir -p tmp/opi5-linux/bld
 	cat src/orangepi5-linux510.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/opi5-linux/src
-#	find tmp/opi5-linux/src -name "Makefile" -exec sed -i "s/-O2/$(BASE_OPT_FLAGS)/" {} +
+	find tmp/opi5-linux/src -name "Makefile" -exec sed -i "s/-O2/$(BASE_OPT_FLAGS)/" {} +
+	find tmp/opi5-linux/src -name "Makefile" -exec sed -i "s/-O3/$(BASE_OPT_VALUE)/" {} +
 #	find tmp/opi5-linux/src -name "Makefile.config" -exec sed -i "s/-O2/$(BASE_OPT_FLAGS)/" {} +
 	sed -i "s/include \$$(TopDIR)\/drivers\/net\/wireless\/rtl88x2cs\/rtl8822c.mk/include \$$(src)\/rtl8822c.mk/" tmp/opi5-linux/src/drivers/net/wireless/rtl88x2cs/Makefile
 	sed -i "s/-I\$$(BCMDHD_ROOT)\/include/-I\$$(src)\/..\/..\/..\/..\/..\/..\/..\/src\/drivers\/net\/wireless\/rockchip_wlan\/rkwifi\/bcmdhd\/include/" tmp/opi5-linux/src/drivers/net/wireless/rockchip_wlan/rkwifi/bcmdhd/Makefile
@@ -5996,6 +5997,7 @@ pkg2/rk3588-bootstrap.cpio.zst: pkg2/kernel-modules.cpio.zst
 	cat src/rockchip-rk35-atf.src.cpio.zst | zstd -d | cpio -iduH newc --quiet -D tmp/rk3588-bootstrap/atf-src
 	sed -i "s/ASFLAGS		+=	\$$(march-directive)/ASFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
 	sed -i "s/TF_CFLAGS   +=	\$$(march-directive)/TF_CFLAGS += $(BASE_OPT_FLAGS)/" tmp/rk3588-bootstrap/atf-src/Makefile
+	sed -i "s|-O1|$(BASE_OPT_VALUE)|" tmp/rk3588-bootstrap/atf-src/Makefile
 	cd tmp/rk3588-bootstrap/atf-src && make V=$(VERB) $(JOBS) PLAT=rk3588 bl31
 	cp tmp/rk3588-bootstrap/atf-src/build/rk3588/release/bl31/bl31.elf tmp/rk3588-bootstrap/ins/
 	cd tmp/rk3588-bootstrap/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
@@ -6249,6 +6251,7 @@ pkg2/dbus-min.cpio.zst: pkg2/issue.cpio.zst
 #	rm -fr tmp/dbus/usr/lib/systemd
 	cd tmp/dbus && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../$@
 	rm -fr tmp/dbus
+tgt-dbus-min: pkg2/dbus-min.cpio.zst
 
 # systemd ExecStart= , what is 'minus' means? I.e. ExecStart=-/bin/bash
 # https://unix.stackexchange.com/questions/404199/documentation-of-equals-minus-in-systemd-unit-files
@@ -6751,7 +6754,7 @@ pkg2/boot-fat.cpio.zst: pkg2/boot-initrd.cpio.zst
 	rm -fr tmp/fat
 	mkdir -p tmp/fat/ins/usr/share/myboot
 # (!!!) seek=X, type here value-1 from ODS (117 for example)
-	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=400
+	dd of=tmp/fat/mmc-fat.bin if=/dev/zero bs=1M count=0 seek=211
 	mkfs.fat -F 32 -n "our_boot" -i A77ACF93 tmp/fat/mmc-fat.bin
 	mkdir -p tmp/fat/mnt
 	mount tmp/fat/mmc-fat.bin tmp/fat/mnt
@@ -6782,8 +6785,10 @@ pkg2/boot-fat.cpio.zst: pkg2/boot-initrd.cpio.zst
 #	cp --force --no-preserve=all --recursive pkg2/openssh-$(OPENSSH_VER).cpio.zst tmp/fat/mnt/zst/openssh.cpio.zst
 	mkdir -p tmp/fat/etc/ssh
 	cp -far cfg/etc/* tmp/fat/etc
-	ssh-keygen -A
-	cp -farv /etc/ssh/*key* tmp/fat/etc/ssh
+#
+#	ssh-keygen -A
+#	cp -farv /etc/ssh/*key* tmp/fat/etc/ssh
+#
 #	echo '#include <stdio.h>' > tmp/fat/etc/myetc/mytest.c
 #	echo 'int main() {' >> tmp/fat/etc/myetc/mytest.c
 #	echo '  printf("Hello, World!\n");' >> tmp/fat/etc/myetc/mytest.c
@@ -6804,18 +6809,18 @@ mmc.img: pkg2/boot-fat.cpio.zst
 	rm -fr tmp/init
 	mkdir -p tmp/init
 # (!!!) seek=X, type here value-10 from ODS (256 for example)
-	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=411
+	dd of=tmp/init/mmc.img if=/dev/zero bs=1M count=0 seek=222
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/$(TGT_UBOOT) seek=64    conv=notrunc
 	dd of=tmp/init/mmc.img if=/usr/share/myboot/mmc-fat.bin  seek=20480 conv=notrunc
 	parted -s tmp/init/mmc.img mklabel gpt
 # (!!!) last value, type here value-5 from ODS (260095 for example)
-	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 839679
+	parted -s tmp/init/mmc.img unit s mkpart bootfs 20480 452607
 #	cp -f tmp/init/mmc.img .
 	mkdir -p tmp/init/ins
 	cp -f tmp/init/mmc.img tmp/init/ins/
 	cat tmp/init/mmc.img | zstd -z9T9 > tmp/init/ins/mmc.zst
 # (!!!) count=X, type here value-3 from ODS (239616 for example)
-	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=819200
+	dd if=tmp/init/ins/mmc.img of=tmp/init/ins/fat.bin skip=20480 count=432128
 	mkdir -p tmp/init/ins/fat
 	mount tmp/init/ins/fat.bin tmp/init/ins/fat
 	cp --force --no-preserve=all tmp/init/ins/mmc.zst tmp/init/ins/fat
@@ -6823,7 +6828,7 @@ mmc.img: pkg2/boot-fat.cpio.zst
 	dd of=tmp/init/ins/mmc.img if=tmp/init/ins/fat.bin seek=20480 conv=notrunc
 	cp -f tmp/init/ins/mmc.img .
 	rm -fr tmp/init
-mmc: mmc.img
+#mmc: mmc.img
 
 #mmc-sd: mmc.img
 #	rm -fr tmp/mmc-sd
