@@ -24,6 +24,4 @@ endif
 	mkdir -p pkg && cd tmp/readline/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/readline
 src/readline-$(READLINE_VER).tar.gz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/readline/readline-$(READLINE_VER).tar.gz && touch $@
-#--no-check-certificate
-
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/readline/readline-$(READLINE_VER).tar.gz && touch $@

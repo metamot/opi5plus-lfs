@@ -1,6 +1,9 @@
 SRC+=src/gettext-$(GETTEXT_VER).tar.xz
 PKG+=pkg/gettext.cpio.zst
 gettext: pkg/gettext.cpio.zst
+	cat pkg/attr.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/acl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/ncurses.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 GETTEXT_OPT+= --prefix=/usr
 GETTEXT_OPT+= --disable-static
@@ -8,7 +11,9 @@ GETTEXT_OPT+= --docdir=/usr/share/doc/gettext-$(GETTEXT_VER)
 GETTEXT_OPT+= --disable-nls
 GETTEXT_OPT+= $(OPT_FLAGS)
 pkg/gettext.cpio.zst: src/gettext-$(GETTEXT_VER).tar.xz pkg/acl.cpio.zst
+	cat pkg/attr.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/acl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/ncurses.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/gettext
 	mkdir -p tmp/gettext/bld
 	tar -xJf $< -C tmp/gettext

@@ -6,8 +6,7 @@ FINDUTILS_OPT+= --prefix=/usr
 FINDUTILS_OPT+= --localstatedir=/var/lib/locate
 FINDUTILS_OPT+= --disable-nls
 FINDUTILS_OPT+= $(OPT_FLAGS)
-pkg/findutils.cpio.zst: src/findutils-$(FIND_UTILS_VER).tar.xz pkg/m4.cpio.zst
-	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+pkg/findutils.cpio.zst: src/findutils-$(FIND_UTILS_VER).tar.xz
 	rm -fr tmp/findutils
 	mkdir -p tmp/findutils/bld
 	tar -xJf $< -C tmp/findutils

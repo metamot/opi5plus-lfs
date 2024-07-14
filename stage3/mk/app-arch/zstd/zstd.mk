@@ -1,15 +1,9 @@
 SRC+=src/zstd-$(ZSTD_VER).tar.gz
 PKG+=pkg/zstd.cpio.zst
 zstd: pkg/zstd.cpio.zst
-	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/lz4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-pkg/zstd.cpio.zst: src/zstd-$(ZSTD_VER).tar.gz pkg/gzip.cpio.zst pkg/zlib.cpio.zst pkg/xz-utils.cpio.zst pkg/lz4.cpio.zst
+pkg/zstd.cpio.zst: src/zstd-$(ZSTD_VER).tar.gz pkg/gzip.cpio.zst
 	cat pkg/gzip.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/lz4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/zstd
 	mkdir -p tmp/zstd
 	tar -xzf $< -C tmp/zstd
@@ -17,9 +11,8 @@ pkg/zstd.cpio.zst: src/zstd-$(ZSTD_VER).tar.gz pkg/gzip.cpio.zst pkg/zlib.cpio.z
 	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/tests/fuzz/fuzz.py
 	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/contrib/linux-kernel/0002-lib-Add-zstd-modules.patch
 	sed -i "s|-O3|$(BASE_OPT_VALUE)|" tmp/zstd/zstd-$(ZSTD_VER)/Makefile
-# runned 2nd time for core Makefile, because "-O3" double exists on lines
-	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS)
-	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS) prefix=`pwd`/../ins/usr install
+	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS) HAVE_ZLIB=0 HAVE_LZMA=0 HAVE_LZ4=0
+	cd tmp/zstd/zstd-$(ZSTD_VER) && make $(JOBS) CC=gcc MOREFLAGS=$(RK3588_FLAGS) HAVE_ZLIB=0 HAVE_LZMA=0 HAVE_LZ4=0 prefix=`pwd`/../ins/usr install
 	rm -fr tmp/zstd/ins/usr/share
 ifeq ($(BUILD_STRIP),y)
 	strip $(STRIP_BUILD_BIN) tmp/zstd/ins/usr/bin/* || true

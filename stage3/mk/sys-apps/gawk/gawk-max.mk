@@ -9,14 +9,8 @@ gawk: pkg/gawk.cpio.zst
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 GAWK_OPT+= --prefix=/usr
 GAWK_OPT+= --disable-nls
-GAWK_OPT+= --disable-mpfr
-GAWK_OPT+= --without-libiconv-prefix
-GAWK_OPT+= --without-libintl-prefix
-GAWK_OPT+= --without-libsigsegv-prefix
 GAWK_OPT+= $(OPT_FLAGS)
-pkg/gawk.cpio.zst: src/gawk-$(GAWK_VER).tar.xz
-# pkg/mpfr.cpio.zst
-# pkg/readline.cpio.zst pkg/bison.cpio.zst  pkg/libsigsegv.cpio.zst
+pkg/gawk.cpio.zst: src/gawk-$(GAWK_VER).tar.xz pkg/mpfr.cpio.zst pkg/readline.cpio.zst pkg/bison.cpio.zst pkg/libsigsegv.cpio.zst
 #	cat pkg/ncurses.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 #	cat pkg/readline.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 #	cat pkg/bison.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1

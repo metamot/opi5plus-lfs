@@ -9,6 +9,8 @@ NCURSES_OPT+= --without-debug
 NCURSES_OPT+= --without-normal
 NCURSES_OPT+= --enable-pc-files
 NCURSES_OPT+= --enable-widec
+NCURSES_OPT+= --without-ada
+NCURSES_OPT+= --without-pcre2
 NCURSES_OPT+= $(OPT_FLAGS)
 pkg/ncurses.cpio.zst: src/ncurses-$(NCURSES_VER).tar.gz pkg/gzip.cpio.zst pkg/grep.cpio.zst pkg/pkgconfig.cpio.zst
 	cat pkg/gzip.cpio.zst | zstd -d | cpio -idH newc -D / > /dev/null 2>&1

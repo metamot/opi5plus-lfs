@@ -10,15 +10,16 @@ OPENSSL_OPT+= shared
 #OPENSSL_OPT+= zlib-dynamic
 OPENSSL_OPT+= zlib
 OPENSSL_OPT+= $(OPT_FLAGS)
-pkg/openssl.cpio.zst: src/openssl-$(OPEN_SSL_VER).tar.gz pkg/gzip.cpio.zst pkg/zlib.cpio.zst pkg/grep.cpio.zst pkg/findutils.cpio.zst pkg/file.cpio.zst pkg/perl.cpio.zst
+pkg/openssl.cpio.zst: src/openssl-$(OPEN_SSL_VER).tar.gz pkg/gzip.cpio.zst pkg/perl.cpio.zst
+# pkg/grep.cpio.zst pkg/findutils.cpio.zst pkg/file.cpio.zst
 	cat pkg/gzip.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/bzip2.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/grep.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/grep.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/findutils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/file.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/openssl
 	mkdir -p tmp/openssl/bld
 	tar -xzf $< -C tmp/openssl

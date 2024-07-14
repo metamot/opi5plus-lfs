@@ -2,12 +2,14 @@ SRC+=src/automake-$(AUTOMAKE_VER).tar.xz
 PKG+=pkg/automake.cpio.zst
 automake: pkg/automake.cpio.zst
 	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 AUTOMAKE_OPT+= --prefix=/usr
 #AUTOMAKE_OPT+= --disable-f77
 pkg/automake.cpio.zst: src/automake-$(AUTOMAKE_VER).tar.xz pkg/autoconf.cpio.zst
 	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/autoconf.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/automake

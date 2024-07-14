@@ -6,13 +6,12 @@ tcl: pkg/tcl.cpio.zst
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 TCL_OPT+= --prefix=/usr
 TCL_OPT+= --mandir=/usr/share/man
+TCL_OPT+= --with-encoding=utf-8
 #TCL_OPT+= --enable-64bit
 TCL_OPT+= CFLAGS="$(RK3588_FLAGS)" CPPFLAGS="$(RK3588_FLAGS)" CXXFLAGS="$(RK3588_FLAGS)"
-pkg/tcl.cpio.zst: src/tcl$(TCL_VER)-src.tar.gz src/tcl$(TCL_DOC_VER)-html.tar.gz pkg/gzip.cpio.zst pkg/file.cpio.zst
+pkg/tcl.cpio.zst: src/tcl$(TCL_VER)-src.tar.gz src/tcl$(TCL_DOC_VER)-html.tar.gz pkg/gzip.cpio.zst pkg/zlib.cpio.zst pkg/file.cpio.zst
 	cat pkg/gzip.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/bzip2.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/file.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/tcl
 	mkdir -p tmp/tcl/bld

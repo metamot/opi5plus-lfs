@@ -5,6 +5,9 @@ grep: pkg/grep.cpio.zst
 GREP_OPT+= --prefix=/usr
 GREP_OPT+= --disable-nls
 GREP_OPT+= --disable-perl-regexp
+GREP_OPT+= --without-libsigsegv-prefix
+GREP_OPT+= --without-libiconv-prefix
+GREP_OPT+= --without-libintl-prefix
 GREP_OPT+= $(OPT_FLAGS)
 pkg/grep.cpio.zst: src/grep-$(GREP_VER).tar.xz
 	rm -fr tmp/grep

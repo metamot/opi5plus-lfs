@@ -5,9 +5,8 @@ bison: pkg/bison.cpio.zst
 BISON_OPT+= --prefix=/usr
 BISON_OPT+= --disable-nls
 BISON_OPT+= $(OPT_FLAGS)
-pkg/bison.cpio.zst: src/bison-$(BISON_VER).tar.xz pkg/m4.cpio.zst pkg/perl.cpio.zst
+pkg/bison.cpio.zst: src/bison-$(BISON_VER).tar.xz pkg/m4.cpio.zst
 	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/bison
 	mkdir -p tmp/bison/bld
 	tar -xJf $< -C tmp/bison
@@ -25,4 +24,3 @@ endif
 	rm -fr tmp/bison
 src/bison-$(BISON_VER).tar.xz: src/.gitignore
 	wget -P src http://ftp.gnu.org/gnu/bison/bison-$(BISON_VER).tar.xz && touch $@
-

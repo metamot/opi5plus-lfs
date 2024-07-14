@@ -1,6 +1,8 @@
 SRC+=src/sed-$(SED_VER).tar.xz
 PKG+=pkg/sed.cpio.zst
 sed: pkg/sed.cpio.zst
+	cat pkg/attr.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/acl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 SED_OPT+= --prefix=/usr
 SED_OPT+= --disable-nls

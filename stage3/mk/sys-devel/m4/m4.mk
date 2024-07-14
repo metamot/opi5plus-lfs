@@ -3,6 +3,7 @@ PKG+= pkg/m4.cpio.zst
 m4: pkg/m4.cpio.zst
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 M4_OPT+= --prefix=/usr
+M4_OPT+= --without-libsigsegv-prefix
 M4_OPT+= $(OPT_FLAGS)
 pkg/m4.cpio.zst: src/m4-$(M4_VER).tar.xz
 	rm -fr tmp/m4
@@ -18,4 +19,4 @@ endif
 	mkdir -p pkg && cd tmp/m4/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/m4
 src/m4-$(M4_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/m4/m4-$(M4_VER).tar.xz && touch $@
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/m4/m4-$(M4_VER).tar.xz && touch $@

@@ -4,6 +4,9 @@ diffutils: pkg/diffutils.cpio.zst
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 DIFFUTILS_OPT+= --prefix=/usr
 DIFFUTILS_OPT+= --disable-nls
+DIFFUTILS_OPT+= --without-libsigsegv-prefix
+DIFFUTILS_OPT+= --without-libiconv-prefix
+DIFFUTILS_OPT+= --without-libintl-prefix
 DIFFUTILS_OPT+= $(OPT_FLAGS)
 pkg/diffutils.cpio.zst: src/diffutils-$(DIFF_UTILS_VER).tar.xz
 	rm -fr tmp/diffutils
@@ -17,4 +20,4 @@ endif
 	mkdir -p pkg && cd tmp/diffutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/diffutils
 src/diffutils-$(DIFF_UTILS_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/diffutils/diffutils-$(DIFF_UTILS_VER).tar.xz && touch $@
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/diffutils/diffutils-$(DIFF_UTILS_VER).tar.xz && touch $@

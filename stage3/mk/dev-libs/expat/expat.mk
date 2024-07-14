@@ -6,7 +6,8 @@ EXPAT_OPT+= --prefix=/usr
 EXPAT_OPT+= --disable-static
 EXPAT_OPT+= --docdir=/usr/share/doc/expat-$(EXPAT_VER)
 EXPAT_OPT+= $(OPT_FLAGS)
-pkg/expat.cpio.zst: src/expat-$(EXPAT_VER).tar.xz
+pkg/expat.cpio.zst: src/expat-$(EXPAT_VER).tar.xz pkg/file.cpio.zst
+	cat pkg/file.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/expat
 	mkdir -p tmp/expat/bld
 	tar -xJf $< -C tmp/expat

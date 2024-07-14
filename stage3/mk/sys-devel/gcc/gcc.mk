@@ -13,10 +13,26 @@ GCC_OPT+= --disable-nls
 GCC_OPT+= $(OPT_FLAGS)
 GCC_OPT+= CFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_BUILD="$(BASE_OPT_FLAGS)"
 GCC_OPT+= CFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)" CXXFLAGS_FOR_TARGET="$(BASE_OPT_FLAGS)"
-pkg/gcc.cpio.zst: src/gcc-$(GCC_VER).tar.xz
-# pkg/m4.cpio.zst pkg/perl.cpio.zst
+pkg/gcc.cpio.zst: src/gcc-$(GCC_VER).tar.xz pkg/grep.cpio.zst pkg/zlib.cpio.zst pkg/zstd.cpio.zst
+	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/zstd.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/grep.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/texinfo.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/gmp.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/isl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/mpfr.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/mpc.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 #	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/bison.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 #	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/pod2man.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/flex.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/gettext.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/gawk.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/findutils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/file.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+#	cat pkg/python3.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+# libcrypt, libiconv, libintl
 	rm -fr tmp/gcc
 	mkdir -p tmp/gcc/bld
 	tar -xJf $< -C tmp/gcc
@@ -68,5 +84,4 @@ pkg/gcc.cpio.zst: src/gcc-$(GCC_VER).tar.xz
 #	cat $@ | zstd -d | cpio -iduH newc --quiet -D /
 #	rm -fr tmp/gcc
 src/gcc-$(GCC_VER).tar.xz: src/.gitignore
-	wget -P src https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VER)/gcc-$(GCC_VER).tar.xz && touch $@
-
+	wget -P src --no-check-certificate https://ftp.gnu.org/gnu/gcc/gcc-$(GCC_VER)/gcc-$(GCC_VER).tar.xz && touch $@

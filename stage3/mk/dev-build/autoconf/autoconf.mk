@@ -2,11 +2,13 @@ SRC+=src/autoconf-$(AUTOCONF_VER).tar.xz
 PKG+=pkg/autoconf.cpio.zst
 autoconf: pkg/autoconf.cpio.zst
 	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 AUTOCONF_OPT+= --prefix=/usr
 pkg/autoconf.cpio.zst: src/autoconf-$(AUTOCONF_VER).tar.xz pkg/m4.cpio.zst pkg/perl.cpio.zst pkg/help2man.cpio.zst
 	cat pkg/m4.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
+	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/perl.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat pkg/help2man.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/autoconf

@@ -1,17 +1,15 @@
 SRC+=src/file-$(FILE_VER).tar.gz
 PKG+=pkg/file.cpio.zst
 file: pkg/file.cpio.zst
-	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/bzip2.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	cat $< | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 FILE_OPT+= --prefix=/usr
+FILE_OPT+= --disable-zlib
+FILE_OPT+= --disable-bzlib
+FILE_OPT+= --disable-xzlib
+FILE_OPT+= --disable-libseccomp
 FILE_OPT+= $(OPT_FLAGS)
-pkg/file.cpio.zst: src/file-$(FILE_VER).tar.gz pkg/gzip.cpio.zst pkg/zlib.cpio.zst pkg/bzip2.cpio.zst pkg/xz-utils.cpio.zst
+pkg/file.cpio.zst: src/file-$(FILE_VER).tar.gz pkg/gzip.cpio.zst
 	cat pkg/gzip.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/zlib.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/bzip2.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
-	cat pkg/xz-utils.cpio.zst | zstd -d | cpio -idumH newc --quiet -D / > /dev/null 2>&1
 	rm -fr tmp/file
 	mkdir -p tmp/file/bld
 	tar -xzf $< -C tmp/file
