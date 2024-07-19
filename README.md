@@ -342,7 +342,9 @@ usb.ids.cpio.zst
 
 ###  Build final stage
 
-**TBD**
+--- **TBD** --- 
+
+See below.
 
 ### Build stage-0
 
@@ -412,6 +414,20 @@ lfs-chroot/opt/mysdk/chroot1.sh
 stage0
 
 </details>
+
+To see time of build, use "time" command, here is "**time make stage0**" for example. The "real time" output is the real-time of build.
+
+To create LOG, use thiese variants:
+
+    make stage0 1>1.txt 2>2.txt
+
+Here are 1.txt is stdout and 2.txt is stderror.
+
+To combine and visualise,
+
+    make stage0 2>&1 | tee 0.txt
+
+Both of stdout and stderr are in 0.txt and you can see the output.
 
 ----
 
