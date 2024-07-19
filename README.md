@@ -62,6 +62,8 @@ Configure-host (again say "no" for dash):
     make src
     make: Nothing to be done for 'src'.
 
+**YOU CAN SEE THE NEW DIR --- "src" --- inside!**
+
 To see downloads (accending for download time), pls run:
 
     ls -1tr src
@@ -431,6 +433,12 @@ To combine and visualise both,
     make stage0 2>&1 | tee 0.txt
 
 Both of stdout and stderr are in 0.txt and you can see the output.
+
+You can see the new dirs:
+
+1) "lfs-chroot" is initial dir for you can see "tmp" dir!
+2) "lfs-cross" - it's a direcory for where is initial croos-tools are here (installed).
+3) "pkg0" - here are cross-bld-tools **packages** locaced!
 
 ----
 
