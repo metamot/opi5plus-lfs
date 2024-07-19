@@ -11,6 +11,7 @@ Build host is: any RK3588-device with Debian/Ubuntu. I.e. OrangePi5/5b/5+ with D
     sudo chmod 777 /opt
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs
+    cd /opt/opi5plus-lfs
 
 **NOTE:** Home-catalog is not suitable for builds. You need do clone directly inside to "/opt". Sub-dirs (i.e. /opt/some-dirs/opi5plus-lfs) are not supported.
 
@@ -27,10 +28,11 @@ Build host is: any RK3588-device with Debian/Ubuntu. I.e. OrangePi5/5b/5+ with D
     The chroot-system has no avialable to see anything far that '/' (The root). 
 </details>
 
-NOTE: You can clone repo with another name(!). Here is example for "mydsk".
+NOTE(!): You can clone repo with another name(!). Here is example for "mydsk".
 
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs mysdk
+    cd mysdk
 
 ## Setup host (need only once at first run):
 
