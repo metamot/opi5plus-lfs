@@ -48,6 +48,8 @@ Configure-host (again say "no" for dash):
 
     make host
 
+**WARNING**: The 'make host' adds your account to sudoers, so you never be asked for sudo-password in future. See 'Makefile' for details.
+
 ## Download packages
 
     make src
@@ -56,6 +58,10 @@ Configure-host (again say "no" for dash):
 
     make src
     make: Nothing to be done for 'src'.
+
+To see downloads (accending for download time), pls run:
+
+    ls -1tr src
 
 ## Build:
 
