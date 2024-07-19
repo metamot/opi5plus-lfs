@@ -2,7 +2,7 @@
 
 ## Initial Requirements:
 
-Target is : **OrangePi5+** (only - others RK3588-devices are not supported)
+Target is : **OrangePi5+** (only!) - there are others RK3588-devices are not supported (i.e. classic Opi5 due to uboot diffirences).
 
 Build host is: any RK3588-device with Debian/Ubuntu. I.e. OrangePi5/5b/5+ with Debian11 or Ubuntu22.04. Original "Orange" Debian-11 (Bullseye) XFCE from Xunlong - is highly recomended.
 
