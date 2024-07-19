@@ -6375,6 +6375,8 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 	cp -far /usr/share/nano/* tmp/initrd/usr/share/nano/
 	sed -i 's|blue|cyan|' tmp/initrd/usr/share/nano/makefile.nanorc
 	cp -f /usr/bin/grep tmp/initrd/usr/bin/
+	cp -f /usr/bin/egrep tmp/initrd/usr/bin/
+	cp -f /usr/bin/fgrep tmp/initrd/usr/bin/
 	cp -f /usr/bin/head tmp/initrd/usr/bin/
 	cp -f /usr/bin/printenv tmp/initrd/usr/bin/
 	cp -f /usr/bin/pstree tmp/initrd/usr/bin/
