@@ -50,7 +50,9 @@ Configure-host (again say "no" for dash):
     make src
     make: Nothing to be done for 'src'.
 
-## Build mmc.img:
+## Build:
+
+To build initial LFS (cross-compile tools)
 
     time make stage0
 
