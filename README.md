@@ -340,8 +340,79 @@ usb.ids.cpio.zst
 
 ## Build:
 
+###  Build final stage
+
+**TBD**
+
+### Build stage-0
+
 To build initial LFS (cross-compile tools)
 
     time make stage0
+
+About of 45m to build.
+
+<details>
+  <summary>You can do incremental "step-by-step" build (pls, see Makefile, for reference). Pls, do "make" with theese targets:</summary>
+
+hst-headers
+
+hst-binutils1
+
+hst-gcc1
+
+hst-glibc
+
+hst-libcpp1
+
+hst-m4
+
+hst-ncurses
+
+hst-bash
+
+hst-coreutils
+
+hst-diffutils
+
+hst-file
+
+hst-findutils
+
+hst-gawk
+
+hst-grep
+
+hst-gzip
+
+hst-make
+
+hst-patch
+
+hst-sed
+
+hst-tar
+
+hst-xz
+
+hst-zstd
+
+hst-cpio
+
+hst-binutils2
+
+hst-gcc2
+
+hst-full
+
+lfs-chroot/opt/mysdk/Makefile
+
+lfs-chroot/opt/mysdk/chroot1.sh
+
+stage0
+
+</details>
+
+----
 
 ***TBD***
