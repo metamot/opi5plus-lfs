@@ -28,8 +28,11 @@ Build host is: any RK3588-device with Debian/Ubuntu. I.e. OrangePi5/5b/5+ with D
     The chroot-system has no avialable to see anything far that '/' (The root). 
 </details>
 
+NOTE: You need to provide "777"(alls can do) rules to "/opt", and you can't clone this repo for another locacions like "home". Only the "/opt" is supported!
+
 NOTE(!): You can clone repo with another name(!). Here is example for "mydsk".
 
+    sudo chmod 777 /opt
     cd /opt
     git clone https://github.com/metamot/opi5plus-lfs mysdk
     cd mysdk
@@ -346,7 +349,7 @@ usb.ids.cpio.zst
 
 See below.
 
-### Build stage-0
+### Build stage0
 
 To build initial LFS (cross-compile tools)
 
@@ -417,13 +420,13 @@ stage0
 
 To see time of build, use "time" command, here is "**time make stage0**" for example. The "real time" output is the real-time of build.
 
-To create LOG, use thiese variants:
+To create LOG, use theese variants:
 
     make stage0 1>1.txt 2>2.txt
 
-Here are 1.txt is stdout and 2.txt is stderror.
+Here are 1.txt is stdout, and 2.txt is stderror.
 
-To combine and visualise,
+To combine and visualise both,
 
     make stage0 2>&1 | tee 0.txt
 
