@@ -27,6 +27,11 @@ Build host is: any RK3588-device with Debian/Ubuntu. I.e. OrangePi5/5b/5+ with D
     The chroot-system has no avialable to see anything far that '/' (The root). 
 </details>
 
+NOTE: You can clone repo with another name(!). Here is example for "mydsk".
+
+    cd /opt
+    git clone https://github.com/metamot/opi5plus-lfs mysdk
+
 ## Setup host (need only once at first run):
 
 For Debian host, we need to choose **bash** instead of dash (say "no" for dash):
