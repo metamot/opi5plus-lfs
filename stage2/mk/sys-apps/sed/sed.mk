@@ -23,4 +23,4 @@ endif
 	mkdir -p pkg && cd tmp/sed/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/sed
 src/sed-$(SED_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/sed/sed-$(SED_VER).tar.xz && touch $@
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/sed/sed-$(SED_VER).tar.xz && touch $@

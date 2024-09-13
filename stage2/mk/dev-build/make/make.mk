@@ -18,4 +18,4 @@ endif
 	mkdir -p pkg && cd tmp/make/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/make
 src/make-$(MAKE_VER).tar.gz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/make/make-$(MAKE_VER).tar.gz && touch $@
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/make/make-$(MAKE_VER).tar.gz && touch $@

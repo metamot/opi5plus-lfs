@@ -47,6 +47,6 @@ endif
 	mkdir -p pkg && cd tmp/coreutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/coreutils
 src/coreutils-$(CORE_UTILS_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/coreutils/coreutils-$(CORE_UTILS_VER).tar.xz && touch $@
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/coreutils/coreutils-$(CORE_UTILS_VER).tar.xz && touch $@
 src/coreutils-$(CORE_UTILS_VER)-i18n-1.patch: src/.gitignore
 	wget -P src --no-check-certificate http://www.linuxfromscratch.org/patches/lfs/$(LFS_VER)/coreutils-$(CORE_UTILS_VER)-i18n-1.patch && touch $@

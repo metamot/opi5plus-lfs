@@ -27,5 +27,4 @@ pkg/automake.cpio.zst: src/automake-$(AUTOMAKE_VER).tar.xz pkg/autoconf.cpio.zst
 	mkdir -p pkg && cd tmp/automake/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/automake
 src/automake-$(AUTOMAKE_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/automake/automake-$(AUTOMAKE_VER).tar.xz && touch $@
-#--no-check-certificate
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/automake/automake-$(AUTOMAKE_VER).tar.xz && touch $@

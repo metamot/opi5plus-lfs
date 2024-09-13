@@ -24,5 +24,4 @@ endif
 	mkdir -p pkg && cd tmp/texinfo/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/texinfo
 src/texinfo-$(TEXINFO_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/texinfo/texinfo-$(TEXINFO_VER).tar.xz && touch $@
-#--no-check-certificate
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/texinfo/texinfo-$(TEXINFO_VER).tar.xz && touch $@

@@ -17,5 +17,4 @@ pkg/help2man.cpio.zst: src/help2man-$(HELP2MAN_VER).tar.xz pkg/perl.cpio.zst
 	mkdir -p pkg && cd tmp/help2man/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/help2man
 src/help2man-$(HELP2MAN_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/help2man/help2man-$(HELP2MAN_VER).tar.xz && touch $@
-#--no-check-certificate
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/help2man/help2man-$(HELP2MAN_VER).tar.xz && touch $@

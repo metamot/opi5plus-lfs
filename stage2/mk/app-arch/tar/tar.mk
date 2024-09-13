@@ -23,5 +23,4 @@ endif
 	rm -fr tmp/tar
 #	rm -fv /boot/zst/tar.cpio.zst
 src/tar-$(TAR_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/tar/tar-$(TAR_VER).tar.xz && touch $@
-#--no-check-certificate
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/tar/tar-$(TAR_VER).tar.xz && touch $@

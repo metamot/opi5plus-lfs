@@ -19,5 +19,4 @@ endif
 	mkdir -p pkg && cd tmp/findutils/ins && find . -print0 | cpio -o0H newc --quiet | zstd -z9T9 > ../../../$@
 	rm -fr tmp/findutils
 src/findutils-$(FIND_UTILS_VER).tar.xz: src/.gitignore
-	wget -P src http://ftp.gnu.org/gnu/findutils/findutils-$(FIND_UTILS_VER).tar.xz && touch $@
-#--no-check-certificate
+	wget -P src --no-check-certificate http://ftp.gnu.org/gnu/findutils/findutils-$(FIND_UTILS_VER).tar.xz && touch $@
