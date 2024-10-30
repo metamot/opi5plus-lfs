@@ -6403,6 +6403,8 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 #	chmod ugo+x tmp/initrd/usr/local/sbin/boot-src.sh
 	cp -f cfg/my-* tmp/initrd/usr/local/sbin/
 	chmod ugo+x tmp/initrd/usr/local/sbin/my-*.sh
+	cp -f cfg/microsd-mount.sh tmp/initrd/usr/local/bin/
+	chmod ugo+x tmp/initrd/usr/local/bin/microsd-mount.sh
 # --- share
 	mkdir -p tmp/initrd/usr/share/terminfo/l
 	cp -f /usr/share/terminfo/l/linux tmp/initrd/usr/share/terminfo/l/
@@ -6442,6 +6444,7 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 #	rm -fr tmp/initrd/usr/lib/systemd/network
 	mkdir -p tmp/initrd/etc/systemd/network/
 	cp -far cfg/systemd/network/* tmp/initrd/etc/systemd/network/
+	cp -far cfg/etc/99-microsd-mount.rules tmp/initrd/etc/udev/rules.d/
 #	cd tmp/initrd/etc/systemd/system/ && ln -sf /etc/systemd/system/multi-user.target default.target
 	cd tmp/initrd/usr/lib/systemd/system && ln -sf multi-user.target default.target
 	cd tmp/initrd/etc/systemd/system && ln -sf poweroff.target ctrl-alt-del.target

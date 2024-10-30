@@ -1,0 +1,3 @@
+ACTION=="add", KERNEL=="mmcblk0p1", SUBSYSTEM=="block", RUN+="/bin/systemctl start microsd-mount@%k.service"
+
+ACTION=="remove", KERNEL=="mmcblk0p1", SUBSYSTEM=="block", RUN+="/bin/systemctl stop microsd-mount@%k.service"
