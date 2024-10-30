@@ -1,6 +1,6 @@
 host-check.*
 src*
-pkg*
+pkg0
 lfs*
 tmp
 *.txt
