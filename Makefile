@@ -6548,12 +6548,31 @@ pkg2/boot-initrd.cpio.zst: pkg2/dbus-min.cpio.zst
 # (1) /etc/environment
 	touch tmp/initrd/etc/environment
 # (2) /etc/profile
-	echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"' > tmp/initrd/etc/profile
-	echo '/bin/cat /etc/issue' >> tmp/initrd/etc/profile
-	echo 'umask 022' >> tmp/initrd/etc/profile
+#	echo 'export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin"' > tmp/initrd/etc/profile
+#	echo '/bin/cat /etc/issue' >> tmp/initrd/etc/profile
+#	echo 'umask 022' >> tmp/initrd/etc/profile
 # (3) $HOME/.profile
-	echo 'alias ls="ls --color"' > tmp/initrd/root/.profile
-	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.profile
+	echo 'if [ -d "$$HOME/bin" ] ; then' > tmp/initrd/root/.profile
+	echo '  pathprepend $$HOME/bin' >> tmp/initrd/root/.profile
+	echo 'fi' >> tmp/initrd/root/.profile
+#	echo 'alias ls="ls --color"' > tmp/initrd/root/.profile
+#	echo 'export PS1="\u@\h:\w# "' >> tmp/initrd/root/.profile
+# $HOME/.bash_profile
+
+	echo 'if [ -f "$$HOME/.bashrc" ] ; then' > tmp/initrd/root/.bash_profile
+	echo '  source $$HOME/.bashrc' >> tmp/initrd/root/.bash_profile
+	echo 'fi' >> tmp/initrd/root/.bash_profile
+	echo '' >> tmp/initrd/root/.bash_profile
+	echo 'if [ -d "$$HOME/bin" ] ; then' >> tmp/initrd/root/.bash_profile
+	echo '  pathprepend $$HOME/bin' >> tmp/initrd/root/.bash_profile
+	echo 'fi' >> tmp/initrd/root/.bash_profile
+
+# $HOME/.bashrc
+
+	echo 'if [ -f "/etc/bashrc" ] ; then' > tmp/initrd/root/.bashrc
+	echo '  source /etc/bashrc' >> tmp/initrd/root/.bashrc
+	echo 'fi' >> tmp/initrd/root/.bashrc
+	
 # (4) $HOME/.env (ABSENT)
 #
 # .bashrc (for non-interactive)
